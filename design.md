@@ -31,23 +31,24 @@
 
 ## 3. 消息内容
 
-| 字段       | 类型                               | 说明            |
-| ---------- | ---------------------------------- | --------------- |
-| msgd       | String                             | 消息全局唯一 ID |
-| type       | Enum{INBOX, SMS, EMAIL}            | 消息类型        |
-| status     | Enum{Draft,SENDING,SUCCESS,FAILED} | 消息状态        |
-| subject    | String                             | 消息标题        |
-| content    | String                             | 消息内容        |
-| sendBy     | Long                               | 发信人          |
-| sendTo     | Long                               | 收信人          |
-| scheduleAt | Datetime                           | 定时时间        |
-| createdAt  | Datetime                           | 创建时间        |
-| updatedAt  | Datetime                           | 更新时间        |
-| sentAt     | Datetime                           | 发送时间        |
-| finishedAt | Datetime                           | 结束时间        |
-| errorMsg   | String                             | 错误消息        |
-| isDelete   | Boolean                            | 是否删除        |
-| isDraft    | Boolean                            | 是否是草稿      |
+| 字段       | 类型                         | 说明            |
+| ---------- | ---------------------------- | --------------- |
+| id         | String                       | 消息全局唯一 ID |
+| type       | Enum{INBOX, SMS, EMAIL}      | 消息类型        |
+| status     | Enum{SENDING,SUCCESS,FAILED} | 消息状态        |
+| subject    | String                       | 消息标题        |
+| content    | String                       | 消息内容        |
+| sendBy     | Long                         | 发信人          |
+| sendTo     | Long                         | 收信人          |
+| scheduleAt | Datetime                     | 定时时间        |
+| createdAt  | Datetime                     | 创建时间        |
+| updatedAt  | Datetime                     | 更新时间        |
+| sentAt     | Datetime                     | 发送时间        |
+| finishedAt | Datetime                     | 结束时间        |
+| errorType  | String                       | 错误类型        |
+| errorMsg   | String                       | 错误消息        |
+| isDelete   | Boolean                      | 是否删除        |
+| isDraft    | Boolean                      | 是否是草稿      |
 
 
 
@@ -80,21 +81,6 @@
 
 ## 7. 查询
 
-- 过滤选项：
+- 过滤选项：发信人、收信人、消息状态、消息类型、时间区间
 - 分页：默认 page = 1，size = 10，排序按照 create desc
 - 可视化：总消息数、成功消息数、失败消息数、联系人数、消息发送成功率、不同月份的消息数量
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
