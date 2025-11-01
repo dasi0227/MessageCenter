@@ -18,7 +18,7 @@ public class Contact {
 
     private String phone;             // 手机号
     private String email;             // 邮箱地址
-    private String inbox;             // 站内信箱 id
+    private Long inbox;               // 站内信箱 id
 
     private LocalDateTime createdAt;  // 创建时间
     private LocalDateTime updatedAt;  // 更新时间

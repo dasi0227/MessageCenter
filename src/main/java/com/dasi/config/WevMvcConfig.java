@@ -1,6 +1,7 @@
 package com.dasi.config;
 
 import com.dasi.web.interceptor.JwtInterceptor;
+import com.dasi.web.interceptor.PageViewInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -11,14 +12,19 @@ public class WevMvcConfig implements WebMvcConfigurer {
     @Autowired
     private JwtInterceptor jwtInterceptor;
 
+    @Autowired
+    private PageViewInterceptor pageViewInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(pageViewInterceptor)
+                .addPathPatterns("/api/**");
+
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/**")
+                .addPathPatterns("/api/**")
                 .excludePathPatterns(
-                        "/user/login",
-                        "/user/logout",
-                        "/user/register"
+                        "/api/user/login",
+                        "/api/user/register"
                 );
     }
 }

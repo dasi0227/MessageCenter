@@ -11,6 +11,9 @@ spring:
     username: root
     password: jason2004
 
+  jackson:
+    time-zone: Asia/Shanghai
+
   data:
     redis:
       host: localhost
@@ -34,11 +37,11 @@ logging:
   level:
     root: warn
     com.dasi: debug
-    com.zaxxer.hikari: warn
-    com.baomidou.mybatisplus: warn
-    org.mybatis: warn
+    com.zaxxer: error
+    com.baomidou.mybatisplus: error
+    org.mybatis: error
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{MM-dd HH:mm:ss} %-5level %-30logger{2} - %msg%n"
 
 dasi:
   jwt:

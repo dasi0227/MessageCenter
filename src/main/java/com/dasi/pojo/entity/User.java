@@ -17,7 +17,6 @@ public class User {
     private String username;         // 用户名
     private String password;         // 密码：加密存储
     private UserRole role;           // 角色：ADMIN / BASIC
-    private String inbox;            // 收件箱 id
     private Integer status;          // 状态：1=启用，0=禁用
 
     private LocalDateTime createdAt; // 创建时间
