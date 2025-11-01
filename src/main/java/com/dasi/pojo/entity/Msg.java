@@ -2,8 +2,8 @@ package com.dasi.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.dasi.pojo.enumeration.MsgStatus;
-import com.dasi.pojo.enumeration.MsgType;
+import com.dasi.common.enumeration.MsgStatus;
+import com.dasi.common.enumeration.MsgType;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -1,9 +1,9 @@
-package com.dasi.interceptor;
+package com.dasi.web.interceptor;
 
-import com.dasi.pojo.enumeration.ResultInfo;
-import com.dasi.pojo.exception.JwtErrorException;
-import com.dasi.pojo.properties.JwtProperties;
-import com.dasi.util.AdminContextUtil;
+import com.dasi.common.enumeration.ResultInfo;
+import com.dasi.common.exception.JwtErrorException;
+import com.dasi.common.properties.JwtProperties;
+import com.dasi.util.UserContextUtil;
 import com.dasi.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -37,23 +37,13 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         // 获取 token
         String token = request.getHeader(jwtProperties.getTokenName());
-        if (token == null || token.isBlank()) {
-            throw new JwtErrorException(ResultInfo.TOKEN_MISSING);
-        }
 
         // 校验令牌
-        try {
-            Claims claims = jwtUtil.parseToken(token);
-            Long adminId = Long.valueOf(claims.get(jwtProperties.getAdminIdKey()).toString());
-            AdminContextUtil.setAdmin(adminId);
-            log.debug("JWT 校验成功，当前管理员 ID：{}", adminId);
-            return true;
-        } catch (ExpiredJwtException e) {
-            log.warn("JWT 校验失败：{}", e.getMessage());
-            throw new JwtErrorException(ResultInfo.TOKEN_EXPIRED);
-        } catch (JwtException exception) {
-            log.error("JWT 校验失败：{}", exception.getMessage());
-            throw new JwtErrorException(ResultInfo.TOKEN_ERROR);
-        }
+        Claims claims = jwtUtil.parseToken(token);
+        Long userId = Long.valueOf(claims.get(jwtProperties.getClaimUserKey()).toString());
+        UserContextUtil.setUser(userId);
+
+        log.debug("JWT 校验成功，当前管理员 ID：{}", userId);
+        return true;
     }
 }

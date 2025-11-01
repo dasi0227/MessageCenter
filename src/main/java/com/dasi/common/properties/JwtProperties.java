@@ -1,4 +1,4 @@
-package com.dasi.pojo.properties;
+package com.dasi.common.properties;
 
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class JwtProperties {
     private String secretKey;
     private String tokenName;
-    private String adminIdKey;
+    private String claimUserKey;
     private Long tokenTtl;
     private SignatureAlgorithm signatureAlgorithm;
 }

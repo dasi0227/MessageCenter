@@ -4,12 +4,12 @@ CREATE DATABASE IF NOT EXISTS message_center
 
 USE message_center;
 
--- 管理员
-CREATE TABLE IF NOT EXISTS admin (
+-- 用户
+CREATE TABLE IF NOT EXISTS user (
     id           BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '全局唯一自增 id',
     username     VARCHAR(32) NOT NULL UNIQUE COMMENT '用户名',
     password     VARCHAR(128) NOT NULL COMMENT '密码，加密存储',
-    role         VARCHAR(32) NOT NULL DEFAULT 'ADMIN' COMMENT '超级/普通',
+    role         VARCHAR(32) NOT NULL DEFAULT 'user' COMMENT '超级/普通',
     inbox        CHAR(6) NOT NULL UNIQUE COMMENT '站内信箱 id，整数自增字符串',
     status       TINYINT(1) NOT NULL DEFAULT 1 COMMENT '状态：1=启用，0=禁用',
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS msg (
     updated_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     sent_at        DATETIME DEFAULT NULL COMMENT '进入发送队列的时间',
     finished_at    DATETIME DEFAULT NULL COMMENT '消息发送完成时间',
-    CONSTRAINT fk_msg_admin FOREIGN KEY (send_by) REFERENCES admin(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_msg_user FOREIGN KEY (send_by) REFERENCES user(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     KEY idx_msg_type (type),
     KEY idx_msg_status (status),
     KEY idx_msg_created (created_at)
@@ -65,4 +65,9 @@ CREATE TABLE IF NOT EXISTS msg_to (
     KEY idx_to_contact (contact_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息收件人映射';
 
-# DROP TABLE msg_to, msg, contact, admin;
+# DROP TABLE msg_to, msg, contact, user;
+
+INSERT INTO user (username, password, role, inbox, status)
+VALUES ('dasi', '90c0bd850970a1dc69cd4a297de3c300', 'SUPER_ADMIN', '000000', 1);
+
+DELETE FROM user WHERE username != 'dasi';

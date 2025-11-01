@@ -1,6 +1,6 @@
-package com.dasi.pojo.result;
+package com.dasi.common.result;
 
-import com.dasi.pojo.enumeration.ResultInfo;
+import com.dasi.common.enumeration.ResultInfo;
 import lombok.Data;
 
 import java.io.Serializable;

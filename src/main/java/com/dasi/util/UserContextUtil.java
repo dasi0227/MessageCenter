@@ -1,18 +1,18 @@
 package com.dasi.util;
 
-public class AdminContextUtil {
+public class UserContextUtil {
 
     private static final ThreadLocal<Long> threadLocal = new ThreadLocal<>();
 
-    public static void setAdmin(Long adminId) {
-        threadLocal.set(adminId);
+    public static void setUser(Long userId) {
+        threadLocal.set(userId);
     }
 
-    public static long getAdmin() {
+    public static long getUser() {
         return threadLocal.get();
     }
 
-    public static void removeAdmin() {
+    public static void removeUser() {
         threadLocal.remove();
     }
 }

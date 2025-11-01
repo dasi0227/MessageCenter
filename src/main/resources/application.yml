@@ -28,20 +28,22 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
 
 logging:
   level:
     root: warn
     com.dasi: debug
-    com.zaxxer.hikari: WARN
+    com.zaxxer.hikari: warn
+    com.baomidou.mybatisplus: warn
+    org.mybatis: warn
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 dasi:
   jwt:
-    secret-key: dasi0227
-    token-name: authentication
-    admin-id-key: adminId
+    secret-key: dasi0227dasi0227dasi0227dasi0227dasi0227dasi0227dasi0227dasi0227
+    token-name: Authorization
+    claim-user-key: userId
     signature-algorithm: HS512
     token-ttl: 720000000
