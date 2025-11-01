@@ -1,25 +1,37 @@
 package com.dasi.util;
 
 import com.dasi.common.constant.RedisConstant;
+import com.dasi.core.mapper.ContactMapper;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class InboxUtil {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Autowired
+    private ContactMapper contactMapper;
+
     @PostConstruct
     public void init() {
-        if (!Boolean.TRUE.equals(redisTemplate.hasKey(RedisConstant.INBOX_KEY))) {
-            redisTemplate.opsForValue().set(RedisConstant.INBOX_KEY, "0");
+        Long maxInbox = contactMapper.findMaxInbox();
+        if (maxInbox == null) {
+            maxInbox = 0L;
         }
+        redisTemplate.opsForValue().set(RedisConstant.INBOX_KEY, String.valueOf(maxInbox));
+        log.debug("Redis 初始化的最大信箱号为 {}", maxInbox);
     }
 
-    public String nextId() {
-        Long inboxId = redisTemplate.opsForValue().increment(RedisConstant.INBOX_KEY);
-        return String.format("%06d", inboxId);
+    public Long nextId() {
+        return redisTemplate.opsForValue().increment(RedisConstant.INBOX_KEY);
+    }
+
+    public String format(Long inbox) {
+        return String.format("%06d", inbox);
     }
 }

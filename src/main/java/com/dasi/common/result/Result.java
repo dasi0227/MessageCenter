@@ -29,4 +29,11 @@ public class Result<T> implements Serializable {
         result.setMessage(resultInfo.getMessage());
         return result;
     }
+
+    public static <T> Result<T> fail(ResultInfo resultInfo, String message) {
+        Result<T> result = new Result<>();
+        result.setCode(resultInfo.getCode());
+        result.setMessage((resultInfo.getMessage() + ": " + message));
+        return result;
+    }
 }

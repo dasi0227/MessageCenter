@@ -1,25 +1,36 @@
 package com.dasi.core.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dasi.common.annotation.SuperAdminOnly;
+import com.dasi.common.constant.DefaultConstant;
 import com.dasi.common.enumeration.UserRole;
-import com.dasi.common.exception.InboxErrorException;
-import com.dasi.common.exception.LoginException;
+import com.dasi.common.exception.*;
 import com.dasi.common.properties.JwtProperties;
+import com.dasi.common.result.PageResult;
+import com.dasi.core.mapper.ContactMapper;
 import com.dasi.core.mapper.UserMapper;
-import com.dasi.pojo.dto.UserDTO;
+import com.dasi.pojo.dto.PasswordDTO;
+import com.dasi.pojo.dto.StatusDTO;
+import com.dasi.pojo.dto.LoginDTO;
+import com.dasi.pojo.dto.UserPageDTO;
+import com.dasi.pojo.entity.Contact;
 import com.dasi.pojo.entity.User;
 import com.dasi.common.enumeration.ResultInfo;
-import com.dasi.common.exception.RegisterException;
-import com.dasi.pojo.vo.UserVO;
+import com.dasi.pojo.vo.UserLoginVO;
+import com.dasi.pojo.vo.UserPageVO;
 import com.dasi.util.InboxUtil;
 import com.dasi.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,54 +42,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserMapper userMapper;
 
     @Autowired
+    private ContactMapper contactMapper;
+
+    @Autowired
     private InboxUtil inboxUtil;
 
     @Autowired
     private JwtUtil jwtUtil;
+
     @Autowired
     private JwtProperties jwtProperties;
 
     @Override
-    public void register(UserDTO userDTO) {
-        // 1. 检查重名
-        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().eq("username", userDTO.getUsername());
-        User user = getOne(queryWrapper);
-        if (user != null) {
-            throw new RegisterException(ResultInfo.USER_ALREADY_EXISTS);
+    @Transactional(rollbackFor = Exception.class)
+    public void register(LoginDTO loginDTO) {
+        // 检查重名
+        long count = count(new QueryWrapper<User>().eq("username", loginDTO.getUsername()));
+        if (count > 0) {
+            throw new RegisterException(ResultInfo.USER_ALREADY_EXIST);
         }
 
-        // 2. 构建 User
-        user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(SecureUtil.md5(userDTO.getPassword()));
-        user.setInbox(inboxUtil.nextId());
+        // 构建用户
+        User user = new User();
+        user.setUsername(loginDTO.getUsername());
+        user.setPassword(SecureUtil.md5(loginDTO.getPassword()));
         user.setRole(UserRole.ADMIN);
         user.setStatus(1);
-
-        // 3. 保存 User
-        try {
-            save(user);
-        } catch (Exception e) {
-            log.error("创建用户错误：{}", e.getMessage());
-            throw new InboxErrorException(ResultInfo.USER_SAVE_ERROR);
+        if (!save(user)) {
+            throw new RegisterException(ResultInfo.USER_SAVE_ERROR);
         }
 
-        log.debug("注册用户成功：{}", userDTO);
+        // 构建联系人
+        Contact contact = new Contact();
+        contact.setName(user.getUsername());
+        contact.setEmail(DefaultConstant.DEFAULT_EMAIL);
+        contact.setInbox(inboxUtil.nextId());
+        contact.setStatus(1);
+        contactMapper.insert(contact);
+
+        log.debug("【User Service】注册用户成功：{}", loginDTO);
     }
 
     @Override
-    public UserVO login(UserDTO userDTO) {
+    public UserLoginVO login(LoginDTO loginDTO) {
         // 1. 查询用户
-        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().eq("username", userDTO.getUsername());
-        User user = getOne(queryWrapper);
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", loginDTO.getUsername()));
         if (user == null) {
             throw new LoginException(ResultInfo.USER_NOT_EXIST);
         }
 
         // 2. 校验密码
-        String password = SecureUtil.md5(userDTO.getPassword());
+        String password = SecureUtil.md5(loginDTO.getPassword());
         if (!password.equals(user.getPassword())) {
-            throw new LoginException(ResultInfo.PASSWORD_ERROR);
+            throw new LoginException(ResultInfo.USER_PASSWORD_ERROR);
         }
 
         // 3. 检查账号状态
@@ -88,22 +104,73 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 4. 生成 Token
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
+        claims.put(jwtProperties.getClaimUserKey(), user.getId());
         String token = jwtUtil.createToken(claims);
 
         // 5. 构造视图
-        UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
-        userVO.setToken(token);
+        UserLoginVO userLoginVO = BeanUtil.copyProperties(user, UserLoginVO.class);
+        userLoginVO.setToken(token);
 
-        log.debug("登陆用户成功：{}", userDTO);
-        return userVO;
+        log.debug("【User Service】用户登陆成功：{}", loginDTO);
+        return userLoginVO;
     }
 
     @Override
     public String refresh(HttpServletRequest request) {
         String oldToken = request.getHeader(jwtProperties.getTokenName());
         String newToken = jwtUtil.refreshToken(oldToken);
-        log.debug("刷新 Token 成功：{}", newToken);
+        log.debug("【User Service】刷新 Token 成功：{}", newToken);
         return newToken;
+    }
+
+    @Override
+    public PageResult<UserPageVO> getUsers(UserPageDTO dto) {
+        // 1. 分页参数
+        Page<User> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+
+        // 2. 查询条件
+        QueryWrapper<User> wrapper = new QueryWrapper<User>()
+                .like(StrUtil.isNotBlank(dto.getUsername()), "username", dto.getUsername())
+                .eq(dto.getStatus() != null, "status", dto.getStatus());
+
+        // 3. 排序规则
+        wrapper.orderBy(true, dto.getAsc(),
+                Boolean.TRUE.equals(dto.getSortedByUpdate()) ? "updated_at" : "created_at");
+
+        // 4. 分页查询
+        Page<User> result = userMapper.selectPage(page, wrapper);
+        log.debug("【User Service】分页查询用户成功：{}", dto);
+
+        return PageResult.of(result, UserPageVO.class);
+    }
+
+    @SuperAdminOnly
+    @Override
+    public void updateStatus(StatusDTO dto) {
+        boolean success = update(new UpdateWrapper<User>()
+                .eq("id", dto.getId())
+                .set("status", dto.getStatus()));
+        if (!success) throw new UserException(ResultInfo.USER_UPDATE_ERROR);
+        log.debug("【User Service】更新用户状态成功：{}", dto);
+    }
+
+    @SuperAdminOnly
+    @Override
+    public void updatePassword(PasswordDTO dto) {
+        boolean success = update(new UpdateWrapper<User>()
+                .eq("id", dto.getId())
+                .set("password", SecureUtil.md5(dto.getPassword())));
+        if (!success) throw new UserException(ResultInfo.USER_UPDATE_ERROR);
+        log.debug("【User Service】更新用户密码成功：{}", dto);
+    }
+
+    @SuperAdminOnly
+    @Override
+    public void removeUser(Long id) {
+        boolean success = removeById(id);
+        if (!success) {
+            throw new ContactException(ResultInfo.USER_REMOVE_ERROR);
+        }
+        log.debug("【User Service】删除用户成功：{}", id);
     }
 }

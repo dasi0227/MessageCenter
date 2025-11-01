@@ -4,12 +4,10 @@ import com.dasi.common.enumeration.UserRole;
 import lombok.Data;
 
 @Data
-public class UserVO {
+public class UserLoginVO {
     private Long id;
     private String username;
     private UserRole role;
     private Integer status;
-    private String inbox;
-
     private String token;
 }

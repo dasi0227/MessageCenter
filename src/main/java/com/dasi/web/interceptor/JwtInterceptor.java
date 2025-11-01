@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -33,8 +34,6 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        log.debug("请求路径：{}", request.getRequestURI());
-
         // 获取 token
         String token = request.getHeader(jwtProperties.getTokenName());
 
@@ -43,7 +42,12 @@ public class JwtInterceptor implements HandlerInterceptor {
         Long userId = Long.valueOf(claims.get(jwtProperties.getClaimUserKey()).toString());
         UserContextUtil.setUser(userId);
 
-        log.debug("JWT 校验成功，当前管理员 ID：{}", userId);
+        log.debug("【令牌校验成功】当前管理员 ID：{}", userId);
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
+        UserContextUtil.removeUser();
     }
 }
