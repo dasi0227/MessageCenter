@@ -1,6 +1,6 @@
 package com.dasi.config;
 
-import com.dasi.interceptor.JwtInterceptor;
+import com.dasi.web.interceptor.JwtInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -16,8 +16,9 @@ public class WevMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/login",
-                        "/logout"
+                        "/user/login",
+                        "/user/logout",
+                        "/user/register"
                 );
     }
 }

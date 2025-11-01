@@ -19,7 +19,7 @@
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mybatis.plus.version>3.5.6</mybatis.plus.version>
+        <mybatis.plus.version>3.5.7</mybatis.plus.version>
         <hutool.version>5.8.40</hutool.version>
         <lombok.version>1.18.28</lombok.version>
         <jjwt.version>0.11.5</jjwt.version>
@@ -47,7 +47,7 @@
         <!-- MyBatis-Plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>${mybatis.plus.version}</version>
         </dependency>
 

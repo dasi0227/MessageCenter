@@ -1,6 +1,6 @@
-package com.dasi.pojo.exception;
+package com.dasi.common.exception;
 
-import com.dasi.pojo.enumeration.ResultInfo;
+import com.dasi.common.enumeration.ResultInfo;
 import lombok.Getter;
 
 @Getter

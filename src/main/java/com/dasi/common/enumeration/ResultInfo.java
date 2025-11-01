@@ -1,4 +1,4 @@
-package com.dasi.pojo.enumeration;
+package com.dasi.common.enumeration;
 
 import lombok.Getter;
 
@@ -17,9 +17,10 @@ public enum ResultInfo {
     // 业务层
     USER_NOT_EXIST(1001, "用户名不存在"),
     USER_ALREADY_EXISTS(1002, "用户名已存在"),
+    USER_DISABLED(1003, "用户被禁用"),
+    USER_SAVE_ERROR(1004, "创建用户错误"),
     PASSWORD_ERROR(1003, "密码错误"),
-    CONTACT_NOT_EXIST(2001, "联系人不存在"),
-    MESSAGE_SEND_FAILED(3001, "信息发送错误");
+    CONTACT_NOT_EXIST(2001, "联系人不存在");
 
     private final int code;
     private final String message;
