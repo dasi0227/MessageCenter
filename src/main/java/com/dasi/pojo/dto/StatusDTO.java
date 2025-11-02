@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class StatusDTO {
+
     @NotNull(message = "ID 不能为空")
     private Long id;
 

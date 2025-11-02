@@ -18,13 +18,13 @@ public class ContactController {
     @Autowired
     private ContactService contactService;
 
-    @GetMapping
+    @GetMapping("/page")
     public Result<PageResult<Contact>> getContacts(@Valid @RequestBody ContactPageDTO contactPageDTO) {
         PageResult<Contact> pageResult = contactService.getContacts(contactPageDTO);
         return Result.success(pageResult);
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public Result<Void> addContact(@Valid @RequestBody ContactDTO contactDTO) {
         contactService.addContact(contactDTO);
         return Result.success();
@@ -36,7 +36,7 @@ public class ContactController {
         return Result.success();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/remove/{id}")
     public Result<Void> removeContact(@PathVariable("id") Long id) {
         contactService.removeContact(id);
         return Result.success();

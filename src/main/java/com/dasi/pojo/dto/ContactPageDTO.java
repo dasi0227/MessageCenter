@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class ContactPageDTO {
+
     // 分页参数
     @NotNull(message = "页码不能为空")
     @Min(value = 1, message = "页码应该从 1 开始")

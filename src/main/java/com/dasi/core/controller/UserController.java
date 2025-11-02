@@ -42,7 +42,7 @@ public class UserController {
         return Result.success(newToken);
     }
 
-    @GetMapping
+    @GetMapping("/page")
     public Result<PageResult<UserPageVO>> getUsers(@Valid @RequestBody UserPageDTO userPageDTO) {
         PageResult<UserPageVO> pageResult = userService.getUsers(userPageDTO);
         return Result.success(pageResult);
@@ -60,7 +60,7 @@ public class UserController {
         return Result.success();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/remove/{id}")
     public Result<Void> removeUser(@PathVariable("id") Long id) {
         userService.removeUser(id);
         return Result.success();

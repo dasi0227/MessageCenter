@@ -1,0 +1,42 @@
+package com.dasi.config;
+
+import com.dasi.common.enumeration.MsgChannel;
+import com.dasi.common.properties.RabbitMqProperties;
+import org.springframework.amqp.core.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Configuration
+public class RabbitMqConfig {
+
+    @Autowired
+    private RabbitMqProperties rabbitMqProperties;
+
+    @Bean
+    public DirectExchange exchangeMessageCenter() {
+        return new DirectExchange(rabbitMqProperties.getExchange(), true, false);
+    }
+
+    @Bean
+    public List<Declarable> declareBindings() {
+        List<Declarable> list = new ArrayList<Declarable>();
+        DirectExchange exchange = exchangeMessageCenter();
+
+        for (MsgChannel channel : MsgChannel.values()) {
+            String queueName = channel.getQueue(rabbitMqProperties);
+            String routeKey = channel.getRoute(rabbitMqProperties);
+
+            Queue queue = new Queue(queueName, true, false, false);
+            Binding binding = BindingBuilder.bind(queue).to(exchange).with(routeKey);
+
+            list.add(queue);
+            list.add(binding);
+        }
+
+        return list;
+    }
+}

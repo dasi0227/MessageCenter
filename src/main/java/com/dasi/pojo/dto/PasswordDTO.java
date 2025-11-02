@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class PasswordDTO {
+
     @NotNull(message = "用户ID不能为空")
     private Long id;
 

@@ -80,7 +80,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         contact.setStatus(1);
         contactMapper.insert(contact);
 
-        log.debug("【User Service】注册用户成功：{}", loginDTO);
+        log.debug("【User Service】注册用户：{}", loginDTO);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserLoginVO userLoginVO = BeanUtil.copyProperties(user, UserLoginVO.class);
         userLoginVO.setToken(token);
 
-        log.debug("【User Service】用户登陆成功：{}", loginDTO);
+        log.debug("【User Service】用户登陆：{}", loginDTO);
         return userLoginVO;
     }
 
@@ -119,7 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public String refresh(HttpServletRequest request) {
         String oldToken = request.getHeader(jwtProperties.getTokenName());
         String newToken = jwtUtil.refreshToken(oldToken);
-        log.debug("【User Service】刷新 Token 成功：{}", newToken);
+        log.debug("【User Service】刷新 Token ：{}", newToken);
         return newToken;
     }
 
@@ -139,7 +139,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 4. 分页查询
         Page<User> result = userMapper.selectPage(page, wrapper);
-        log.debug("【User Service】分页查询用户成功：{}", dto);
+        log.debug("【User Service】分页查询用户：{}", dto);
 
         return PageResult.of(result, UserPageVO.class);
     }
@@ -151,7 +151,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .eq("id", dto.getId())
                 .set("status", dto.getStatus()));
         if (!success) throw new UserException(ResultInfo.USER_UPDATE_ERROR);
-        log.debug("【User Service】更新用户状态成功：{}", dto);
+        log.debug("【User Service】更新用户状态：{}", dto);
     }
 
     @SuperAdminOnly
@@ -161,7 +161,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .eq("id", dto.getId())
                 .set("password", SecureUtil.md5(dto.getPassword())));
         if (!success) throw new UserException(ResultInfo.USER_UPDATE_ERROR);
-        log.debug("【User Service】更新用户密码成功：{}", dto);
+        log.debug("【User Service】更新用户密码：{}", dto);
     }
 
     @SuperAdminOnly
@@ -171,6 +171,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!success) {
             throw new ContactException(ResultInfo.USER_REMOVE_ERROR);
         }
-        log.debug("【User Service】删除用户成功：{}", id);
+        log.debug("【User Service】删除用户：{}", id);
     }
 }

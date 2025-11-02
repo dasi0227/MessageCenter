@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 @Data
 @AtLeastOneContact(message = "手机号、邮箱至少填写一个")
 public class ContactDTO {
+
     private Long id;
 
     @NotBlank(message = "联系人姓名不能为空")

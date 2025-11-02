@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("contact")
 public class Contact {
+
     @TableId(type = IdType.AUTO)
     private Long id;
 

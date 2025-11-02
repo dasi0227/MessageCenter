@@ -43,7 +43,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
             throw new ContactException(ResultInfo.CONTACT_SAVE_ERROR);
         }
 
-        log.debug("【Contact Service】新增联系人成功：{}", contactDTO);
+        log.debug("【Contact Service】新增联系人：{}", contactDTO);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         if (!success) {
             throw new ContactException(ResultInfo.CONTACT_REMOVE_ERROR);
         }
-        log.debug("【Contact Service】删除联系人成功：{}", id);
+        log.debug("【Contact Service】删除联系人：{}", id);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         if (!success) {
             throw new ContactException(ResultInfo.CONTACT_UPDATE_ERROR);
         }
-        log.debug("【Contact Service】更新联系人成功：{}", contactDTO);
+        log.debug("【Contact Service】更新联系人：{}", contactDTO);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         if (!success) {
             throw new ContactException(ResultInfo.CONTACT_UPDATE_ERROR);
         }
-        log.debug("【Contact Service】更新联系人状态成功：{}", statusDTO);
+        log.debug("【Contact Service】更新联系人状态：{}", statusDTO);
     }
 
 
@@ -97,7 +97,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         }
 
         Page<Contact> contacts = contactMapper.selectPage(page, queryWrapper);
-        log.debug("【Contact Service】分页查询联系人成功：{}", dto);
+        log.debug("【Contact Service】分页查询联系人：{}", dto);
         return PageResult.of(contacts);
     }
 }

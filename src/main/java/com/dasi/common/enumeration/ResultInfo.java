@@ -35,6 +35,8 @@ public enum ResultInfo {
     CONTACT_REMOVE_ERROR(2005, "联系人删除错误"),
     CONTACT_UPDATE_ERROR(2006, "联系人更新错误"),
 
+    MESSAGE_SAVE_ERROR(3001, "消息添加错误"),
+
     BOTTOM(9999, "无用信息");
 
     private final int code;

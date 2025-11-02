@@ -8,9 +8,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum MsgStatus {
-    SENDING("SENDING"), // 发送中
-    SUCCESS("SUCCESS"), // 发送成功
-    FAILED("FAILED");   // 发送失败
+    PENDING("PENDING"),
+    SENDING("SENDING"),
+    SUCCESS("SUCCESS"),
+    FAIL("FAIL");
 
     @EnumValue
     @JsonValue

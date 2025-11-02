@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dasi.core.mapper.MessageMapper">
+
+    <select id="selectMessagePage" resultType="com.dasi.pojo.vo.MessagePageVO">
+        SELECT
+            m.id            AS msgId,
+            d.id            AS dispatchId,
+            m.channel       AS channel,
+            d.status        AS status,
+            m.subject       AS subject,
+            u.username      AS sendFromName,
+            c.name          AS sendToName,
+            d.error_msg     AS errorMsg,
+            d.created_at    AS createdAt
+        FROM dispatch d
+        JOIN message m      ON d.msg_id = m.id
+        LEFT JOIN user u    ON d.send_from = u.id
+        LEFT JOIN contact c ON d.send_to = c.id
+
+        <where>
+            <if test="dto.channel != null">
+                AND m.channel = #{dto.channel}
+            </if>
+            <if test="dto.status != null">
+                AND d.status = #{dto.status}
+            </if>
+            <if test="dto.subject != null and dto.subject.trim() != ''">
+                AND m.subject LIKE CONCAT('%', #{dto.subject}, '%')
+            </if>
+            <if test="dto.content != null and dto.content.trim() != ''">
+                AND m.content LIKE CONCAT('%', #{dto.content}, '%')
+            </if>
+            <if test="dto.sendFrom != null">
+                AND d.send_from = #{dto.sendFrom}
+            </if>
+            <if test="dto.sendTo != null">
+                AND d.send_to = #{dto.sendTo}
+            </if>
+            <if test="dto.target != null and dto.target.trim() != ''">
+                AND d.target LIKE CONCAT('%', #{dto.target}, '%')
+            </if>
+        </where>
+
+        <if test="dto.sortedByCreated == true">
+            ORDER BY d.created_at
+            <choose>
+                <when test="dto.asc == true">ASC</when>
+                <otherwise>DESC</otherwise>
+            </choose>
+        </if>
+    </select>
+
+
+    <select id="selectMessageDetail" resultType="com.dasi.pojo.vo.MessageDetailVO">
+        SELECT
+            m.id            AS msgId,
+            d.id            AS dispatchId,
+            m.channel       AS channel,
+            d.status        AS status,
+            m.subject       AS subject,
+            m.content       AS content,
+            u.id            AS sendFromId,
+            u.username      AS sendFromName,
+            c.id            AS sendToId,
+            c.name          AS sendToName,
+            d.target        AS target,
+            d.error_msg     AS errorMsg,
+            m.schedule_at   AS scheduleAt,
+            d.created_at    AS createdAt,
+            d.sent_at       AS sentAt,
+            d.finished_at   AS finishedAt
+        FROM dispatch d
+        LEFT JOIN message m ON d.msg_id = m.id
+        LEFT JOIN user u    ON d.send_from = u.id
+        LEFT JOIN contact c ON d.send_to = c.id
+        WHERE d.id = #{dispatchId}
+    </select>
+</mapper>

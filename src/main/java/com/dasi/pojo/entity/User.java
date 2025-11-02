@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("user")
 public class User {
+
     @TableId(type = IdType.AUTO)
     private Long id;                 // 全局唯一自增 id
 
