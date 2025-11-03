@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class PasswordDTO {
+public class AccountPasswordDTO {
 
     @NotNull(message = "用户ID不能为空")
     private Long id;

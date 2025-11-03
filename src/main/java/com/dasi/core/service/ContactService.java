@@ -2,19 +2,21 @@ package com.dasi.core.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dasi.common.result.PageResult;
-import com.dasi.pojo.dto.ContactDTO;
+import com.dasi.pojo.dto.ContactAddDTO;
 import com.dasi.pojo.dto.ContactPageDTO;
-import com.dasi.pojo.dto.StatusDTO;
+import com.dasi.pojo.dto.ContactStatusDTO;
+import com.dasi.pojo.dto.ContactUpdateDTO;
 import com.dasi.pojo.entity.Contact;
+import jakarta.validation.Valid;
 
 public interface ContactService extends IService<Contact> {
-    void addContact(ContactDTO contactDTO);
+    void addContact(ContactAddDTO dto);
 
     void removeContact(Long id);
 
-    void updateContact(ContactDTO contactDTO);
+    void updateContact(ContactUpdateDTO dto);
 
-    void updateStatus(StatusDTO statusDTO);
+    PageResult<Contact> getContactPage(ContactPageDTO dto);
 
-    PageResult<Contact> getContacts(ContactPageDTO contactPageDTO);
+    void updateStatus(ContactStatusDTO dto);
 }

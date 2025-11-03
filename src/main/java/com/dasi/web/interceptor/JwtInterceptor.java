@@ -1,13 +1,11 @@
 package com.dasi.web.interceptor;
 
-import com.dasi.common.enumeration.ResultInfo;
-import com.dasi.common.exception.JwtErrorException;
+import com.dasi.common.context.AccountContextHolder;
+import com.dasi.common.enumeration.AccountRole;
 import com.dasi.common.properties.JwtProperties;
-import com.dasi.util.UserContextUtil;
+import com.dasi.common.context.AccountContext;
 import com.dasi.util.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +37,16 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         // 校验令牌
         Claims claims = jwtUtil.parseToken(token);
-        Long userId = Long.valueOf(claims.get(jwtProperties.getClaimUserKey()).toString());
-        UserContextUtil.setUser(userId);
+        Long id = Long.valueOf(claims.get(jwtProperties.getClaimAccountId()).toString());
+        AccountRole role = AccountRole.valueOf(claims.get(jwtProperties.getClaimAccountRole()).toString());
+        AccountContextHolder.set(new AccountContext(id, role));
 
-        log.debug("【令牌校验成功】当前管理员 ID：{}", userId);
+        log.debug("【令牌校验成功】当前管理员 ID：{}", id);
         return true;
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
-        UserContextUtil.removeUser();
+        AccountContextHolder.clear();
     }
 }

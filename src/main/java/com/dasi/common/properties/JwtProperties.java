@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
 public class JwtProperties {
     private String secretKey;
     private String tokenName;
-    private String claimUserKey;
+    private String claimAccountId;
+    private String claimAccountRole;
     private Long tokenTtl;
     private SignatureAlgorithm signatureAlgorithm;
 }

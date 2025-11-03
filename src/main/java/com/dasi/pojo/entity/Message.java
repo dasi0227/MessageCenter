@@ -1,10 +1,8 @@
 package com.dasi.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.dasi.common.enumeration.MsgChannel;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,10 +12,21 @@ import java.time.LocalDateTime;
 public class Message {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;                    // 全局唯一 id
-    private MsgChannel channel;         // 消息类型：INBOX / SMS / EMAIL
-    private String subject;             // 消息标题
-    private String content;             // 消息正文内容
-    private Integer isDelete;           // 是否删除：1=删除，0=正常
-    private LocalDateTime scheduleAt;   // 定时发送时间，为空表示立即发送
+    private Long            id;             // 全局唯一 id
+    private String          subject;        // 消息标题
+    private String          content;        // 消息正文内容
+    private String          attachments;    // 附件 URL
+    private LocalDateTime   createAt;       // 创建时间
+
 }
+
+/*
+-- 消息
+CREATE TABLE IF NOT EXISTS message (
+    id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
+    subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
+    content     TEXT            NOT NULL                    COMMENT '消息内容',
+    attachments MEDIUMTEXT                                  COMMENT '消息附件',
+    created_at  DATETIME        NOT NULL                    COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+ */

@@ -22,7 +22,4 @@ public class ContactPageDTO {
     // 精确查询
     private Integer status;
 
-    // 排序规则
-    private Boolean sortedByUpdate = true;
-    private Boolean asc = false;
 }

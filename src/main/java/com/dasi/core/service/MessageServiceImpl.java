@@ -3,6 +3,7 @@ package com.dasi.core.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.SendException;
@@ -18,7 +19,6 @@ import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Message;
 import com.dasi.pojo.vo.MessageDetailVO;
 import com.dasi.pojo.vo.MessagePageVO;
-import com.dasi.util.UserContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -56,7 +56,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         }
 
         // 2. 发到每个收件人
-        Long sendFrom = UserContextUtil.getUser();
+        Long sendFrom = AccountContextHolder.get().getId();
         for (Long sendTo : dto.getContactIds()) {
             // 3. 渠道
             Contact contact = contactMapper.selectById(sendTo);

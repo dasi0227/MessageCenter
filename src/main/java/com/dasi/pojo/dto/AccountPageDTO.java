@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class UserPageDTO {
+public class AccountPageDTO {
 
     // 分页参数
     @NotNull(message = "页码不能为空")
@@ -15,12 +15,6 @@ public class UserPageDTO {
     private Long pageSize = DefaultConstant.DEFAULT_PAGE_SIZE;
 
     // 模糊查询
-    private String username;
+    private String name;
 
-    // 精确查询
-    private Integer status;
-
-    // 排序规则
-    private Boolean sortedByUpdate = true;
-    private Boolean asc = false;
 }

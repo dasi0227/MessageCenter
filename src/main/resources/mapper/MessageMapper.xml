@@ -15,7 +15,7 @@
             d.created_at    AS createdAt
         FROM dispatch d
         JOIN message m      ON d.msg_id = m.id
-        LEFT JOIN user u    ON d.send_from = u.id
+        LEFT JOIN account u    ON d.send_from = u.id
         LEFT JOIN contact c ON d.send_to = c.id
 
         <where>
@@ -72,7 +72,7 @@
             d.finished_at   AS finishedAt
         FROM dispatch d
         LEFT JOIN message m ON d.msg_id = m.id
-        LEFT JOIN user u    ON d.send_from = u.id
+        LEFT JOIN account u    ON d.send_from = u.id
         LEFT JOIN contact c ON d.send_to = c.id
         WHERE d.id = #{dispatchId}
     </select>

@@ -2,6 +2,7 @@ package com.dasi.config;
 
 import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.properties.RabbitMqProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
+@Slf4j
 public class RabbitMqConfig {
 
     @Autowired
@@ -23,7 +25,7 @@ public class RabbitMqConfig {
 
     @Bean
     public List<Declarable> declareBindings() {
-        List<Declarable> list = new ArrayList<Declarable>();
+        List<Declarable> list = new ArrayList<>();
         DirectExchange exchange = exchangeMessageCenter();
 
         for (MsgChannel channel : MsgChannel.values()) {
@@ -37,6 +39,7 @@ public class RabbitMqConfig {
             list.add(binding);
         }
 
+        log.info("RabbitMQ Init Successfully");
         return list;
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class MessageServer {
     public static void main(String[] args) {
         SpringApplication.run(MessageServer.class, args);
-        log.debug("Message Center start successfully!!\n");
+        log.info("Message Center Start Successfully\n");
     }
 }
-

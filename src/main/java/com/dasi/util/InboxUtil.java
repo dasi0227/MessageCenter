@@ -24,7 +24,6 @@ public class InboxUtil {
             maxInbox = 0L;
         }
         redisTemplate.opsForValue().set(RedisConstant.INBOX_KEY, String.valueOf(maxInbox));
-        log.debug("Redis 初始化的最大信箱号为 {}", maxInbox);
     }
 
     public Long nextId() {

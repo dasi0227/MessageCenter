@@ -3,9 +3,10 @@ package com.dasi.core.controller;
 import com.dasi.common.result.PageResult;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.ContactService;
-import com.dasi.pojo.dto.ContactDTO;
+import com.dasi.pojo.dto.ContactAddDTO;
 import com.dasi.pojo.dto.ContactPageDTO;
-import com.dasi.pojo.dto.StatusDTO;
+import com.dasi.pojo.dto.ContactStatusDTO;
+import com.dasi.pojo.dto.ContactUpdateDTO;
 import com.dasi.pojo.entity.Contact;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +20,20 @@ public class ContactController {
     private ContactService contactService;
 
     @GetMapping("/page")
-    public Result<PageResult<Contact>> getContacts(@Valid @RequestBody ContactPageDTO contactPageDTO) {
-        PageResult<Contact> pageResult = contactService.getContacts(contactPageDTO);
+    public Result<PageResult<Contact>> getContactPage(@Valid @RequestBody ContactPageDTO dto) {
+        PageResult<Contact> pageResult = contactService.getContactPage(dto);
         return Result.success(pageResult);
     }
 
     @PostMapping("/add")
-    public Result<Void> addContact(@Valid @RequestBody ContactDTO contactDTO) {
-        contactService.addContact(contactDTO);
+    public Result<Void> addContact(@Valid @RequestBody ContactAddDTO dto) {
+        contactService.addContact(dto);
         return Result.success();
     }
 
     @PostMapping("/update")
-    public Result<Void> updateContact(@Valid @RequestBody ContactDTO contactDTO) {
-        contactService.updateContact(contactDTO);
+    public Result<Void> updateContact(@Valid @RequestBody ContactUpdateDTO dto) {
+        contactService.updateContact(dto);
         return Result.success();
     }
 
@@ -43,8 +44,8 @@ public class ContactController {
     }
 
     @PostMapping("/status")
-    public Result<Void> updateStatus(@Valid @RequestBody StatusDTO statusDTO) {
-        contactService.updateStatus(statusDTO);
+    public Result<Void> updateStatus(@Valid @RequestBody ContactStatusDTO dto) {
+        contactService.updateStatus(dto);
         return Result.success();
     }
 }

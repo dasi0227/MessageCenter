@@ -1,17 +1,23 @@
 package com.dasi.core.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import cn.hutool.crypto.SecureUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dasi.common.annotation.AdminOnly;
+import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.ContactException;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.ContactMapper;
-import com.dasi.pojo.dto.ContactDTO;
+import com.dasi.pojo.dto.ContactAddDTO;
 import com.dasi.pojo.dto.ContactPageDTO;
-import com.dasi.pojo.dto.StatusDTO;
+import com.dasi.pojo.dto.ContactStatusDTO;
+import com.dasi.pojo.dto.ContactUpdateDTO;
 import com.dasi.pojo.entity.Contact;
 import com.dasi.util.InboxUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,82 +28,79 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> implements ContactService {
-
-    @Autowired
-    private ContactMapper contactMapper;
-
     @Autowired
     private InboxUtil inboxUtil;
 
     @Override
-    public void addContact(ContactDTO contactDTO) {
-        long count = count(new QueryWrapper<Contact>().eq("name", contactDTO.getName()));
-        if (count > 0) {
+    @AutoFill(FillType.INSERT)
+    public void addContact(ContactAddDTO dto) {
+        // 检查重名
+        if (exists(new LambdaQueryWrapper<Contact>().eq(Contact::getName, dto.getName()))) {
             throw new ContactException(ResultInfo.CONTACT_ALREADY_EXIST);
         }
 
-        Contact contact = new Contact();
-        BeanUtils.copyProperties(contactDTO, contact);
+        // 构建联系人
+        Contact contact = BeanUtil.copyProperties(dto, Contact.class);
+        contact.setPassword(SecureUtil.md5(dto.getPassword()));
         contact.setInbox(inboxUtil.nextId());
-        if (!save(contact)) {
-            throw new ContactException(ResultInfo.CONTACT_SAVE_ERROR);
-        }
+        save(contact);
 
-        log.debug("【Contact Service】新增联系人：{}", contactDTO);
+        log.debug("【Contact Service】新增联系人：{}", dto);
     }
 
     @Override
     public void removeContact(Long id) {
-        boolean success = removeById(id);
-        if (!success) {
+        if (!removeById(id)) {
             throw new ContactException(ResultInfo.CONTACT_REMOVE_ERROR);
         }
         log.debug("【Contact Service】删除联系人：{}", id);
     }
 
     @Override
-    public void updateContact(ContactDTO contactDTO) {
-        if (getById(contactDTO.getId()) == null) {
+    @AdminOnly
+    @AutoFill(FillType.UPDATE)
+    public void updateContact(ContactUpdateDTO dto) {
+        Contact contact = getById(dto.getId());
+        if (contact == null) {
             throw new ContactException(ResultInfo.CONTACT_NOT_EXIST);
         }
-        Contact contact = new Contact();
-        BeanUtils.copyProperties(contactDTO, contact);
-        boolean success = updateById(contact);
-        if (!success) {
+
+        BeanUtils.copyProperties(dto, contact);
+        if (!updateById(contact)) {
             throw new ContactException(ResultInfo.CONTACT_UPDATE_ERROR);
         }
-        log.debug("【Contact Service】更新联系人：{}", contactDTO);
+
+        log.debug("【Contact Service】更新联系人：{}", dto);
     }
 
     @Override
-    public void updateStatus(StatusDTO statusDTO) {
-        boolean success = update(new UpdateWrapper<Contact>()
-                .eq("id", statusDTO.getId())
-                .set("status", statusDTO.getStatus()));
-        if (!success) {
+    @AdminOnly
+    @AutoFill(FillType.UPDATE)
+    public void updateStatus(ContactStatusDTO dto) {
+        if (!update(new LambdaUpdateWrapper<Contact>()
+                .eq(Contact::getId, dto.getId())
+                .set(Contact::getStatus, dto.getStatus())
+                .set(Contact::getUpdatedAt, dto.getUpdatedAt()))) {
             throw new ContactException(ResultInfo.CONTACT_UPDATE_ERROR);
         }
-        log.debug("【Contact Service】更新联系人状态：{}", statusDTO);
+        log.debug("【Contact Service】更新联系人状态：{}", dto);
     }
 
-
     @Override
-    public PageResult<Contact> getContacts(ContactPageDTO dto) {
-        Page<Contact> page = new Page<>(dto.getPageNum(), dto.getPageSize());
-        QueryWrapper<Contact> queryWrapper = new QueryWrapper<Contact>()
-                .like(StrUtil.isNotBlank(dto.getName()), "name", dto.getName())
-                .like(StrUtil.isNotBlank(dto.getPhone()), "phone", dto.getPhone())
-                .like(StrUtil.isNotBlank(dto.getEmail()), "email", dto.getEmail())
-                .eq(dto.getStatus() != null, "status", dto.getStatus());
+    public PageResult<Contact> getContactPage(ContactPageDTO dto) {
+        Page<Contact> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 
-        if (Boolean.TRUE.equals(dto.getSortedByUpdate())) {
-            queryWrapper.orderBy(true, dto.getAsc(), "updated_at");
-        } else {
-            queryWrapper.orderBy(true, dto.getAsc(), "created_at");
-        }
+        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<Contact>()
+                .like(StrUtil.isNotBlank(dto.getName()), Contact::getName, dto.getName())
+                .like(StrUtil.isNotBlank(dto.getPhone()), Contact::getPhone, dto.getPhone())
+                .like(StrUtil.isNotBlank(dto.getEmail()), Contact::getEmail, dto.getEmail())
+                .eq(dto.getStatus() != null, Contact::getStatus, dto.getStatus())
+                .orderByDesc(Contact::getName);
 
-        Page<Contact> contacts = contactMapper.selectPage(page, queryWrapper);
+        Page<Contact> contacts = page(param, wrapper);
+
         log.debug("【Contact Service】分页查询联系人：{}", dto);
         return PageResult.of(contacts);
     }
+
 }
