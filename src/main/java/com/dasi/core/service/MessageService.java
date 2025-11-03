@@ -10,9 +10,9 @@ import com.dasi.pojo.vo.MessagePageVO;
 import jakarta.validation.Valid;
 
 public interface MessageService extends IService<Message> {
-    void sendMessage(MessageSendDTO messageSendDTO);
+    void sendMessage(MessageSendDTO dto);
 
-    PageResult<MessagePageVO> getMessagePage(@Valid MessagePageDTO messagePageDTO);
+    PageResult<MessagePageVO> getMessagePage(@Valid MessagePageDTO dto);
 
     MessageDetailVO getMessageDetail(Long dispatchId);
 }

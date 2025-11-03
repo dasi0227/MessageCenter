@@ -95,7 +95,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
                 .like(StrUtil.isNotBlank(dto.getPhone()), Contact::getPhone, dto.getPhone())
                 .like(StrUtil.isNotBlank(dto.getEmail()), Contact::getEmail, dto.getEmail())
                 .eq(dto.getStatus() != null, Contact::getStatus, dto.getStatus())
-                .orderByDesc(Contact::getName);
+                .orderByAsc(Contact::getName);
 
         Page<Contact> contacts = page(param, wrapper);
 

@@ -68,6 +68,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
         // 校验密码
         String password = SecureUtil.md5(dto.getPassword());
+        log.debug("dto password：{}", password);
+        log.debug("account password：{}", account.getPassword());
         if (!password.equals(account.getPassword())) {
             throw new AccountException(ResultInfo.ACCOUNT_PASSWORD_ERROR);
         }

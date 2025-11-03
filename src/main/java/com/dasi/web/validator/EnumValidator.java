@@ -8,19 +8,27 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class EnumValidator implements ConstraintValidator<EnumValid, String> {
+public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
 
     private Set<String> validValues;
 
     @Override
     public void initialize(EnumValid annotation) {
         validValues = Arrays.stream(annotation.enumClass().getEnumConstants())
-                .map(Enum::name) // 取枚举名，如 ADMIN、USER
+                .map(Enum::name)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        return validValues.contains(value);
+    public boolean isValid(Object value, ConstraintValidatorContext context) {
+        if (value == null) {
+            return true;
+        }
+
+        if (value instanceof Enum<?> e) {
+            return validValues.contains(e.name());
+        }
+
+        return false;
     }
 }

@@ -24,15 +24,15 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public List<Declarable> declareBindings() {
-        List<Declarable> list = new ArrayList<>();
+    public Declarables declareBindings() {
         DirectExchange exchange = exchangeMessageCenter();
+        List<Declarable> list = new ArrayList<>();
 
         for (MsgChannel channel : MsgChannel.values()) {
             String queueName = channel.getQueue(rabbitMqProperties);
             String routeKey = channel.getRoute(rabbitMqProperties);
 
-            Queue queue = new Queue(queueName, true, false, false);
+            Queue queue = new Queue(queueName, true);
             Binding binding = BindingBuilder.bind(queue).to(exchange).with(routeKey);
 
             list.add(queue);
@@ -40,6 +40,6 @@ public class RabbitMqConfig {
         }
 
         log.info("RabbitMQ Init Successfully");
-        return list;
+        return new Declarables(list);
     }
 }

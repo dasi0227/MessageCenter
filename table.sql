@@ -70,9 +70,10 @@ CREATE TABLE IF NOT EXISTS dispatch (
     msg_id      BIGINT          NOT NULL                    COMMENT '消息 id',
     send_from   BIGINT          NOT NULL                    COMMENT '发件人 id',
     send_to     BIGINT          NOT NULL                    COMMENT '收件人 id',
-    target      VARCHAR(255)    NOT NULL                    COMMENT '收件人地址',
+    target      VARCHAR(32)     NOT NULL                    COMMENT '收件人地址',
+    channel     VARCHAR(32)     NOT NULL                    COMMENT '消息渠道',
     status      VARCHAR(32)     NOT NULL                    COMMENT '消息状态',
-    error_msg   VARCHAR(255)    DEFAULT NULL                COMMENT '错误信息',
+    error_msg   VARCHAR(256)    DEFAULT NULL                COMMENT '错误信息',
     schedule_at DATETIME        DEFAULT NULL                COMMENT '定时时间',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间',
@@ -84,7 +85,7 @@ CREATE TABLE IF NOT EXISTS dispatch (
 CREATE TABLE IF NOT EXISTS mailbox (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
     inbox       BIGINT          NOT NULL                    COMMENT '信箱号',
-    sender      VARCHAR(64)     NOT NULL                    COMMENT '发件人名',
+    sender      VARCHAR(32)     NOT NULL                    COMMENT '发件人名',
     subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
     content     TEXT            NOT NULL                    COMMENT '消息内容',
     attachments MEDIUMTEXT                                  COMMENT '消息附件',
@@ -93,3 +94,6 @@ CREATE TABLE IF NOT EXISTS mailbox (
     reach_at    DATETIME        NOT NULL                    COMMENT '到达时间',
     read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT account (name, password, role, created_at)
+VALUES ('dasi', '90c0bd850970a1dc69cd4a297de3c300', 'ADMIN', NOW());

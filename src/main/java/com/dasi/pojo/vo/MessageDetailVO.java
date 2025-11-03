@@ -14,24 +14,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 public class MessageDetailVO {
-    private String msgId;
-    private Long dispatchId;
-    private MsgChannel channel;
-    private MsgStatus status;
-
-    private String subject;
-    private String content;
-
-    private Long sendFromId;
-    private String sendFromName;
-    private Long sendToId;
-    private String sendToName;
-    private String target;
-
-    private String errorMsg;
-
-    private LocalDateTime scheduleAt;
-    private LocalDateTime createdAt;
-    private LocalDateTime sentAt;
-    private LocalDateTime finishedAt;
+    private MsgChannel      channel;
+    private MsgStatus       status;
+    private String          subject;
+    private String          content;
+    private String          attachments;
+    private String          sendFromName;
+    private String          sendToName;
+    private String          target;
+    private String          errorMsg;
+    private LocalDateTime   scheduleAt;
+    private LocalDateTime   createdAt;
+    private LocalDateTime   sentAt;
+    private LocalDateTime   finishedAt;
 }

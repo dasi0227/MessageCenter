@@ -19,14 +19,14 @@ public class MessageController {
     private MessageService messageService;
 
     @PostMapping("/send")
-    public Result<Void> sendMessage(@Valid @RequestBody MessageSendDTO messageSendDTO) {
-        messageService.sendMessage(messageSendDTO);
+    public Result<Void> sendMessage(@Valid @RequestBody MessageSendDTO dto) {
+        messageService.sendMessage(dto);
         return Result.success();
     }
 
     @GetMapping("/page")
-    public Result<PageResult<MessagePageVO>> getMessagePage(@Valid @RequestBody MessagePageDTO messagePageDTO) {
-        PageResult<MessagePageVO> pageResult = messageService.getMessagePage(messagePageDTO);
+    public Result<PageResult<MessagePageVO>> getMessagePage(@Valid @RequestBody MessagePageDTO dto) {
+        PageResult<MessagePageVO> pageResult = messageService.getMessagePage(dto);
         return Result.success(pageResult);
     }
 

@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 public class Message {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long            id;             // 全局唯一 id
+    private Long            id;             // 雪花 id
     private String          subject;        // 消息标题
     private String          content;        // 消息正文内容
     private String          attachments;    // 附件 URL
-    private LocalDateTime   createAt;       // 创建时间
+    private LocalDateTime   createdAt;      // 创建时间
 
 }
 

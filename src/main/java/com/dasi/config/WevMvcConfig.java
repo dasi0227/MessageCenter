@@ -25,8 +25,8 @@ public class WevMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
-                        "/api/user/login",
-                        "/api/user/register"
+                        "/api/account/login",
+                        "/api/account/register"
                 );
 
         log.info("Interceptors Init Successfully");

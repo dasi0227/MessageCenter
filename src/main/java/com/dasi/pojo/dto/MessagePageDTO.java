@@ -1,5 +1,6 @@
 package com.dasi.pojo.dto;
 
+import com.dasi.common.annotation.EnumValid;
 import com.dasi.common.constant.DefaultConstant;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.enumeration.MsgChannel;
@@ -20,13 +21,11 @@ public class MessagePageDTO {
     private String content;
 
     // 精确查询
+    @EnumValid(enumClass = MsgStatus.class)
     private MsgStatus status;
+    @EnumValid(enumClass = MsgChannel.class)
     private MsgChannel channel;
     private Long sendFrom;
     private Long sendTo;
     private String target;
-
-    // 排序规则
-    private Boolean sortedByCreated = true;
-    private Boolean asc = false;
 }

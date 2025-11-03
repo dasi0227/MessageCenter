@@ -7,21 +7,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessagePageVO {
-    private String msgId;
-    private Long dispatchId;
-    private MsgChannel channel;
-    private MsgStatus status;
-    private String subject;
-    private String sendFromName;
-    private String sendToName;
-    private String target;
-    private String errorMsg;
-    private LocalDateTime createdAt;
+    private Long            msgId;
+    private Long            dispatchId;
+    private MsgChannel      channel;
+    private MsgStatus       status;
+    private String          subject;
+    private Long            sendFromId;
+    private String          sendFromName;
+    private Long            sendToId;
+    private String          sendToName;
+    private String          target;
 }

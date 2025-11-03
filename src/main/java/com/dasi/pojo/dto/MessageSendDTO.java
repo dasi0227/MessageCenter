@@ -24,4 +24,7 @@ public class MessageSendDTO {
     private List<Long> contactIds;
 
     private LocalDateTime scheduleAt;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

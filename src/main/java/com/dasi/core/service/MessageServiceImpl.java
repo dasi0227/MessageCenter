@@ -1,9 +1,13 @@
 package com.dasi.core.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.context.AccountContextHolder;
+import com.dasi.common.enumeration.FillType;
+import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.SendException;
@@ -26,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Slf4j
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
@@ -46,19 +52,16 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private RabbitMqProperties rabbitMqProperties;
 
     @Override
+    @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
     public void sendMessage(MessageSendDTO dto) {
-        // 1. 创建消息
-        Message message = new Message();
-        BeanUtils.copyProperties(dto, message);
-        if (!save(message)) {
-            throw new SendException(ResultInfo.MESSAGE_SAVE_ERROR);
-        }
+        // 创建消息
+        Message message = BeanUtil.copyProperties(dto, Message.class);
+        save(message);
 
-        // 2. 发到每个收件人
+        // 发到每个收件人
         Long sendFrom = AccountContextHolder.get().getId();
         for (Long sendTo : dto.getContactIds()) {
-            // 3. 渠道
             Contact contact = contactMapper.selectById(sendTo);
             String target = switch (dto.getChannel()) {
                 case EMAIL -> contact.getEmail();
@@ -66,16 +69,17 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 case INBOX -> contact.getInbox().toString();
             };
 
-            // 4. 发送
             Dispatch dispatch = Dispatch.builder()
-                    .msgId(message.getId()).status(MsgStatus.PENDING)
+                    .msgId(message.getId())
+                    .channel(dto.getChannel()).status(MsgStatus.PENDING)
                     .sendFrom(sendFrom).sendTo(sendTo).target(target)
+                    .createdAt(LocalDateTime.now())
                     .build();
             dispatchMapper.insert(dispatch);
 
-            // 5. 推送到消息队列
-            String key = dto.getChannel().getRoute(rabbitMqProperties) + dto.getChannel().name().toLowerCase();
-            rabbitTemplate.convertAndSend(rabbitMqProperties.getExchange(), key, dispatch.getId());
+            // 推送到消息队列
+            String route = dto.getChannel().getRoute(rabbitMqProperties);
+            rabbitTemplate.convertAndSend(rabbitMqProperties.getExchange(), route, dispatch.getId());
         }
 
         log.debug("【Message Service】发送消息：{}", dto);
@@ -83,16 +87,16 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public PageResult<MessagePageVO> getMessagePage(MessagePageDTO dto) {
-        Page<MessagePageVO> page = new Page<>(dto.getPageNum(), dto.getPageSize());
-        IPage<MessagePageVO> result = messageMapper.selectMessagePage(page, dto);
+        Page<MessagePageVO> param = new Page<>(dto.getPageNum(), dto.getPageSize());
+        IPage<MessagePageVO> result = messageMapper.selectMessagePage(param, dto);
         log.debug("【Message Service】分页查询消息：{}", dto);
         return PageResult.of(result);
     }
 
     @Override
     public MessageDetailVO getMessageDetail(Long dispatchId) {
-        MessageDetailVO messageDetailVO = messageMapper.selectMessageDetail(dispatchId);
-        log.debug("【Message Service】查询消息详情：{}", messageDetailVO);
-        return messageDetailVO;
+        MessageDetailVO vo = messageMapper.selectMessageDetail(dispatchId);
+        log.debug("【Message Service】查询消息详情：{}", vo);
+        return vo;
     }
 }
