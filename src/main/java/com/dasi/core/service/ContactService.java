@@ -1,6 +1,7 @@
 package com.dasi.core.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.result.PageResult;
 import com.dasi.pojo.dto.ContactAddDTO;
 import com.dasi.pojo.dto.ContactPageDTO;
@@ -19,4 +20,6 @@ public interface ContactService extends IService<Contact> {
     PageResult<Contact> getContactPage(ContactPageDTO dto);
 
     void updateStatus(ContactStatusDTO dto);
+
+    String resolveTarget(Long contactId, MsgChannel channel);
 }

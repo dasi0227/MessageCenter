@@ -1,4 +1,4 @@
-package com.dasi.core.service;
+package com.dasi.core.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -10,10 +10,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.enumeration.FillType;
+import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.ContactException;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.ContactMapper;
+import com.dasi.core.service.ContactService;
 import com.dasi.pojo.dto.ContactAddDTO;
 import com.dasi.pojo.dto.ContactPageDTO;
 import com.dasi.pojo.dto.ContactStatusDTO;
@@ -84,6 +86,20 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
             throw new ContactException(ResultInfo.CONTACT_UPDATE_ERROR);
         }
         log.debug("【Contact Service】更新联系人状态：{}", dto);
+    }
+
+    @Override
+    public String resolveTarget(Long contactId, MsgChannel channel) {
+        Contact contact = getById(contactId);
+        if (contact == null) {
+            throw new ContactException(ResultInfo.CONTACT_NOT_EXIST);
+        }
+
+        return switch (channel) {
+            case EMAIL -> contact.getEmail();
+            case SMS -> contact.getPhone();
+            case MAILBOX -> String.valueOf(contact.getInbox());
+        };
     }
 
     @Override

@@ -95,3 +95,8 @@ CREATE TABLE IF NOT EXISTS mailbox (
     arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间',
     read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS sensitive_word (
+    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
+    word        VARCHAR(64)     NOT NULL UNIQUE             COMMENT '敏感词'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

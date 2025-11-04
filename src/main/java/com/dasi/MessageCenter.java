@@ -8,9 +8,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableTransactionManagement
 @Slf4j
-public class MessageServer {
+public class MessageCenter {
     public static void main(String[] args) {
-        SpringApplication.run(MessageServer.class, args);
-        log.info("Message Center Start Successfully\n");
+        SpringApplication.run(MessageCenter.class, args);
     }
 }

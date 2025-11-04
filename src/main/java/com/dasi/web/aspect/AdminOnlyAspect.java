@@ -14,12 +14,13 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class AdminOnlyAspect {
-    @Before("@annotation(com.dasi.common.annotation.AdminOnly)")
+
+    @Before("@within(com.dasi.common.annotation.AdminOnly) || @annotation(com.dasi.common.annotation.AdminOnly)")
     public void checkRole(JoinPoint joinPoint) {
         AccountRole role = AccountContextHolder.get().getRole();
         Long id = AccountContextHolder.get().getId();
         if (!AccountRole.ADMIN.equals(role)) {
-            log.warn("【权限拒绝】方法={}，当前用户ID={}", joinPoint.getSignature().toShortString(), id);
+            log.warn("【没有权限】方法={}，当前用户ID={}", joinPoint.getSignature().toShortString(), id);
             throw new PermissionException(ResultInfo.ACCOUNT_PERMISSION_DENIED);
         }
     }

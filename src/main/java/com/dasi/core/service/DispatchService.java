@@ -11,4 +11,6 @@ public interface DispatchService extends IService<Dispatch> {
     void updateFinishStatus(Long id, MsgStatus status, String errorMsg);
 
     void updateSendStatus(Long dispatchId);
+
+    void updateFailStatus(Long dispatchId, String errorMsg);
 }

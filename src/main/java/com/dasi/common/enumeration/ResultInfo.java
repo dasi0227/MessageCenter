@@ -39,6 +39,11 @@ public enum ResultInfo {
     SEND_SMS_ERROR(3002, "短信投递错误"),
     SEND_EMAIL_ERROR(3003, "邮件投递错误"),
 
+    SENSITIVE_WORD_REMOVE_ERROR(4001, "敏感词删除错误"),
+    SENSITIVE_WORD_ALREADY_EXIST(4002, "敏感词已经存在"),
+    SENSITIVE_WORD_UPDATE_ERROR(4003, "敏感词更新错误"),
+
+
     BOTTOM(9999, "无用信息");
 
     private final int code;
