@@ -1,0 +1,72 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: message-center-test
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/message_center?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
+    username: root
+    password: jason2004
+
+  jackson:
+    time-zone: Asia/Shanghai
+    deserialization:
+      ACCEPT_EMPTY_STRING_AS_NULL_OBJECT: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: jason2004
+      database: 0
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: root
+    password: jason2004
+    virtual-host: /message_center
+
+mybatis-plus:
+  global-config:
+    banner: false
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+logging:
+  level:
+    root: warn
+    com.dasi: debug
+    com.zaxxer: error
+    com.baomidou.mybatisplus: error
+    org.mybatis: error
+  pattern:
+    console: "%d{MM-dd HH:mm:ss} %-5level %-40logger{1} - %msg%n"
+
+dasi:
+  jwt:
+    secret-key: dasi0227dasi0227dasi0227dasi0227dasi0227dasi0227dasi0227dasi0227
+    ttl: 720000000
+    signature-algorithm: HS512
+
+    account-token-name: Authorization-Account
+    account-id-claim-key: accountId
+    account-role-claim-key: accountRole
+
+    contact-token-name: Authorization-Contact
+    contact-id-claim-key: contactId
+    contact-inbox-claim-key: contactInbox
+  rabbitmq:
+    exchange: message_center
+    queue:
+      mailbox: mailbox_queue
+      email: email_queue
+      sms: sms_queue
+    route:
+      mailbox: mailbox_route
+      email: email_route
+      sms: sms_route
