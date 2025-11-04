@@ -24,8 +24,8 @@ public class Mailbox {
     private String subject;
     private String content;
     private String attachments;
-    private Integer is_read;
-    private Integer is_deleted;
+    private Integer isRead;
+    private Integer isDeleted;
     private LocalDateTime arrivedAt;
     private LocalDateTime readAt;
 

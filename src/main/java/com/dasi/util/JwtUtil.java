@@ -34,7 +34,7 @@ public class JwtUtil {
     // 生成 Token
     public String createToken(Map<String, Object> claims) {
         long now = System.currentTimeMillis();
-        long exp = now + jwtProperties.getTokenTtl();
+        long exp = now + jwtProperties.getTtl();
 
         return Jwts.builder()
                 .addClaims(claims)

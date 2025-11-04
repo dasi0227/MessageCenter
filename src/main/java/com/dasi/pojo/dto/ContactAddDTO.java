@@ -11,8 +11,10 @@ import java.time.LocalDateTime;
 @AtLeastOneContact(message = "手机号、邮箱至少填写一个")
 public class ContactAddDTO {
     @NotBlank(message = "联系人姓名不能为空")
+    @Pattern(regexp = "^[A-Za-z0-9]{4,}$", message = "用户名必须为 4 位字母或数字")
     private String name;
 
+    @NotBlank(message = "联系人密码不能为空")
     @Pattern(regexp = "^[A-Za-z0-9]{6,}$", message = "密码必须为 6 位字母或数字")
     private String password = DefaultConstant.DEFAULT_PASSWORD;
 

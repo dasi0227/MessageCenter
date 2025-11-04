@@ -77,8 +77,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
         // 生成 Token
         Map<String, Object> claims = new HashMap<>();
-        claims.put(jwtProperties.getClaimAccountId(), account.getId());
-        claims.put(jwtProperties.getClaimAccountRole(), account.getRole());
+        claims.put(jwtProperties.getAccountIdClaimKey(), account.getId());
+        claims.put(jwtProperties.getAccountRoleClaimKey(), account.getRole());
         String token = jwtUtil.createToken(claims);
 
         // 构造视图
@@ -91,7 +91,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     public String refresh(HttpServletRequest request) {
-        String oldToken = request.getHeader(jwtProperties.getTokenName());
+        String oldToken = request.getHeader(jwtProperties.getAccountTokenName());
         String newToken = jwtUtil.refreshToken(oldToken);
 
         log.debug("【Account Service】刷新 Token ：{}", newToken);

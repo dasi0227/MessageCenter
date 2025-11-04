@@ -10,9 +10,14 @@ import org.springframework.stereotype.Component;
 @Data
 public class JwtProperties {
     private String secretKey;
-    private String tokenName;
-    private String claimAccountId;
-    private String claimAccountRole;
-    private Long tokenTtl;
+    private Long ttl;
     private SignatureAlgorithm signatureAlgorithm;
+
+    private String accountTokenName;
+    private String accountIdClaimKey;
+    private String accountRoleClaimKey;
+
+    private String contactTokenName;
+    private String contactIdClaimKey;
+    private String contactInboxClaimKey;
 }

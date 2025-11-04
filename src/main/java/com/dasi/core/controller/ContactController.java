@@ -3,11 +3,10 @@ package com.dasi.core.controller;
 import com.dasi.common.result.PageResult;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.ContactService;
-import com.dasi.pojo.dto.ContactAddDTO;
-import com.dasi.pojo.dto.ContactPageDTO;
-import com.dasi.pojo.dto.ContactStatusDTO;
-import com.dasi.pojo.dto.ContactUpdateDTO;
+import com.dasi.pojo.dto.*;
 import com.dasi.pojo.entity.Contact;
+import com.dasi.pojo.entity.Mailbox;
+import com.dasi.pojo.vo.ContactLoginVO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +36,7 @@ public class ContactController {
         return Result.success();
     }
 
-    @DeleteMapping("/remove/{id}")
+    @PostMapping("/remove/{id}")
     public Result<Void> removeContact(@PathVariable("id") Long id) {
         contactService.removeContact(id);
         return Result.success();
@@ -47,5 +46,17 @@ public class ContactController {
     public Result<Void> updateStatus(@Valid @RequestBody ContactStatusDTO dto) {
         contactService.updateStatus(dto);
         return Result.success();
+    }
+
+    @PostMapping("/login")
+    public Result<ContactLoginVO> login(@Valid @RequestBody ContactLoginDTO dto) {
+        ContactLoginVO vo = contactService.login(dto);
+        return Result.success(vo);
+    }
+
+    @GetMapping("/mailbox")
+    public Result<PageResult<Mailbox>> getMailboxPage(@Valid @RequestBody MailboxPageDTO dto) {
+        PageResult<Mailbox> result = contactService.getMailboxPage(dto);
+        return Result.success(result);
     }
 }

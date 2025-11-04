@@ -1,6 +1,7 @@
 package com.dasi.config;
 
-import com.dasi.web.interceptor.JwtInterceptor;
+import com.dasi.web.interceptor.JwtAccountInterceptor;
+import com.dasi.web.interceptor.JwtContactInterceptor;
 import com.dasi.web.interceptor.PageViewInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,23 +11,35 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @Slf4j
-public class WevMvcConfig implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
-    private JwtInterceptor jwtInterceptor;
+    private JwtAccountInterceptor jwtAccountInterceptor;
 
     @Autowired
     private PageViewInterceptor pageViewInterceptor;
+
+    @Autowired
+    private JwtContactInterceptor jwtContactInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(pageViewInterceptor)
                 .addPathPatterns("/api/**");
 
-        registry.addInterceptor(jwtInterceptor)
+        registry.addInterceptor(jwtAccountInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
                         "/api/account/login",
-                        "/api/account/register"
+                        "/api/account/register",
+                        "/api/contact/login",
+                        "/api/contact/mailbox",
+                        "/api/mailbox/**"
+                );
+
+        registry.addInterceptor(jwtContactInterceptor)
+                .addPathPatterns(
+                        "/api/mailbox/**",
+                        "/api/contact/mailbox"
                 );
 
         log.info("Interceptors Init Successfully");

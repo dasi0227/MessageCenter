@@ -34,6 +34,7 @@ public enum ResultInfo {
     CONTACT_SAVE_ERROR(2004, "联系人添加错误"),
     CONTACT_REMOVE_ERROR(2005, "联系人删除错误"),
     CONTACT_UPDATE_ERROR(2006, "联系人更新错误"),
+    CONTACT_PASSWORD_ERROR(2007, "联系人密码错误"),
 
     SEND_MAILBOX_ERROR(3001, "站内信投递错误"),
     SEND_SMS_ERROR(3002, "短信投递错误"),
@@ -42,6 +43,9 @@ public enum ResultInfo {
     SENSITIVE_WORD_REMOVE_ERROR(4001, "敏感词删除错误"),
     SENSITIVE_WORD_ALREADY_EXIST(4002, "敏感词已经存在"),
     SENSITIVE_WORD_UPDATE_ERROR(4003, "敏感词更新错误"),
+
+    MAILBOX_UPDATE_ERROR(5001, "站内信更新错误"),
+    MAILBOX_REMOVE_ERROR(5002, "站内信删除错误"),
 
 
     BOTTOM(9999, "无用信息");
