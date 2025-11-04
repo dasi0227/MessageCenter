@@ -1,30 +1,114 @@
-# 编译输出
-/target/
-out/
-
-# IDE 配置
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# 操作系统文件
+# ================================
+# OS 系统文件
+# ================================
 .DS_Store
 Thumbs.db
-
-# 日志与临时文件
-*.log
-logs/
-tmp/
+ehthumbs.db
+Icon?
+Desktop.ini
+$RECYCLE.BIN/
 *.swp
+*.swo
 
-# Maven Wrapper
-.mvn/wrapper/maven-wrapper.jar
+# ================================
+# IDE 配置文件
+# ================================
+# IntelliJ IDEA / JetBrains
+.idea/
+*.iml
+*.iws
+out/
 
-# 环境变量与本地配置
+# VSCode
+.vscode/
+.history/
+.code-workspace
+
+# Eclipse (以防迁移)
+.project
+.classpath
+.settings/
+
+# ================================
+# Maven / Java 编译产物
+# ================================
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.log
+hs_err_pid*
+
+# ================================
+# Spring Boot 特殊输出
+# ================================
+*.pid
+*.seed
+*.err
+*.out
+
+# ================================
+# Node / Vue / 前端依赖
+# ================================
+FrontEnd/node_modules/
+FrontEnd/dist/
+FrontEnd/build/
+FrontEnd/.cache/
+FrontEnd/.nuxt/
+FrontEnd/.next/
+FrontEnd/.output/
+FrontEnd/yarn.lock
+FrontEnd/package-lock.json
+
+# 若依 UI（如果你在 FrontEnd 导入了 RuoYi-Vue）
+ruoyi-ui/node_modules/
+ruoyi-ui/dist/
+
+# ================================
+# 日志与临时文件
+# ================================
+logs/
+*.log
+*.tmp
+*.bak
+*.old
+*.orig
+
+# ================================
+# 测试与生成文件
+# ================================
+/test-output/
+*.coverage
+*.lcov
+*.test.js
+/jacoco.exec
+
+# ================================
+# 环境配置文件（本地敏感信息）
+# ================================
+application-dev.yml
+application-local.yml
 .env
-*.local
+.env.development.local
+.env.production.local
+.env.test.local
 
-# Node 模块（若依前端）
-node_modules/
-dist/
+# ================================
+# Docker / 构建缓存
+# ================================
+docker/*.log
+docker/tmp/
+docker-compose.override.yml
+.docker/
+.dockerignore
+
+# ================================
+# 其他临时目录
+# ================================
+tmp/
+.cache/
+.gradle/
+bin/
+build/
