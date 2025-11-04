@@ -82,18 +82,16 @@ CREATE TABLE IF NOT EXISTS dispatch (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 信箱
+DROP TABLE IF EXISTS mailbox;
 CREATE TABLE IF NOT EXISTS mailbox (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
     inbox       BIGINT          NOT NULL                    COMMENT '信箱号',
-    sender      VARCHAR(32)     NOT NULL                    COMMENT '发件人名',
+    addresser   VARCHAR(32)     NOT NULL                    COMMENT '发件人名',
     subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
     content     TEXT            NOT NULL                    COMMENT '消息内容',
     attachments MEDIUMTEXT                                  COMMENT '消息附件',
     is_read     TINYINT         DEFAULT 0                   COMMENT '是否已读：0=未读，1=已读',
-    is_delete   TINYINT         DEFAULT 0                   COMMENT '是否删除：0=正常，1=删除',
-    reach_at    DATETIME        NOT NULL                    COMMENT '到达时间',
+    is_deleted  TINYINT         DEFAULT 0                   COMMENT '是否删除：0=正常，1=删除',
+    arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间',
     read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT account (name, password, role, created_at)
-VALUES ('dasi', '90c0bd850970a1dc69cd4a297de3c300', 'ADMIN', NOW());

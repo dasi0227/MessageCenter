@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
-import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.MsgStatus;
-import com.dasi.common.enumeration.ResultInfo;
-import com.dasi.common.exception.SendException;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.ContactMapper;
@@ -25,7 +22,6 @@ import com.dasi.pojo.vo.MessageDetailVO;
 import com.dasi.pojo.vo.MessagePageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +62,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             String target = switch (dto.getChannel()) {
                 case EMAIL -> contact.getEmail();
                 case SMS -> contact.getPhone();
-                case INBOX -> contact.getInbox().toString();
+                case MAILBOX -> contact.getInbox().toString();
             };
 
             Dispatch dispatch = Dispatch.builder()

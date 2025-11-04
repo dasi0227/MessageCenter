@@ -3,7 +3,7 @@ package com.dasi.common.enumeration;
 import com.dasi.common.properties.RabbitMqProperties;
 
 public enum MsgChannel {
-    INBOX,
+    MAILBOX,
     EMAIL,
     SMS;
 

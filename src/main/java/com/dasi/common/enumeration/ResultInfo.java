@@ -35,7 +35,9 @@ public enum ResultInfo {
     CONTACT_REMOVE_ERROR(2005, "联系人删除错误"),
     CONTACT_UPDATE_ERROR(2006, "联系人更新错误"),
 
-    MESSAGE_SAVE_ERROR(3001, "消息添加错误"),
+    SEND_MAILBOX_ERROR(3001, "站内信投递错误"),
+    SEND_SMS_ERROR(3002, "短信投递错误"),
+    SEND_EMAIL_ERROR(3003, "邮件投递错误"),
 
     BOTTOM(9999, "无用信息");
 
