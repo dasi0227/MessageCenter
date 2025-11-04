@@ -1,114 +1,56 @@
-# ================================
-# OS 系统文件
-# ================================
+# macOS
 .DS_Store
-Thumbs.db
-ehthumbs.db
-Icon?
-Desktop.ini
-$RECYCLE.BIN/
+.AppleDouble
+.idea
+.vscode
 *.swp
-*.swo
 
-# ================================
-# IDE 配置文件
-# ================================
-# IntelliJ IDEA / JetBrains
-.idea/
-*.iml
-*.iws
-out/
+# Node.js / Vue
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
 
-# VSCode
-.vscode/
-.history/
-.code-workspace
+# FrontEnd build
+/public/static/
+*/.eslintcache
+*/.cache
+*.local
+*.log
 
-# Eclipse (以防迁移)
-.project
-.classpath
-.settings/
-
-# ================================
-# Maven / Java 编译产物
-# ================================
-target/
+# Java / Maven
 *.class
 *.jar
 *.war
 *.ear
-*.zip
-*.log
-hs_err_pid*
+target/
+!.mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
 
-# ================================
-# Spring Boot 特殊输出
-# ================================
-*.pid
-*.seed
-*.err
-*.out
+# IDE
+*.iml
+*.ipr
+*.iws
+/.settings/
+/.project
+/.classpath
 
-# ================================
-# Node / Vue / 前端依赖
-# ================================
-FrontEnd/node_modules/
-FrontEnd/dist/
-FrontEnd/build/
-FrontEnd/.cache/
-FrontEnd/.nuxt/
-FrontEnd/.next/
-FrontEnd/.output/
-FrontEnd/yarn.lock
-FrontEnd/package-lock.json
-
-# 若依 UI（如果你在 FrontEnd 导入了 RuoYi-Vue）
-ruoyi-ui/node_modules/
-ruoyi-ui/dist/
-
-# ================================
-# 日志与临时文件
-# ================================
-logs/
-*.log
+# System / temp
 *.tmp
 *.bak
-*.old
 *.orig
+*.out
+logs/
+*.log
 
-# ================================
-# 测试与生成文件
-# ================================
-/test-output/
-*.coverage
-*.lcov
-*.test.js
-/jacoco.exec
+# Database / SQL backup
+*.db
+*.sqlite
 
-# ================================
-# 环境配置文件（本地敏感信息）
-# ================================
-application-dev.yml
-application-local.yml
-.env
-.env.development.local
-.env.production.local
-.env.test.local
-
-# ================================
-# Docker / 构建缓存
-# ================================
-docker/*.log
+# Docker / build cache
+docker/*.env
 docker/tmp/
-docker-compose.override.yml
-.docker/
-.dockerignore
-
-# ================================
-# 其他临时目录
-# ================================
-tmp/
-.cache/
-.gradle/
-bin/
-build/
