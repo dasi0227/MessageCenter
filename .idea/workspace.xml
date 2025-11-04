@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="223c77fb-a52f-4193-ad5a-17e02d6a21e7" name="Changes" comment="站内信查看" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="AnnotationType" />
+        <option value="package-info" />
+        <option value="Interface" />
+        <option value="Mybatis Mapper" />
+        <option value="Class" />
+        <option value="Exception" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/BackEnd" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="34jUoIMbkFYfx6KrfNGVUprvm7M" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.MessageCenterTest.executor": "Run",
+    "JUnit.MessageCenterTest.testRabbitProducer.executor": "Run",
+    "Maven.MessageCenter [clean].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.MessageCenter.executor": "Run",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.34875846",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "Errors",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.MessageCenter">
+    <configuration name="table.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/table.sql" />
+      <script-mode>FILE</script-mode>
+      <method v="2" />
+    </configuration>
+    <configuration name="MessageCenterTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="MessageCenter" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.dasi.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.dasi" />
+      <option name="MAIN_CLASS_NAME" value="com.dasi.MessageCenterTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea -Xshare:off" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MessageCenterTest.testRabbitProducer" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="MessageCenter" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.dasi.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.dasi" />
+      <option name="MAIN_CLASS_NAME" value="com.dasi.MessageCenterTest" />
+      <option name="METHOD_NAME" value="testRabbitProducer" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MessageCenter" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="MessageCenter" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.dasi.MessageCenter" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Database Script.table.sql" />
+        <item itemvalue="JUnit.MessageCenterTest.testRabbitProducer" />
+        <item itemvalue="JUnit.MessageCenterTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.23774.435" />
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-IU-251.23774.435" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Logical" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="223c77fb-a52f-4193-ad5a-17e02d6a21e7" name="Changes" comment="" />
+      <created>1761726650009</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761726650009</updated>
+      <workItem from="1761726651112" duration="164121000" />
+    </task>
+    <task id="LOCAL-00001" summary="创建项目">
+      <option name="closed" value="true" />
+      <created>1761727876508</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1761727876508</updated>
+    </task>
+    <task id="LOCAL-00002" summary="创建项目">
+      <option name="closed" value="true" />
+      <created>1761728147733</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1761728147733</updated>
+    </task>
+    <task id="LOCAL-00003" summary="创建项目">
+      <option name="closed" value="true" />
+      <created>1761728178916</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1761728178916</updated>
+    </task>
+    <task id="LOCAL-00004" summary="需求设计">
+      <option name="closed" value="true" />
+      <created>1761738404054</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1761738404054</updated>
+    </task>
+    <task id="LOCAL-00005" summary="添加中间件并测试是否可以使用">
+      <option name="closed" value="true" />
+      <created>1761815097749</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1761815097749</updated>
+    </task>
+    <task id="LOCAL-00006" summary="添加了 JWT、Interceptor、Exception、DTO、VO、Result、ThreadLocal 等">
+      <option name="closed" value="true" />
+      <created>1761897409599</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1761897409599</updated>
+    </task>
+    <task id="LOCAL-00007" summary="登陆注册模块">
+      <option name="closed" value="true" />
+      <created>1761968703986</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1761968703986</updated>
+    </task>
+    <task id="LOCAL-00008" summary="联系人模块">
+      <option name="closed" value="true" />
+      <created>1761999536753</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1761999536753</updated>
+    </task>
+    <task id="LOCAL-00009" summary="基本发送消息">
+      <option name="closed" value="true" />
+      <created>1762066494332</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1762066494332</updated>
+    </task>
+    <task id="LOCAL-00010" summary="修正数据库和整体架构（部分）">
+      <option name="closed" value="true" />
+      <created>1762157945809</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1762157945809</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Version 1.1">
+      <option name="closed" value="true" />
+      <created>1762189443194</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1762189443194</updated>
+    </task>
+    <task id="LOCAL-00012" summary="初步完成了MAILBOX的投递">
+      <option name="closed" value="true" />
+      <created>1762233737965</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1762233737965</updated>
+    </task>
+    <task id="LOCAL-00013" summary="敏感词检测">
+      <option name="closed" value="true" />
+      <created>1762245354097</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1762245354097</updated>
+    </task>
+    <task id="LOCAL-00014" summary="站内信查看">
+      <option name="closed" value="true" />
+      <created>1762253405352</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1762253405352</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="创建项目" />
+    <MESSAGE value="需求设计" />
+    <MESSAGE value="添加中间件并测试是否可以使用" />
+    <MESSAGE value="添加了 JWT、Interceptor、Exception、DTO、VO、Result、ThreadLocal 等" />
+    <MESSAGE value="登陆注册模块" />
+    <MESSAGE value="联系人模块" />
+    <MESSAGE value="基本发送消息" />
+    <MESSAGE value="修正数据库和整体架构（部分）" />
+    <MESSAGE value="Version 1.1" />
+    <MESSAGE value="初步完成了MAILBOX的投递" />
+    <MESSAGE value="敏感词检测" />
+    <MESSAGE value="站内信查看" />
+    <option name="LAST_COMMIT_MESSAGE" value="站内信查看" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/dasi/core/service/impl/MessageServiceImpl.java</url>
+          <line>95</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
