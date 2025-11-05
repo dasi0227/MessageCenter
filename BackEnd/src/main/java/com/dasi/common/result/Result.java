@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Data
 public class Result<T> implements Serializable {
     private Integer code;       // 状态码
-    private String message;     // 提示信息
+    private String msg;     // 提示信息
     private T data;             // 数据
 
     public static <T> Result<T> success() {
@@ -18,7 +18,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>();
         result.setCode(ResultInfo.SUCCESS.getCode());
-        result.setMessage(ResultInfo.SUCCESS.getMessage());
+        result.setMsg(ResultInfo.SUCCESS.getMessage());
         result.setData(data);
         return result;
     }
@@ -26,14 +26,14 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> fail(ResultInfo resultInfo) {
         Result<T> result = new Result<>();
         result.setCode(resultInfo.getCode());
-        result.setMessage(resultInfo.getMessage());
+        result.setMsg(resultInfo.getMessage());
         return result;
     }
 
     public static <T> Result<T> fail(ResultInfo resultInfo, String message) {
         Result<T> result = new Result<>();
         result.setCode(resultInfo.getCode());
-        result.setMessage((resultInfo.getMessage() + ": " + message));
+        result.setMsg((resultInfo.getMessage() + ": " + message));
         return result;
     }
 }

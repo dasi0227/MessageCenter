@@ -32,6 +32,10 @@ public class JwtAccountInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         // 获取 token
         String token = request.getHeader(jwtProperties.getAccountTokenName());
 

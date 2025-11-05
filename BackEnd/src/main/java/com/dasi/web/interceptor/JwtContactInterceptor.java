@@ -29,6 +29,10 @@ public class JwtContactInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         // 获取 token
         String token = request.getHeader(jwtProperties.getContactTokenName());
 
