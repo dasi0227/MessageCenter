@@ -47,7 +47,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Transactional(rollbackFor = Exception.class)
     public void addDepartment(DepartmentAddDTO dto) {
         if (exists(new LambdaQueryWrapper<Department>().eq(Department::getName, dto.getName()))) {
-            throw new DepartmentException(ResultInfo.DEPARTMENT_ALREADY_EXISTS);
+            throw new DepartmentException(ResultInfo.DEPARTMENT_NAME_ALREADY_EXISTS);
         }
 
         Department department = BeanUtil.copyProperties(dto, Department.class);

@@ -15,7 +15,9 @@ import com.dasi.core.service.RenderService;
 import com.dasi.pojo.entity.Render;
 import com.dasi.pojo.dto.RenderAddDTO;
 import com.dasi.pojo.dto.RenderUpdateDTO;
+import com.dasi.util.RenderResolveUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,8 @@ import static com.dasi.common.constant.DefaultConstant.DEFAULT_RENDER_IDS;
 @Slf4j
 public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> implements RenderService {
 
+    @Autowired
+    private RenderResolveUtil renderResolveUtil;
 
     @Override
     public List<Render> getRenderList() {
@@ -42,11 +46,12 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @Transactional(rollbackFor = Exception.class)
     public void addRender(RenderAddDTO dto) {
         if (exists(new LambdaQueryWrapper<Render>().eq(Render::getKey, dto.getKey()))) {
-            throw new RenderException(ResultInfo.RENDER_ALREADY_EXISTS);
+            throw new RenderException(ResultInfo.RENDER_KEY_ALREADY_EXISTS);
         }
 
         Render render = BeanUtil.copyProperties(dto, Render.class);
         save(render);
+        renderResolveUtil.reload();
         log.debug("【Render Service】新增渲染字段：{}", render);
     }
 
@@ -58,6 +63,11 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
         if (DEFAULT_RENDER_IDS.contains(dto.getId())) {
             throw new RenderException(ResultInfo.RENDER_UPDATE_FAIL);
         }
+        if (exists(new LambdaQueryWrapper<Render>().
+                eq(Render::getKey, dto.getKey())
+                .ne(Render::getId, dto.getId()))) {
+            throw new RenderException(ResultInfo.RENDER_KEY_ALREADY_EXISTS);
+        }
         if (!update(new LambdaUpdateWrapper<Render>()
                 .eq(Render::getId, dto.getId())
                 .set(StrUtil.isNotBlank(dto.getKey()), Render::getKey, dto.getKey())
@@ -66,6 +76,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
                 .set(Render::getUpdatedAt, LocalDateTime.now()))) {
             throw new RenderException(ResultInfo.RENDER_UPDATE_FAIL);
         }
+        renderResolveUtil.reload();
         log.debug("【Render Service】更新渲染字段：{}", dto);
     }
 
@@ -79,6 +90,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
         if (!removeById(id)) {
             throw new RenderException(ResultInfo.RENDER_REMOVE_FAIL);
         }
+        renderResolveUtil.reload();
         log.debug("【Render Service】删除渲染字段：{}", id);
     }
 }

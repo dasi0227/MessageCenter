@@ -10,6 +10,7 @@ import com.dasi.common.constant.DefaultConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgStatus;
+import com.dasi.common.exception.RenderException;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.DispatchMapper;
@@ -21,8 +22,10 @@ import com.dasi.pojo.dto.MessagePageDTO;
 import com.dasi.pojo.dto.MessageSendDTO;
 import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Message;
+import com.dasi.pojo.entity.Payload;
 import com.dasi.pojo.vo.MessageDetailVO;
 import com.dasi.pojo.vo.MessagePageVO;
+import com.dasi.util.RenderResolveUtil;
 import com.dasi.util.SensitiveWordDetectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -56,6 +59,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private SensitiveWordDetectUtil sensitiveWordDetectUtil;
 
     @Autowired
+    private RenderResolveUtil renderResolveUtil;
+
+    @Autowired
     private DispatchService dispatchService;
 
     @Autowired
@@ -69,11 +75,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         Message message = BeanUtil.copyProperties(dto, Message.class);
         save(message);
 
-        // 确定操作人和发件人
+        // 确定操作人、发件人和收件人
         Long accountId = AccountContextHolder.get().getId();
         Long departmentId = dto.getDepartmentId();
-
-        // 确定收件人
         List<Dispatch> dispatchList = new ArrayList<>();
         for (Long contactId : dto.getContactIds()) {
             String target = contactService.resolveTarget(contactId, dto.getChannel());
@@ -103,17 +107,31 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             return;
         }
 
-        // 投递到 MQ
+        // 占位符渲染处理 + 投递
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
                 for (Dispatch dispatch : dispatchList) {
-                    String route = dto.getChannel().getRoute(rabbitMqProperties);
-                    rabbitTemplate.convertAndSend(
-                            rabbitMqProperties.getExchange(),
-                            route,
-                            dispatch.getId()
-                    );
+                    try {
+                        String subject = renderResolveUtil.resolve(message.getSubject(), dispatch);
+                        String content = renderResolveUtil.resolve(message.getContent(), dispatch);
+                        Payload payload = Payload.builder()
+                                .dispatch(dispatch)
+                                .subject(subject)
+                                .content(content)
+                                .attachments(message.getAttachments())
+                                .build();
+
+                        String route = dto.getChannel().getRoute(rabbitMqProperties);
+                        rabbitTemplate.convertAndSend(
+                                rabbitMqProperties.getExchange(),
+                                route,
+                                payload
+                        );
+                    } catch (RenderException e) {
+                        dispatchService.updateFailStatus(dispatch.getId(), e.getMessage());
+                        log.error("【Message Service】消息渲染失败：{}", e.getMessage());
+                    }
                 }
             }
         });

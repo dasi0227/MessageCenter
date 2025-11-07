@@ -59,7 +59,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     public void addContact(ContactAddDTO dto) {
         // 检查重名
         if (exists(new LambdaQueryWrapper<Contact>().eq(Contact::getName, dto.getName()))) {
-            throw new ContactException(ResultInfo.CONTACT_ALREADY_EXISTS);
+            throw new ContactException(ResultInfo.CONTACT_NAME_ALREADY_EXISTS);
         }
 
         // 构建联系人

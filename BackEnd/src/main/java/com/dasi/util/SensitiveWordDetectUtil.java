@@ -3,7 +3,6 @@ package com.dasi.util;
 import com.dasi.core.mapper.SensitiveWordMapper;
 import com.dasi.pojo.entity.Message;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class SensitiveWordDetectUtil {
 
     @Autowired

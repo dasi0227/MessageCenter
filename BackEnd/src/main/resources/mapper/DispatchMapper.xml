@@ -6,15 +6,11 @@
         SELECT
             c.inbox               AS inbox,
             dep.name              AS addresser,
-            m.subject             AS subject,
-            m.content             AS content,
-            m.attachments         AS attachments,
             0                     AS is_read,
             0                     AS is_deleted,
             NOW()                 AS arrived_at,
             NULL                  AS read_at
         FROM dispatch d
-        JOIN message m ON d.msg_id = m.id
         LEFT JOIN department dep ON d.department_id = dep.id
         LEFT JOIN contact c ON d.contact_id = c.id
         WHERE d.id = #{dispatchId}

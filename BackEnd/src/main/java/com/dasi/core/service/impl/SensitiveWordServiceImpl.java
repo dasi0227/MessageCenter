@@ -63,7 +63,6 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
 
         sensitiveWordMapper.insertWords(words);
         sensitiveWordDetectUtil.reload();
-
         log.debug("【SensitiveWord Service】新增敏感词：{}", newWords);
     }
 
@@ -74,6 +73,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
         if (!removeById(id)) {
             throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_REMOVE_FAIL);
         }
+        sensitiveWordDetectUtil.reload();
         log.debug("【SensitiveWord Service】删除敏感词：{}", id);
     }
 
@@ -81,8 +81,10 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
     @AdminOnly
     @Transactional(rollbackFor = Exception.class)
     public void updateSensitiveWord(SensitiveWordUpdateDTO dto) {
-        if (exists(new LambdaQueryWrapper<SensitiveWord>().eq(SensitiveWord::getWord, dto.getWord()))) {
-            throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_NOT_FOUND);
+        if (exists(new LambdaQueryWrapper<SensitiveWord>().
+                eq(SensitiveWord::getWord, dto.getWord())
+                .ne(SensitiveWord::getId, dto.getId()))) {
+            throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_ALREADY_EXISTS);
         }
         if (!update(new LambdaUpdateWrapper<SensitiveWord>()
                 .eq(SensitiveWord::getId, dto.getId())

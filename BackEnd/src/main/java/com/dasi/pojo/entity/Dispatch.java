@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("dispatch")
-public class Dispatch {
+public class Dispatch implements Serializable {
 
     @TableId(type = IdType.ASSIGN_ID)
     private Long            id;             // 雪花 id

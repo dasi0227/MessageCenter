@@ -52,7 +52,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public void register(AccountLoginDTO dto) {
         // 检查重名
         if (exists(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()))) {
-            throw new AccountException(ResultInfo.ACCOUNT_ALREADY_EXIST);
+            throw new AccountException(ResultInfo.ACCOUNT_NAME_ALREADY_EXIST);
         }
 
         // 构建账户
@@ -169,7 +169,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public void addAccount(AccountAddDTO dto) {
         // 检查重名
         if (exists(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()))) {
-            throw new AccountException(ResultInfo.ACCOUNT_ALREADY_EXIST);
+            throw new AccountException(ResultInfo.ACCOUNT_NAME_ALREADY_EXIST);
         }
 
         // 构建联系人

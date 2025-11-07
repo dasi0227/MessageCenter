@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +19,7 @@ public class ContactUpdateDTO {
     @NotBlank(message = "联系人姓名不能为空")
     private String name;
 
-    @Pattern(regexp = "^[A-Za-z0-9]{6,}$", message = "密码必须为 6 位字母或数字")
+    @Nullable
     private String password = DefaultConstant.DEFAULT_PASSWORD;
 
     @Pattern(regexp = "^$|^1[3-9]\\d{9}$", message = "手机号格式错误")

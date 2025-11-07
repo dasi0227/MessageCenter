@@ -38,7 +38,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @Transactional(rollbackFor = Exception.class)
     public void addTemplate(TemplateAddDTO dto) {
         if (exists(new LambdaQueryWrapper<Template>().eq(Template::getName, dto.getName()))) {
-            throw new TemplateException(ResultInfo.TEMPLATE_ALREADY_EXISTS);
+            throw new TemplateException(ResultInfo.TEMPLATE_NAME_ALREADY_EXISTS);
         }
 
         Template template = BeanUtil.copyProperties(dto, Template.class);
@@ -62,8 +62,10 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @AdminOnly
     @Transactional(rollbackFor = Exception.class)
     public void updateTemplate(TemplateUpdateDTO dto) {
-        if (!exists(new LambdaQueryWrapper<Template>().eq(Template::getId, dto.getId()))) {
-            throw new TemplateException(ResultInfo.TEMPLATE_NOT_FOUND);
+        if (exists(new LambdaQueryWrapper<Template>().
+                eq(Template::getName, dto.getName())
+                .ne(Template::getId, dto.getId()))) {
+            throw new TemplateException(ResultInfo.TEMPLATE_NAME_ALREADY_EXISTS);
         }
         if (!update(new LambdaUpdateWrapper<Template>()
                 .eq(Template::getId, dto.getId())
