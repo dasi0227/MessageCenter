@@ -24,7 +24,7 @@ public class MessageController {
         return Result.success();
     }
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     public Result<PageResult<MessagePageVO>> getMessagePage(@Valid @RequestBody MessagePageDTO dto) {
         PageResult<MessagePageVO> pageResult = messageService.getMessagePage(dto);
         return Result.success(pageResult);

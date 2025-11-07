@@ -56,7 +56,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     public void addContact(ContactAddDTO dto) {
         // 检查重名
         if (exists(new LambdaQueryWrapper<Contact>().eq(Contact::getName, dto.getName()))) {
-            throw new ContactException(ResultInfo.CONTACT_ALREADY_EXIST);
+            throw new ContactException(ResultInfo.CONTACT_ALREADY_EXISTS);
         }
 
         // 构建联系人
@@ -71,7 +71,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @Override
     public void removeContact(Long id) {
         if (!removeById(id)) {
-            throw new ContactException(ResultInfo.CONTACT_REMOVE_ERROR);
+            throw new ContactException(ResultInfo.CONTACT_REMOVE_FAIL);
         }
         log.debug("【Contact Service】删除联系人：{}", id);
     }
@@ -82,12 +82,12 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     public void updateContact(ContactUpdateDTO dto) {
         Contact contact = getById(dto.getId());
         if (contact == null) {
-            throw new ContactException(ResultInfo.CONTACT_NOT_EXIST);
+            throw new ContactException(ResultInfo.CONTACT_NOT_FOUND);
         }
 
         BeanUtils.copyProperties(dto, contact);
         if (!updateById(contact)) {
-            throw new ContactException(ResultInfo.CONTACT_UPDATE_ERROR);
+            throw new ContactException(ResultInfo.CONTACT_UPDATE_FAIL);
         }
 
         log.debug("【Contact Service】更新联系人：{}", dto);
@@ -101,7 +101,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
                 .eq(Contact::getId, dto.getId())
                 .set(Contact::getStatus, dto.getStatus())
                 .set(Contact::getUpdatedAt, dto.getUpdatedAt()))) {
-            throw new ContactException(ResultInfo.CONTACT_UPDATE_ERROR);
+            throw new ContactException(ResultInfo.CONTACT_UPDATE_FAIL);
         }
         log.debug("【Contact Service】更新联系人状态：{}", dto);
     }
@@ -110,7 +110,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     public String resolveTarget(Long contactId, MsgChannel channel) {
         Contact contact = getById(contactId);
         if (contact == null) {
-            throw new ContactException(ResultInfo.CONTACT_NOT_EXIST);
+            throw new ContactException(ResultInfo.CONTACT_NOT_FOUND);
         }
 
         return switch (channel) {
@@ -125,7 +125,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         // 查询联系人
         Contact contact = getOne(new LambdaQueryWrapper<Contact>().eq(Contact::getName, dto.getName()), false);
         if (contact == null) {
-            throw new AccountException(ResultInfo.CONTACT_NOT_EXIST);
+            throw new AccountException(ResultInfo.CONTACT_NOT_FOUND);
         }
 
         // 校验密码

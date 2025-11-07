@@ -12,7 +12,21 @@ CREATE TABLE IF NOT EXISTS account (
     name        VARCHAR(32)     NOT NULL UNIQUE             COMMENT '账户名',
     password    VARCHAR(32)     NOT NULL                    COMMENT '账户密码',
     role        VARCHAR(32)     NOT NULL                    COMMENT '账户角色',
-    created_at  DATETIME        NOT NULL                    COMMENT '创建时间'
+    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
+    updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO account (name, password, role, created_at, updated_at)
+VALUES ('dasi', '90c0bd850970a1dc69cd4a297de3c300', 'ADMIN', NOW(), NOW());
+
+-- 部门
+CREATE TABLE department (
+    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '部门ID',
+    name        VARCHAR(32)     NOT NULL UNIQUE             COMMENT '部门名称',
+    address     VARCHAR(128)    NOT NULL UNIQUE             COMMENT '部门地址',
+    description VARCHAR(256)    NOT NULL UNIQUE             COMMENT '部门描述',
+    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
+    updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 联系人
@@ -26,22 +40,6 @@ CREATE TABLE IF NOT EXISTS contact (
     status      TINYINT         NOT NULL DEFAULT 1          COMMENT '状态',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 联系人组表
-CREATE TABLE IF NOT EXISTS contact_group (
-    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    name        VARCHAR(64)     NOT NULL UNIQUE             COMMENT '组名',
-    description VARCHAR(255)    DEFAULT NULL                COMMENT '组描述',
-    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
-    updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 联系
-CREATE TABLE IF NOT EXISTS relation (
-    group_id   BIGINT NOT NULL COMMENT '组 id',
-    contact_id BIGINT NOT NULL COMMENT '联系人 id',
-    PRIMARY KEY (group_id, contact_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 模板

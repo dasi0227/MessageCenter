@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.AccountRole;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.exception.*;
@@ -16,7 +17,8 @@ import com.dasi.common.properties.JwtProperties;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.AccountMapper;
 import com.dasi.core.service.AccountService;
-import com.dasi.pojo.dto.AccountPasswordDTO;
+import com.dasi.pojo.dto.AccountAddDTO;
+import com.dasi.pojo.dto.AccountUpdateDTO;
 import com.dasi.pojo.dto.AccountLoginDTO;
 import com.dasi.pojo.dto.AccountPageDTO;
 import com.dasi.pojo.entity.Account;
@@ -29,7 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -64,7 +68,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         // 查询账户
         Account account = getOne(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()), false);
         if (account == null) {
-            throw new AccountException(ResultInfo.ACCOUNT_NOT_EXIST);
+            throw new AccountException(ResultInfo.ACCOUNT_NOT_FOUND);
         }
 
         // 校验密码
@@ -104,6 +108,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         // 查询条件
         LambdaQueryWrapper<Account> wrapper = new LambdaQueryWrapper<Account>()
                 .like(StrUtil.isNotBlank(dto.getName()), Account::getName, dto.getName())
+                .eq(dto.getRole() != null, Account::getRole, dto.getRole())
                 .orderByDesc(Account::getCreatedAt);
 
         // 分页查询
@@ -114,22 +119,60 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
+    @AutoFill(FillType.UPDATE)
     @AdminOnly
-    public void updatePassword(AccountPasswordDTO dto) {
+    public void updateAccount(AccountUpdateDTO dto) {
+        if (AccountContextHolder.get().getId().equals(dto.getId())) {
+            throw new AccountException(ResultInfo.ACCOUNT_REMOVE_UPDATE_DENIED);
+        }
         if (!update(new LambdaUpdateWrapper<Account>()
                 .eq(Account::getId, dto.getId())
-                .set(Account::getPassword, SecureUtil.md5(dto.getPassword())))) {
+                .set(StrUtil.isNotBlank(dto.getName()), Account::getName, dto.getName())
+                .set(dto.getPassword() != null, Account::getPassword, SecureUtil.md5(dto.getPassword()))
+                .set(Account::getRole, dto.getRole())
+                .set(Account::getUpdatedAt, dto.getUpdatedAt()))) {
             throw new AccountException(ResultInfo.ACCOUNT_UPDATE_ERROR);
         }
-        log.debug("【Account Service】更新账户密码：{}", dto);
+        log.debug("【Account Service】更新账户：{}", dto);
     }
 
     @AdminOnly
     @Override
     public void removeAccount(Long id) {
+        if (AccountContextHolder.get().getId().equals(id)) {
+            throw new AccountException(ResultInfo.ACCOUNT_REMOVE_UPDATE_DENIED);
+        }
+        if (getById(id).getRole().equals(AccountRole.ADMIN)) {
+            throw new AccountException(ResultInfo.ACCOUNT_REMOVE_DENIED);
+        }
         if (!removeById(id)) {
             throw new AccountException(ResultInfo.ACCOUNT_REMOVE_ERROR);
         }
         log.debug("【Account Service】删除账户：{}", id);
+    }
+
+    @Override
+    public List<String> getAccountRole() {
+        log.debug("【Account Service】查询账户角色");
+        return Arrays.stream(AccountRole.values())
+                .map(Enum::name)
+                .toList();
+    }
+
+    @Override
+    @AdminOnly
+    @AutoFill(FillType.INSERT)
+    public void addAccount(AccountAddDTO dto) {
+        // 检查重名
+        if (exists(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()))) {
+            throw new AccountException(ResultInfo.ACCOUNT_ALREADY_EXIST);
+        }
+
+        // 构建联系人
+        Account account = BeanUtil.copyProperties(dto, Account.class);
+        account.setPassword(SecureUtil.md5(dto.getPassword()));
+        save(account);
+
+        log.debug("【Account Service】新增账户：{}", dto);
     }
 }

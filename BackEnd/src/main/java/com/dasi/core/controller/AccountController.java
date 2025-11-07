@@ -1,7 +1,8 @@
 package com.dasi.core.controller;
 
 import com.dasi.common.result.PageResult;
-import com.dasi.pojo.dto.AccountPasswordDTO;
+import com.dasi.pojo.dto.AccountAddDTO;
+import com.dasi.pojo.dto.AccountUpdateDTO;
 import com.dasi.pojo.dto.AccountLoginDTO;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.AccountService;
@@ -13,6 +14,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Validated
@@ -41,19 +44,31 @@ public class AccountController {
         return Result.success(newToken);
     }
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     public Result<PageResult<AccountPageVO>> getAccountPage(@Valid @RequestBody AccountPageDTO accountPageDTO) {
         PageResult<AccountPageVO> pageResult = accountService.getAccountPage(accountPageDTO);
         return Result.success(pageResult);
     }
 
-    @PostMapping("/password")
-    public Result<Void> updatePassword(@Valid @RequestBody AccountPasswordDTO accountPasswordDTO) {
-        accountService.updatePassword(accountPasswordDTO);
+    @GetMapping("/role")
+    public Result<List<String>> getAccountRole() {
+        List<String> list = accountService.getAccountRole();
+        return Result.success(list);
+    }
+
+    @PostMapping("/add")
+    public Result<Void> addAccount(@Valid @RequestBody AccountAddDTO dto) {
+        accountService.addAccount(dto);
         return Result.success();
     }
 
-    @DeleteMapping("/remove/{id}")
+    @PostMapping("/update")
+    public Result<Void> updateAccount(@Valid @RequestBody AccountUpdateDTO accountUpdateDTO) {
+        accountService.updateAccount(accountUpdateDTO);
+        return Result.success();
+    }
+
+    @PostMapping("/remove/{id}")
     public Result<Void> removeUser(@PathVariable("id") Long id) {
         accountService.removeAccount(id);
         return Result.success();

@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public Result<Void> exceptionHandler(MethodArgumentNotValidException exception) {
-        ResultInfo resultInfo = ResultInfo.PARAM_INFO_ERROR;
+        ResultInfo resultInfo = ResultInfo.PARAM_VALIDATE_FAIL;
         String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.error("【参数校验错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
         return Result.fail(resultInfo, message);

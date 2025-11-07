@@ -29,7 +29,7 @@ public class MailboxServiceImpl extends ServiceImpl<MailboxMapper, Mailbox> impl
                 .set(Mailbox::getIsRead, isRead)
                 .set(isRead == 1, Mailbox::getReadAt, LocalDateTime.now())
                 .set(isRead == 0, Mailbox::getReadAt, null))) {
-            throw new MailboxException(ResultInfo.MAILBOX_UPDATE_ERROR);
+            throw new MailboxException(ResultInfo.MAILBOX_UPDATE_FAIL);
         }
 
         log.debug("【Mailbox Service】更新站内信已读状态：id={}, isRead={}", id, isRead);
@@ -42,7 +42,7 @@ public class MailboxServiceImpl extends ServiceImpl<MailboxMapper, Mailbox> impl
         if (!update(new LambdaUpdateWrapper<Mailbox>()
                 .eq(Mailbox::getId, id)
                 .set(Mailbox::getIsDeleted, isDeleted))) {
-            throw new MailboxException(ResultInfo.MAILBOX_UPDATE_ERROR);
+            throw new MailboxException(ResultInfo.MAILBOX_UPDATE_FAIL);
         }
 
         log.debug("【Mailbox Service】更新站内信删除状态：id={}, isDeleted={}", id, isDeleted);
@@ -52,7 +52,7 @@ public class MailboxServiceImpl extends ServiceImpl<MailboxMapper, Mailbox> impl
     @Transactional(rollbackFor = Exception.class)
     public void removeMailbox(Long id) {
         if (!removeById(id)) {
-            throw new MailboxException(ResultInfo.MAILBOX_REMOVE_ERROR);
+            throw new MailboxException(ResultInfo.MAILBOX_REMOVE_FAIL);
         }
 
         log.debug("【Mailbox Service】销毁站内信：id={}", id);

@@ -29,6 +29,7 @@
                     </template>
                     <el-menu-item index="/dashboard">仪表盘</el-menu-item>
                     <el-menu-item index="/account">账户管理</el-menu-item>
+                    <el-menu-item index="/department">部门管理</el-menu-item>
                     <el-menu-item index="/contact">联系人管理</el-menu-item>
                 </el-sub-menu>
 
@@ -38,8 +39,7 @@
                         <i class="el-icon-s-tools"></i>
                         <span>消息模块</span>
                     </template>
-                    <el-menu-item index="/logs">发送管理</el-menu-item>
-                    <el-menu-item index="/monitor">查询消息</el-menu-item>
+                    <el-menu-item index="/message">发送管理</el-menu-item>
                     <el-menu-item index="/template">模版管理</el-menu-item>
                     <el-menu-item index="/sensitive">敏感词管理</el-menu-item>
                 </el-sub-menu>

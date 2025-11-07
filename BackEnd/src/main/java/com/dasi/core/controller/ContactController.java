@@ -18,7 +18,7 @@ public class ContactController {
     @Autowired
     private ContactService contactService;
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     public Result<PageResult<Contact>> getContactPage(@Valid @RequestBody ContactPageDTO dto) {
         PageResult<Contact> pageResult = contactService.getContactPage(dto);
         return Result.success(pageResult);

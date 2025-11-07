@@ -61,7 +61,7 @@ public class JwtUtil {
             throw new JwtErrorException(ResultInfo.TOKEN_EXPIRED);
         } catch (JwtException exception) {
             log.error("JWT 校验失败：{}", exception.getMessage());
-            throw new JwtErrorException(ResultInfo.TOKEN_ERROR);
+            throw new JwtErrorException(ResultInfo.TOKEN_INVALID);
         }
     }
 

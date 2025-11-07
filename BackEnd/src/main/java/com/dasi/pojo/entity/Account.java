@@ -22,6 +22,7 @@ public class Account {
     private String          password;       // 账户密码
     private AccountRole     role;           // 账户角色
     private LocalDateTime   createdAt;      // 创建时间
+    private LocalDateTime   updatedAt;      // 更新时间
 
 }
 
