@@ -39,9 +39,10 @@
                         <i class="el-icon-s-tools"></i>
                         <span>消息模块</span>
                     </template>
-                    <el-menu-item index="/message">发送管理</el-menu-item>
+                    <el-menu-item index="/message">发送消息</el-menu-item>
                     <el-menu-item index="/template">模版管理</el-menu-item>
                     <el-menu-item index="/sensitive">敏感词管理</el-menu-item>
+                    <el-menu-item index="/render">占位符管理</el-menu-item>
                 </el-sub-menu>
             </el-menu>
         </el-aside>

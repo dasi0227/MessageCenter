@@ -7,8 +7,8 @@ import com.dasi.pojo.dto.AccountLoginDTO;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.AccountService;
 import com.dasi.pojo.dto.AccountPageDTO;
+import com.dasi.pojo.entity.Account;
 import com.dasi.pojo.vo.AccountLoginVO;
-import com.dasi.pojo.vo.AccountPageVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +45,8 @@ public class AccountController {
     }
 
     @PostMapping("/page")
-    public Result<PageResult<AccountPageVO>> getAccountPage(@Valid @RequestBody AccountPageDTO accountPageDTO) {
-        PageResult<AccountPageVO> pageResult = accountService.getAccountPage(accountPageDTO);
+    public Result<PageResult<Account>> getAccountPage(@Valid @RequestBody AccountPageDTO accountPageDTO) {
+        PageResult<Account> pageResult = accountService.getAccountPage(accountPageDTO);
         return Result.success(pageResult);
     }
 

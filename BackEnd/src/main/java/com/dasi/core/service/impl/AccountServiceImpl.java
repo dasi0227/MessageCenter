@@ -24,7 +24,6 @@ import com.dasi.pojo.dto.AccountPageDTO;
 import com.dasi.pojo.entity.Account;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.pojo.vo.AccountLoginVO;
-import com.dasi.pojo.vo.AccountPageVO;
 import com.dasi.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +100,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    public PageResult<AccountPageVO> getAccountPage(AccountPageDTO dto) {
+    public PageResult<Account> getAccountPage(AccountPageDTO dto) {
         // 分页参数
         Page<Account> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 
@@ -115,7 +114,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         Page<Account> result = page(param, wrapper);
 
         log.debug("【Account Service】分页查询账户：{}", dto);
-        return PageResult.of(result, AccountPageVO.class);
+        return PageResult.of(result);
     }
 
     @Override

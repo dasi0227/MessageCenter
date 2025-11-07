@@ -12,7 +12,6 @@ import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
-import com.dasi.core.mapper.ContactMapper;
 import com.dasi.core.mapper.DispatchMapper;
 import com.dasi.core.mapper.MessageMapper;
 import com.dasi.core.service.ContactService;
@@ -48,9 +47,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private DispatchMapper dispatchMapper;
 
     @Autowired
-    private ContactMapper contactMapper;
-
-    @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @Autowired
@@ -73,18 +69,23 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         Message message = BeanUtil.copyProperties(dto, Message.class);
         save(message);
 
-        // 发到每个收件人
-        Long sendFrom = AccountContextHolder.get().getId();
+        // 确定操作人和发件人
+        Long accountId = AccountContextHolder.get().getId();
+        Long departmentId = dto.getDepartmentId();
+
+        // 确定收件人
         List<Dispatch> dispatchList = new ArrayList<>();
-        for (Long sendTo : dto.getContactIds()) {
-            String target = contactService.resolveTarget(sendTo, dto.getChannel());
+        for (Long contactId : dto.getContactIds()) {
+            String target = contactService.resolveTarget(contactId, dto.getChannel());
             Dispatch dispatch = Dispatch.builder()
-                    .msgId(message.getId())
-                    .channel(dto.getChannel())
-                    .status(MsgStatus.PENDING)
-                    .sendFrom(sendFrom)
-                    .sendTo(sendTo)
+                    .accountId(accountId)               // 操作人
+                    .departmentId(departmentId)         // 发件部门
+                    .contactId(contactId)               // 收件人
+                    .msgId(message.getId())             // 消息ID
+                    .channel(dto.getChannel())          // 渠道
+                    .status(MsgStatus.PENDING)          // 初始状态
                     .target(target)
+                    .scheduleAt(dto.getScheduleAt())
                     .createdAt(LocalDateTime.now())
                     .build();
             dispatchMapper.insert(dispatch);

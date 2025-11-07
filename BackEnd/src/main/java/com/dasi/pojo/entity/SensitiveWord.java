@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,4 +19,5 @@ public class SensitiveWord {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String word;
+    private LocalDateTime createdAt;
 }

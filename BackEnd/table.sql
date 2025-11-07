@@ -43,17 +43,18 @@ CREATE TABLE IF NOT EXISTS contact (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 模板
+DROP TABLE IF EXISTS template;
 CREATE TABLE IF NOT EXISTS template (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
     name        VARCHAR(64)     NOT NULL                    COMMENT '模板名称',
     subject     VARCHAR(128)    DEFAULT NULL                COMMENT '标题',
     content     TEXT            NOT NULL                    COMMENT '正文',
-    created_by  BIGINT          NOT NULL                    COMMENT '创建人 id',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 消息
+DROP TABLE IF EXISTS message;
 CREATE TABLE IF NOT EXISTS message (
     id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
     subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
@@ -63,11 +64,13 @@ CREATE TABLE IF NOT EXISTS message (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 发送
+DROP TABLE IF EXISTS dispatch;
 CREATE TABLE IF NOT EXISTS dispatch (
     id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
     msg_id      BIGINT          NOT NULL                    COMMENT '消息 id',
-    send_from   BIGINT          NOT NULL                    COMMENT '发件人 id',
-    send_to     BIGINT          NOT NULL                    COMMENT '收件人 id',
+    account_id  BIGINT          NOT NULL                    COMMENT '操作人 id',
+    department_id BIGINT        NOT NULL                    COMMENT '发件人 id',
+    contact_id  BIGINT          NOT NULL                    COMMENT '收件人 id',
     target      VARCHAR(32)     NOT NULL                    COMMENT '收件人地址',
     channel     VARCHAR(32)     NOT NULL                    COMMENT '消息渠道',
     status      VARCHAR(32)     NOT NULL                    COMMENT '消息状态',
@@ -76,7 +79,7 @@ CREATE TABLE IF NOT EXISTS dispatch (
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间',
     finished_at DATETIME        DEFAULT NULL                COMMENT '完成时间',
-    UNIQUE KEY uk_msg_contact (msg_id, send_from, send_to)
+    UNIQUE KEY uk_msg_contact (msg_id, department_id, contact_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 信箱
@@ -94,7 +97,19 @@ CREATE TABLE IF NOT EXISTS mailbox (
     read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS sensitive_word;
 CREATE TABLE IF NOT EXISTS sensitive_word (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    word        VARCHAR(64)     NOT NULL UNIQUE             COMMENT '敏感词'
+    word        VARCHAR(64)     NOT NULL UNIQUE             COMMENT '敏感词',
+    created_at  DATETIME        NOT NULL                    COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS render;
+CREATE TABLE IF NOT EXISTS render (
+    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
+    field_key   VARCHAR(64)     NOT NULL UNIQUE             COMMENT '字段键（占位符 key）',
+    field_value VARCHAR(256)    DEFAULT NULL                COMMENT '字段值',
+    remark      VARCHAR(256)    DEFAULT NULL                COMMENT '备注说明',
+    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
+    updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

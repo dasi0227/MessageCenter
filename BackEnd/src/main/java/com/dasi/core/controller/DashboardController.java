@@ -15,27 +15,15 @@ public class DashboardController {
     @Autowired
     private DashboardService dashboardService;
 
-    @GetMapping("/total")
-    public Result<StatTotalVO> getStatTotal() {
-        StatTotalVO vo = dashboardService.getStatTotal();
+    @GetMapping("/num")
+    public Result<StatNumVO> getStatNum() {
+        StatNumVO vo = dashboardService.getStatNum();
         return Result.success(vo);
     }
 
-    @GetMapping("/contact")
-    public Result<StatContactVO> getStatContact() {
-        StatContactVO vo = dashboardService.getStatContact();
-        return Result.success(vo);
-    }
-
-    @GetMapping("/channel")
-    public Result<StatChannelVO> getStatChannel() {
-        StatChannelVO vo = dashboardService.getStatChannel();
-        return Result.success(vo);
-    }
-
-    @GetMapping("/account")
-    public Result<StatAccountVO> getStatAccount() {
-        StatAccountVO vo = dashboardService.getStatAccount();
+    @GetMapping("/dispatch")
+    public Result<StatDispatchVO> getStatDispatch() {
+        StatDispatchVO vo = dashboardService.getStatDispatch();
         return Result.success(vo);
     }
 

@@ -2,7 +2,7 @@
     <div class="dashboard">
         <!-- 顶部统计卡片 -->
         <el-row :gutter="20" class="stat-cards">
-            <el-col :span="4" v-for="item in totalList" :key="item.label">
+            <el-col :span="4" v-for="item in statList" :key="item.label">
                 <el-card class="stat-card">
                     <div class="label">{{ item.label }}</div>
                     <div class="value">{{ item.value }}</div>
@@ -10,35 +10,21 @@
             </el-col>
         </el-row>
 
+        <!-- 分发维度统计 -->
         <el-row :gutter="20" class="charts">
-            <!-- 渠道分布 -->
-            <el-col :span="12">
-                <el-card><div ref="channelChart" class="chart"></div></el-card>
-            </el-col>
-
-            <!-- 账户排行 -->
-            <el-col :span="12">
-                <el-card><div ref="accountChart" class="chart"></div></el-card>
-            </el-col>
+            <el-col :span="12"><el-card><div ref="accountChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12"><el-card><div ref="departmentChart" class="chart"></div></el-card></el-col>
         </el-row>
 
         <el-row :gutter="20" class="charts">
-            <!-- 联系人状态饼图 -->
-            <el-col :span="12">
-                <el-card><div ref="contactChart" class="chart"></div></el-card>
-            </el-col>
-
-            <!-- 年度趋势 -->
-            <el-col :span="12">
-                <el-card><div ref="yearChart" class="chart"></div></el-card>
-            </el-col>
+            <el-col :span="12"><el-card><div ref="channelChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12"><el-card><div ref="contactChart" class="chart"></div></el-card></el-col>
         </el-row>
 
-        <el-row>
-            <!-- 月度折线图 -->
-            <el-col :span="24">
-                <el-card><div ref="monthChart" class="chart"></div></el-card>
-            </el-col>
+        <!-- 年度 & 月度趋势 -->
+        <el-row :gutter="20" class="charts">
+            <el-col :span="12"><el-card><div ref="yearChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12"><el-card><div ref="monthChart" class="chart"></div></el-card></el-col>
         </el-row>
     </div>
 </template>
@@ -48,111 +34,117 @@ import { ref, onMounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import request from '../api/request'
 
-const yearChart = ref()
-const channelChart = ref()
+/* Chart refs */
 const accountChart = ref()
+const departmentChart = ref()
 const contactChart = ref()
+const channelChart = ref()
+const yearChart = ref()
 const monthChart = ref()
 
-const totalList = ref([])
+/* 顶部统计卡片数据 */
+const statList = ref([])
 
-const drawCharts = (data) => {
+/* 绘图函数 */
+const drawCharts = (dispatch, year, month) => {
+    const baseOpt = { tooltip: { trigger: 'axis' }, xAxis: {}, yAxis: {} }
+
+    // 账户维度
+    const ac = echarts.init(accountChart.value)
+    ac.setOption({
+        ...baseOpt,
+        title: { text: '账户处理量 TOP5' },
+        xAxis: { type: 'category', data: dispatch.accountNames },
+        series: [{ type: 'bar', data: dispatch.accountCounts, color: '#409EFF' }]
+    })
+
+    // 部门维度
+    const dc = echarts.init(departmentChart.value)
+    dc.setOption({
+        ...baseOpt,
+        title: { text: '部门发送量 TOP5' },
+        xAxis: { type: 'category', data: dispatch.departmentNames },
+        series: [{ type: 'bar', data: dispatch.departmentCounts, color: '#67C23A' }]
+    })
+
+    // 联系人维度
+    const cc = echarts.init(contactChart.value)
+    cc.setOption({
+        ...baseOpt,
+        title: { text: '联系人接收量 TOP5' },
+        xAxis: { type: 'category', data: dispatch.contactNames },
+        series: [{ type: 'bar', data: dispatch.contactCounts, color: '#E6A23C' }]
+    })
+
+    // 渠道维度
+    const ch = echarts.init(channelChart.value)
+    ch.setOption({
+        ...baseOpt,
+        title: { text: '渠道发送量 TOP5' },
+        xAxis: { type: 'category', data: dispatch.channelNames },
+        series: [{ type: 'bar', data: dispatch.channelCounts, color: '#F56C6C' }]
+    })
+
     // 年度趋势
     const yc = echarts.init(yearChart.value)
     yc.setOption({
         title: { text: '年度发送趋势' },
         tooltip: { trigger: 'axis' },
-        xAxis: { data: data.year.months },
+        xAxis: { data: year.months },
         yAxis: {},
-        series: [{ name: '消息数', type: 'bar', data: data.year.counts, color: '#409EFF' }]
+        series: [{ type: 'line', smooth: true, data: year.counts, color: '#C39DA9' }]
     })
 
-    // 渠道分布
-    const cc = echarts.init(channelChart.value)
-    cc.setOption({
-        title: { text: '渠道发送量排行' },
-        tooltip: { trigger: 'item' },
-        xAxis: { type: 'category', data: data.channel.channels },
-        yAxis: {},
-        series: [{ type: 'bar', data: data.channel.counts, color: '#67C23A' }]
-    })
-
-    // 账户发送量排行
-    const ac = echarts.init(accountChart.value)
-    ac.setOption({
-        title: { text: '账户发送量排行' },
-        tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: data.account.accounts },
-        yAxis: {},
-        series: [{ type: 'bar', data: data.account.counts, color: '#E6A23C' }]
-    })
-
-    // 联系人活跃状态饼图
-    const ct = echarts.init(contactChart.value)
-    ct.setOption({
-        title: { text: '联系人活跃分布' },
-        tooltip: { trigger: 'item' },
-        series: [
-            {
-                type: 'pie',
-                radius: '60%',
-                data: [
-                    { name: '活跃', value: data.contact.activeContacts },
-                    { name: '不活跃', value: data.contact.inactiveContacts }
-                ]
-            }
-        ]
-    })
-
-    // 月度折线趋势
+    // 月度趋势
     const mc = echarts.init(monthChart.value)
     mc.setOption({
-        title: { text: '本月每日发送趋势' },
+        title: { text: '本月发送趋势' },
         tooltip: { trigger: 'axis' },
-        xAxis: { data: data.month.days },
+        xAxis: { data: month.days },
         yAxis: {},
-        series: [{ type: 'line', smooth: true, data: data.month.counts, color: '#F56C6C' }]
+        series: [{ type: 'line', smooth: true, data: month.counts, color: '#A15EFF' }]
     })
 
     // 自适应
     window.addEventListener('resize', () => {
-        yc.resize()
-        cc.resize()
         ac.resize()
-        ct.resize()
+        dc.resize()
+        cc.resize()
+        ch.resize()
+        yc.resize()
         mc.resize()
     })
 }
 
-// 页面加载时获取数据
+/* 页面加载 */
 onMounted(async () => {
-    const [total, contact, channel, account, year, month] = await Promise.all([
-        request.get('/dashboard/total'),
-        request.get('/dashboard/contact'),
-        request.get('/dashboard/channel'),
-        request.get('/dashboard/account'),
+    const [num, dispatch, year, month] = await Promise.all([
+        request.get('/dashboard/num'),
+        request.get('/dashboard/dispatch'),
         request.get('/dashboard/year'),
         request.get('/dashboard/month')
     ])
 
-    // ✅ 注意这里要用 data.data 取出真正的数据体
-    totalList.value = [
-        { label: '消息总数', value: total.data.data.messageTotal },
-        { label: '发送总数', value: total.data.data.dispatchTotal },
-        { label: '待发送', value: total.data.data.dispatchPending },
-        { label: '发送中', value: total.data.data.dispatchSending },
-        { label: '成功', value: total.data.data.dispatchSuccess },
-        { label: '失败', value: total.data.data.dispatchFail }
+    const n = num.data.data
+
+    // 顶部卡片列表
+    statList.value = [
+        { label: '消息总数', value: n.messageTotal },
+        { label: '投递总数', value: n.dispatchTotal },
+        { label: '待发送', value: n.dispatchPending },
+        { label: '发送中', value: n.dispatchSending },
+        { label: '成功', value: n.dispatchSuccess },
+        { label: '失败', value: n.dispatchFail },
+        { label: '账户数', value: n.accountNum },
+        { label: '部门数', value: n.departmentNum },
+        { label: '联系人', value: n.contactNum },
+        { label: '敏感词', value: n.sensitiveWordNum },
+        { label: '模板数', value: n.templateNum },
+        { label: '渠道数', value: n.channelNum }
     ]
 
     await nextTick()
-    drawCharts({
-        year: year.data.data,
-        channel: channel.data.data,
-        account: account.data.data,
-        contact: contact.data.data,
-        month: month.data.data
-    })
+    drawCharts(dispatch.data.data, year.data.data, month.data.data)
 })
 </script>
 
@@ -162,6 +154,8 @@ onMounted(async () => {
 }
 .stat-cards {
     margin-bottom: 30px;
+    row-gap: 30px;
+    flex-wrap: wrap;
 }
 .stat-card {
     text-align: center;

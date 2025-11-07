@@ -20,6 +20,9 @@ public class MessageSendDTO {
     @NotBlank(message = "消息内容不能为空")
     private String content;
 
+    @NotNull(message = "部门 id 不能为空")
+    private Long departmentId;
+
     @NotEmpty(message = "至少需要一个收件人")
     private List<Long> contactIds;
 

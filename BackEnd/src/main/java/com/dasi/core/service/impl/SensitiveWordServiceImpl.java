@@ -1,9 +1,12 @@
 package com.dasi.core.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
+import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.SensitiveWordException;
 import com.dasi.core.mapper.SensitiveWordMapper;
@@ -33,6 +36,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
 
     @Override
     @AdminOnly
+    @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
     public void addSensitiveWords(SensitiveWordsAddDTO dto) {
         Set<String> input = dto.getWords();
@@ -47,7 +51,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
         }
 
         List<SensitiveWord> words = newWords.stream()
-                .map(word -> SensitiveWord.builder().word(word).build())
+                .map(word -> SensitiveWord.builder().createdAt(dto.getCreatedAt()).word(word).build())
                 .toList();
 
         sensitiveWordMapper.insertWords(words);
@@ -68,9 +72,12 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
     @Override
     @AdminOnly
     public void updateSensitiveWord(SensitiveWordUpdateDTO dto) {
+        if (exists(new LambdaQueryWrapper<SensitiveWord>().eq(SensitiveWord::getWord, dto.getWord()))) {
+            throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_NOT_FOUND);
+        }
         if (!update(new LambdaUpdateWrapper<SensitiveWord>()
                 .eq(SensitiveWord::getId, dto.getId())
-                .set(SensitiveWord::getWord, dto.getWord()))) {
+                .set(StrUtil.isNotBlank(dto.getWord()), SensitiveWord::getWord, dto.getWord()))) {
             throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_UPDATE_FAIL);
         }
         sensitiveWordDetectUtil.reload();
@@ -79,8 +86,8 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
 
     @Override
     public List<SensitiveWord> getSensitiveWordList() {
-        List<SensitiveWord> words = list(new LambdaQueryWrapper<SensitiveWord>().orderByAsc(SensitiveWord::getWord));
-        log.debug("【SensitiveWord Service】查询敏感词：{}", words);
+        List<SensitiveWord> words = list(new LambdaQueryWrapper<SensitiveWord>().orderByDesc(SensitiveWord::getCreatedAt));
+        log.debug("【SensitiveWord Service】查询敏感词列表：{}", words);
         return words;
     }
 }

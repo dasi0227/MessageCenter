@@ -3,13 +3,11 @@ package com.dasi.core.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.MsgStatus;
-import com.dasi.core.mapper.AccountMapper;
-import com.dasi.core.mapper.ContactMapper;
-import com.dasi.core.mapper.DispatchMapper;
-import com.dasi.core.mapper.MessageMapper;
+import com.dasi.core.mapper.*;
 import com.dasi.core.service.DashboardService;
 import com.dasi.pojo.entity.Account;
 import com.dasi.pojo.entity.Contact;
+import com.dasi.pojo.entity.Department;
 import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.vo.*;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +35,15 @@ public class DashboardServiceImpl implements DashboardService {
     @Autowired
     private AccountMapper accountMapper;
 
+    @Autowired
+    private DepartmentMapper departmentMapper;
+
+    @Autowired
+    private SensitiveWordMapper sensitiveWordMapper;
+
     @Override
-    public StatTotalVO getStatTotal() {
+    public StatNumVO getStatNum() {
+        // 消息与投递统计
         long messageTotal = messageMapper.selectCount(null);
         long dispatchTotal = dispatchMapper.selectCount(null);
         long pending = dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getStatus, MsgStatus.PENDING));
@@ -46,68 +51,34 @@ public class DashboardServiceImpl implements DashboardService {
         long success = dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getStatus, MsgStatus.SUCCESS));
         long fail = dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getStatus, MsgStatus.FAIL));
 
-        StatTotalVO vo = StatTotalVO.builder()
+        // 人员与组织统计
+        long accountNum = accountMapper.selectCount(null);
+        long departmentNum = departmentMapper.selectCount(null);
+        long contactNum = contactMapper.selectCount(null);
+
+        // 系统配置统计
+        long sensitiveWordNum = sensitiveWordMapper.selectCount(null);
+//        long templateNum = templateMapper.selectCount(null);
+        long templateNum = 0L;
+        long channelNum = Arrays.stream(MsgChannel.values()).count();
+
+        // 封装结果
+        StatNumVO vo = StatNumVO.builder()
                 .messageTotal(messageTotal)
+                .dispatchTotal(dispatchTotal)
                 .dispatchPending(pending)
                 .dispatchSending(sending)
-                .dispatchTotal(dispatchTotal)
                 .dispatchSuccess(success)
                 .dispatchFail(fail)
+                .accountNum(accountNum)
+                .departmentNum(departmentNum)
+                .contactNum(contactNum)
+                .sensitiveWordNum(sensitiveWordNum)
+                .templateNum(templateNum)
+                .channelNum(channelNum)
                 .build();
 
-        log.info("【Dashboard Service】消息统计：{}", vo);
-        return vo;
-    }
-
-    @Override
-    public StatContactVO getStatContact() {
-        long total = contactMapper.selectCount(null);
-        long active = contactMapper.selectCount(new LambdaQueryWrapper<Contact>().eq(Contact::getStatus, 1));
-        long inactive = contactMapper.selectCount(new LambdaQueryWrapper<Contact>().eq(Contact::getStatus, 0));
-
-        StatContactVO vo = StatContactVO.builder()
-                .totalContacts(total)
-                .activeContacts(active)
-                .inactiveContacts(inactive)
-                .build();
-
-        log.info("【Dashboard Service】联系人统计：{}", vo);
-        return vo;
-    }
-
-    @Override
-    public StatChannelVO getStatChannel() {
-        List<MsgChannel> channels = Arrays.asList(MsgChannel.values());
-        List<Long> counts = channels.stream()
-                .map(ch -> dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getChannel, ch)))
-                .toList();
-
-        StatChannelVO vo = StatChannelVO.builder()
-                .channels(channels)
-                .counts(counts)
-                .build();
-
-        log.info("【Dashboard Service】各通道统计：{}", vo);
-        return vo;
-    }
-
-    @Override
-    public StatAccountVO getStatAccount() {
-        List<Account> accounts = accountMapper.selectList(
-                new LambdaQueryWrapper<Account>().select(Account::getId, Account::getName)
-        );
-
-        List<String> names = accounts.stream().map(Account::getName).toList();
-        List<Long> counts = accounts.stream()
-                .map(acc -> dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getSendFrom, acc.getId())))
-                .toList();
-
-        StatAccountVO vo = StatAccountVO.builder()
-                .accounts(names)
-                .counts(counts)
-                .build();
-
-        log.info("【Dashboard Service】账户统计：{}", vo);
+        log.debug("【Dashboard Service】数量统计：{}", vo);
         return vo;
     }
 
@@ -161,6 +132,28 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         log.info("【Dashboard Service】月度统计：{}", vo);
+        return vo;
+    }
+
+    @Override
+    public StatDispatchVO getStatDispatch() {
+        List<Map<String, Object>> accountList = dispatchMapper.countByAccount();
+        List<Map<String, Object>> departmentList = dispatchMapper.countByDepartment();
+        List<Map<String, Object>> contactList = dispatchMapper.countByContact();
+        List<Map<String, Object>> channelList = dispatchMapper.countByChannel();
+
+        StatDispatchVO vo = StatDispatchVO.builder()
+                .accountNames(accountList.stream().map(m -> m.get("name").toString()).toList())
+                .accountCounts(accountList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
+                .departmentNames(departmentList.stream().map(m -> m.get("name").toString()).toList())
+                .departmentCounts(departmentList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
+                .contactNames(contactList.stream().map(m -> m.get("name").toString()).toList())
+                .contactCounts(contactList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
+                .channelNames(channelList.stream().map(m -> m.get("name").toString()).toList())
+                .channelCounts(channelList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
+                .build();
+
+        log.debug("【Dashboard Service】分发统计：{}", vo);
         return vo;
     }
 }

@@ -22,10 +22,11 @@ public class Dispatch {
     @TableId(type = IdType.ASSIGN_ID)
     private Long            id;             // 雪花 id
 
+    private Long            accountId;      // 操作人 id
     private Long            msgId;          // 消息 id
-    private Long            sendFrom;       // 发件人 id
-    private Long            sendTo;         // 收件人 id
-    private String          target;         // 收件地址
+    private Long            departmentId;   // 部门 id
+    private Long            contactId;      // 收件人 id
+    private String          target;         // 收件目标
 
     private MsgChannel      channel;        // 消息渠道
     private MsgStatus       status;         // 消息状态
@@ -41,6 +42,7 @@ public class Dispatch {
 CREATE TABLE IF NOT EXISTS dispatch (
     id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
     msg_id      BIGINT          NOT NULL                    COMMENT '消息 id',
+    account_id  BIGINT          NOT NULL                    COMMENT '操作人 id',
     send_from   BIGINT          NOT NULL                    COMMENT '发件人 id',
     send_to     BIGINT          NOT NULL                    COMMENT '收件人 id',
     target      VARCHAR(32)     NOT NULL                    COMMENT '收件人地址',

@@ -8,7 +8,6 @@ import com.dasi.pojo.dto.AccountLoginDTO;
 import com.dasi.pojo.dto.AccountPageDTO;
 import com.dasi.pojo.entity.Account;
 import com.dasi.pojo.vo.AccountLoginVO;
-import com.dasi.pojo.vo.AccountPageVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -21,7 +20,7 @@ public interface AccountService extends IService<Account> {
 
     String refresh(HttpServletRequest request);
 
-    PageResult<AccountPageVO> getAccountPage(AccountPageDTO dto);
+    PageResult<Account> getAccountPage(AccountPageDTO dto);
 
     void updateAccount(AccountUpdateDTO dto);
 

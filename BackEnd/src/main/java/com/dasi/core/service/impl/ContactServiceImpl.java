@@ -52,6 +52,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     private MailboxMapper mailboxMapper;
 
     @Override
+    @AdminOnly
     @AutoFill(FillType.INSERT)
     public void addContact(ContactAddDTO dto) {
         // 检查重名
@@ -69,6 +70,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     }
 
     @Override
+    @AdminOnly
     public void removeContact(Long id) {
         if (!removeById(id)) {
             throw new ContactException(ResultInfo.CONTACT_REMOVE_FAIL);
