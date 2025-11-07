@@ -95,7 +95,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         // 敏感词处理
         String sensitiveWords = sensitiveWordDetectUtil.detect(message);
         if (StrUtil.isNotEmpty(sensitiveWords)) {
-            String errorMsg = DefaultConstant.SENSITIVE_WORD_WARNING + sensitiveWords;
+            String errorMsg = DefaultConstant.DEFAULT_SENSITIVE_WORD_WARNING + sensitiveWords;
             for (Dispatch dispatch : dispatchList) {
                 dispatchService.updateFailStatus(dispatch.getId(), errorMsg);
             }

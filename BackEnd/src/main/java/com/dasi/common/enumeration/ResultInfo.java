@@ -46,9 +46,9 @@ public enum ResultInfo {
     MAILBOX_REMOVE_FAIL(3002, "站内信删除失败"),
 
     // ====== 消息发送模块 ======
-    SEND_MAILBOX_ERROR(4001, "站内信发送失败"),
-    SEND_SMS_ERROR(4002, "短信发送失败"),
-    SEND_EMAIL_ERROR(4003, "邮件发送失败"),
+    SEND_MAILBOX_FAIL(4001, "站内信发送失败"),
+    SEND_SMS_FAIL(4002, "短信发送失败"),
+    SEND_EMAIL_FAIL(4003, "邮件发送失败"),
 
     // ====== 敏感词模块 ======
     SENSITIVE_WORD_ALREADY_EXISTS(5001, "敏感词已存在"),
@@ -56,9 +56,13 @@ public enum ResultInfo {
     SENSITIVE_WORD_REMOVE_FAIL(5003, "敏感词删除失败"),
     SENSITIVE_WORD_UPDATE_FAIL(5004, "敏感词修改失败"),
     TEMPLATE_NOT_FOUND(5005, "模版不存在"),
-    TEMPLATE_ALREADY_EXIST(5006, "模版已存在"),
+    TEMPLATE_ALREADY_EXISTS(5006, "模版已存在"),
     TEMPLATE_REMOVE_FAIL(5007, "模版删除失败"),
     TEMPLATE_UPDATE_FAIL(5008, "模版修改失败"),
+    RENDER_NOT_FOUND(5005, "键不存在"),
+    RENDER_ALREADY_EXISTS(5006, "键已存在"),
+    RENDER_REMOVE_FAIL(5007, "渲染字段删除失败"),
+    RENDER_UPDATE_FAIL(5008, "渲染字段修改失败"),
 
     // ====== 兜底 ======
     UNKNOWN_ERROR(9999, "未知错误");

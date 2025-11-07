@@ -33,12 +33,12 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.INSERT)
+    @Transactional(rollbackFor = Exception.class)
     public void addTemplate(TemplateAddDTO dto) {
         if (exists(new LambdaQueryWrapper<Template>().eq(Template::getName, dto.getName()))) {
-            throw new TemplateException(ResultInfo.TEMPLATE_ALREADY_EXIST);
+            throw new TemplateException(ResultInfo.TEMPLATE_ALREADY_EXISTS);
         }
 
         Template template = BeanUtil.copyProperties(dto, Template.class);
@@ -49,6 +49,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 
     @Override
     @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
     public void removeTemplate(Long id) {
         if (!removeById(id)) {
             throw new TemplateException(ResultInfo.TEMPLATE_REMOVE_FAIL);
@@ -59,6 +60,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @Override
     @AutoFill(FillType.UPDATE)
     @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
     public void updateTemplate(TemplateUpdateDTO dto) {
         if (!exists(new LambdaQueryWrapper<Template>().eq(Template::getId, dto.getId()))) {
             throw new TemplateException(ResultInfo.TEMPLATE_NOT_FOUND);

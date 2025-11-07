@@ -31,7 +31,7 @@ public class MailboxSender {
         } catch (Exception e) {
             log.error("【投递器】投递站内信失败：{}", e.getMessage());
             dispatchService.updateFinishStatus(dispatchId, MsgStatus.FAIL, e.getMessage());
-            throw new SendException(ResultInfo.SEND_MAILBOX_ERROR);
+            throw new SendException(ResultInfo.SEND_MAILBOX_FAIL);
         }
     }
 }

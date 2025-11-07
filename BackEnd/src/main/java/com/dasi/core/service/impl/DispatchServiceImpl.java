@@ -22,6 +22,16 @@ public class DispatchServiceImpl extends ServiceImpl<DispatchMapper, Dispatch> i
     @Autowired
     private DispatchMapper dispatchMapper;
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateSendStatus(Long dispatchId) {
+        update(new LambdaUpdateWrapper<Dispatch>()
+                .eq(Dispatch::getId, dispatchId)
+                .set(Dispatch::getStatus, MsgStatus.SENDING)
+                .set(Dispatch::getSentAt, LocalDateTime.now())
+        );
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateFinishStatus(Long id, MsgStatus status, String errorMsg) {
         update(new LambdaUpdateWrapper<Dispatch>()
@@ -29,16 +39,6 @@ public class DispatchServiceImpl extends ServiceImpl<DispatchMapper, Dispatch> i
             .set(Dispatch::getStatus, status)
             .set(Dispatch::getErrorMsg, errorMsg)
             .set(Dispatch::getFinishedAt, LocalDateTime.now())
-        );
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Override
-    public void updateSendStatus(Long dispatchId) {
-        update(new LambdaUpdateWrapper<Dispatch>()
-                .eq(Dispatch::getId, dispatchId)
-                .set(Dispatch::getStatus, MsgStatus.SENDING)
-                .set(Dispatch::getSentAt, LocalDateTime.now())
         );
     }
 

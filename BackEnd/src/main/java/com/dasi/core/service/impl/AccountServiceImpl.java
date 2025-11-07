@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     @AutoFill(FillType.INSERT)
+    @Transactional(rollbackFor = Exception.class)
     public void register(AccountLoginDTO dto) {
         // 检查重名
         if (exists(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()))) {
@@ -120,6 +122,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     @AutoFill(FillType.UPDATE)
     @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
     public void updateAccount(AccountUpdateDTO dto) {
         if (AccountContextHolder.get().getId().equals(dto.getId())) {
             throw new AccountException(ResultInfo.ACCOUNT_REMOVE_UPDATE_DENIED);
@@ -137,6 +140,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @AdminOnly
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void removeAccount(Long id) {
         if (AccountContextHolder.get().getId().equals(id)) {
             throw new AccountException(ResultInfo.ACCOUNT_REMOVE_UPDATE_DENIED);
@@ -161,6 +165,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     @AdminOnly
     @AutoFill(FillType.INSERT)
+    @Transactional(rollbackFor = Exception.class)
     public void addAccount(AccountAddDTO dto) {
         // 检查重名
         if (exists(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()))) {

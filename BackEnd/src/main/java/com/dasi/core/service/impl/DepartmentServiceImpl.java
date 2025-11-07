@@ -20,6 +20,7 @@ import com.dasi.pojo.dto.DepartmentUpdateDTO;
 import com.dasi.pojo.entity.Department;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -43,6 +44,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     @AdminOnly
     @AutoFill(FillType.INSERT)
+    @Transactional(rollbackFor = Exception.class)
     public void addDepartment(DepartmentAddDTO dto) {
         if (exists(new LambdaQueryWrapper<Department>().eq(Department::getName, dto.getName()))) {
             throw new DepartmentException(ResultInfo.DEPARTMENT_ALREADY_EXISTS);
@@ -57,6 +59,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     @AdminOnly
     @AutoFill(FillType.UPDATE)
+    @Transactional(rollbackFor = Exception.class)
     public void updateDepartment(DepartmentUpdateDTO dto) {
         if (!update(new LambdaUpdateWrapper<Department>()
                 .eq(Department::getId, dto.getId())
@@ -72,6 +75,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Override
     @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
     public void removeDepartment(Long id) {
         if (!removeById(id)) {
             throw new DepartmentException(ResultInfo.DEPARTMENT_REMOVE_FAIL);

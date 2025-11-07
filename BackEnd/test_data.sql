@@ -104,3 +104,16 @@ INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('奖学金通知模板', '奖学金发放通知', '恭喜您获得本学期奖学金，请尽快前往财务处办理。', NOW(), NOW()),
 ('志愿活动模板', '志愿者活动报名', '本周六志愿活动火热报名中，点击报名参与社区服务！', NOW(), NOW()),
 ('毕业典礼模板', '毕业典礼邀请函', '亲爱的同学，诚邀您参加 2025 届毕业典礼，共赴青春盛宴！', NOW(), NOW());
+
+
+INSERT INTO render (`key`, `value`, remark, created_at, updated_at) VALUES
+('#account', NULL, '自动解析为账户名称', NOW(), NOW()),
+('#department', NULL, '自动解析为部门名称', NOW(), NOW()),
+('#contact', NULL, '自动解析为联系人名称', NOW(), NOW()),
+('#date', NULL, '自动解析为当前日期（yyyy-MM-dd）', NOW(), NOW()),
+('#datetime', NULL, '自动解析为当前时间（yyyy-MM-dd HH:mm:ss）', NOW(), NOW()),
+('greeting', '您好，${{#contact}}$！', '自定义问候语模板', NOW(), NOW()),
+('signature', '此致，敬礼', '通用签名', NOW(), NOW()),
+('school', '中山大学', '固定字段：学校名称', NOW(), NOW()),
+('website', 'https://dasi.blog', '固定字段：博客网站', NOW(), NOW()),
+('notice', '请在${{#date}}$前完成操作', '自动带日期的提醒文本', NOW(), NOW());

@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +55,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @Override
     @AdminOnly
     @AutoFill(FillType.INSERT)
+    @Transactional(rollbackFor = Exception.class)
     public void addContact(ContactAddDTO dto) {
         // 检查重名
         if (exists(new LambdaQueryWrapper<Contact>().eq(Contact::getName, dto.getName()))) {
@@ -71,6 +73,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
 
     @Override
     @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
     public void removeContact(Long id) {
         if (!removeById(id)) {
             throw new ContactException(ResultInfo.CONTACT_REMOVE_FAIL);
@@ -81,6 +84,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @Override
     @AdminOnly
     @AutoFill(FillType.UPDATE)
+    @Transactional(rollbackFor = Exception.class)
     public void updateContact(ContactUpdateDTO dto) {
         Contact contact = getById(dto.getId());
         if (contact == null) {
@@ -98,6 +102,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @Override
     @AdminOnly
     @AutoFill(FillType.UPDATE)
+    @Transactional(rollbackFor = Exception.class)
     public void updateStatus(ContactStatusDTO dto) {
         if (!update(new LambdaUpdateWrapper<Contact>()
                 .eq(Contact::getId, dto.getId())

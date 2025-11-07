@@ -35,6 +35,13 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
     private SensitiveWordMapper sensitiveWordMapper;
 
     @Override
+    public List<SensitiveWord> getSensitiveWordList() {
+        List<SensitiveWord> words = list(new LambdaQueryWrapper<SensitiveWord>().orderByDesc(SensitiveWord::getCreatedAt));
+        log.debug("【SensitiveWord Service】查询敏感词列表：{}", words);
+        return words;
+    }
+
+    @Override
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
@@ -62,6 +69,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
 
     @Override
     @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
     public void removeSensitiveWord(String id) {
         if (!removeById(id)) {
             throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_REMOVE_FAIL);
@@ -71,6 +79,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
 
     @Override
     @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
     public void updateSensitiveWord(SensitiveWordUpdateDTO dto) {
         if (exists(new LambdaQueryWrapper<SensitiveWord>().eq(SensitiveWord::getWord, dto.getWord()))) {
             throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_NOT_FOUND);
@@ -82,12 +91,5 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
         }
         sensitiveWordDetectUtil.reload();
         log.debug("【SensitiveWord Service】更新敏感词：{}", dto);
-    }
-
-    @Override
-    public List<SensitiveWord> getSensitiveWordList() {
-        List<SensitiveWord> words = list(new LambdaQueryWrapper<SensitiveWord>().orderByDesc(SensitiveWord::getCreatedAt));
-        log.debug("【SensitiveWord Service】查询敏感词列表：{}", words);
-        return words;
     }
 }

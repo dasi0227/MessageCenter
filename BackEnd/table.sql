@@ -107,9 +107,9 @@ CREATE TABLE IF NOT EXISTS sensitive_word (
 DROP TABLE IF EXISTS render;
 CREATE TABLE IF NOT EXISTS render (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    field_key   VARCHAR(64)     NOT NULL UNIQUE             COMMENT '字段键（占位符 key）',
-    field_value VARCHAR(256)    DEFAULT NULL                COMMENT '字段值',
+    `key`       VARCHAR(64)     NOT NULL UNIQUE             COMMENT '字段键（占位符 key）',
+    `value`     VARCHAR(256)    DEFAULT NULL                COMMENT '字段值',
     remark      VARCHAR(256)    DEFAULT NULL                COMMENT '备注说明',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
