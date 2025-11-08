@@ -44,9 +44,9 @@ public class RenderResolveUtil {
     public void load() {
         RENDER_MAP.clear();
         renderMapper.selectList(null).stream()
-                .filter(r -> r.getKey() != null && !r.getKey().isEmpty())
+                .filter(r -> r.getName() != null && !r.getName().isEmpty())
                 .filter(r -> r.getValue() != null)
-                .forEach(r -> RENDER_MAP.put(r.getKey(), r.getValue()));
+                .forEach(r -> RENDER_MAP.put(r.getName(), r.getValue()));
     }
 
     public void reload() {

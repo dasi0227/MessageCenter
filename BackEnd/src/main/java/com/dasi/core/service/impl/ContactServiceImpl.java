@@ -24,6 +24,7 @@ import com.dasi.core.mapper.MailboxMapper;
 import com.dasi.core.service.ContactService;
 import com.dasi.pojo.dto.*;
 import com.dasi.pojo.entity.Contact;
+import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Mailbox;
 import com.dasi.pojo.vo.ContactLoginVO;
 import com.dasi.util.InboxUtil;
@@ -72,7 +73,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
-    @UniqueField(serviceClass = ContactServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
+    @UniqueField(fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
     public void addContact(ContactAddDTO dto) {
         Contact contact = BeanUtil.copyProperties(dto, Contact.class);
         contact.setPassword(SecureUtil.md5(dto.getPassword()));
@@ -88,7 +89,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
-    @UniqueField(serviceClass = ContactServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
+    @UniqueField(fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
     public void updateContact(ContactUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<Contact>()
                 .eq(Contact::getId, dto.getId())
@@ -193,4 +194,11 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         };
     }
 
+    @Override
+    public void checkStatus(Dispatch dispatch) {
+        Contact contact = getById(dispatch.getContactId());
+        if (contact == null || contact.getStatus() == null || contact.getStatus() == 0) {
+            throw new ContactException(ResultInfo.CONTACT_STATUS_OFF);
+        }
+    }
 }

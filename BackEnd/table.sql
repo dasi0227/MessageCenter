@@ -42,17 +42,6 @@ CREATE TABLE IF NOT EXISTS contact (
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 模板
-DROP TABLE IF EXISTS template;
-CREATE TABLE IF NOT EXISTS template (
-    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    name        VARCHAR(64)     NOT NULL                    COMMENT '模板名称',
-    subject     VARCHAR(128)    DEFAULT NULL                COMMENT '标题',
-    content     TEXT            NOT NULL                    COMMENT '正文',
-    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
-    updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- 消息
 DROP TABLE IF EXISTS message;
 CREATE TABLE IF NOT EXISTS message (
@@ -97,18 +86,30 @@ CREATE TABLE IF NOT EXISTS mailbox (
     read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 模板
+DROP TABLE IF EXISTS template;
+CREATE TABLE IF NOT EXISTS template (
+    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
+    name        VARCHAR(64)     NOT NULL                    COMMENT '模板名称',
+    subject     VARCHAR(128)    DEFAULT NULL                COMMENT '标题',
+    content     TEXT            NOT NULL                    COMMENT '正文',
+    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
+updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS sensitive_word;
 CREATE TABLE IF NOT EXISTS sensitive_word (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
     word        VARCHAR(64)     NOT NULL UNIQUE             COMMENT '敏感词',
-    created_at  DATETIME        NOT NULL                    COMMENT '创建时间'
+    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
+    updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS render;
 CREATE TABLE IF NOT EXISTS render (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    `key`       VARCHAR(64)     NOT NULL UNIQUE             COMMENT '字段键（占位符 key）',
-    `value`     VARCHAR(256)    DEFAULT NULL                COMMENT '字段值',
+    name        VARCHAR(64)     NOT NULL UNIQUE             COMMENT '字段键（占位符 key）',
+    value       VARCHAR(256)    DEFAULT NULL                COMMENT '字段值',
     remark      VARCHAR(256)    DEFAULT NULL                COMMENT '备注说明',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'

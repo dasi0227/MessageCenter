@@ -64,27 +64,27 @@ INSERT INTO contact (name, password, inbox, phone, email, status, created_at, up
 ('唐硕', '123456', 10019, '13800138019', 'tangshuo@example.com', 1, NOW(), NOW()),
 ('黄琦', '123456', 10020, '13800138020', 'huangqi@example.com', 1, NOW(), NOW());
 
-INSERT INTO sensitive_word (word) VALUES
-('赌博'),
-('色情'),
-('毒品'),
-('暴力'),
-('恐怖组织'),
-('ISIS'),
-('走私'),
-('贪污'),
-('假币'),
-('诈骗'),
-('恐吓'),
-('洗钱'),
-('暗网'),
-('杀人'),
-('军火'),
-('造谣'),
-('辱骂'),
-('违规交易'),
-('成人网站'),
-('非法集资');
+INSERT INTO sensitive_word (word, created_at, updated_at) VALUES
+('赌博', NOW(), NOW()),
+('色情', NOW(), NOW()),
+('毒品', NOW(), NOW()),
+('暴力', NOW(), NOW()),
+('恐怖组织', NOW(), NOW()),
+('ISIS', NOW(), NOW()),
+('走私', NOW(), NOW()),
+('贪污', NOW(), NOW()),
+('假币', NOW(), NOW()),
+('诈骗', NOW(), NOW()),
+('恐吓', NOW(), NOW()),
+('洗钱', NOW(), NOW()),
+('暗网', NOW(), NOW()),
+('杀人', NOW(), NOW()),
+('军火', NOW(), NOW()),
+('造谣', NOW(), NOW()),
+('辱骂', NOW(), NOW()),
+('违规交易', NOW(), NOW()),
+('成人网站', NOW(), NOW()),
+('非法集资', NOW(), NOW());
 
 INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('欢迎信模板', '欢迎加入校园通知系统', '亲爱的用户，欢迎使用本系统，祝您体验愉快！', NOW(), NOW()),
@@ -106,7 +106,7 @@ INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('毕业典礼模板', '毕业典礼邀请函', '亲爱的同学，诚邀您参加 2025 届毕业典礼，共赴青春盛宴！', NOW(), NOW());
 
 
-INSERT INTO render (`key`, `value`, remark, created_at, updated_at) VALUES
+INSERT INTO render (name, value, remark, created_at, updated_at) VALUES
 ('#account', NULL, '自动解析为账户名称', NOW(), NOW()),
 ('#department', NULL, '自动解析为部门名称', NOW(), NOW()),
 ('#contact', NULL, '自动解析为联系人名称', NOW(), NOW()),

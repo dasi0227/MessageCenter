@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueField {
-    Class<?> serviceClass();
     String fieldName();
     String idName() default "id";
     ResultInfo resultInfo() default ResultInfo.UNIQUE_FIELD_CONFLICT;

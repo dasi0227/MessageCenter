@@ -43,7 +43,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.INSERT)
-    @UniqueField(serviceClass = RenderServiceImpl.class, fieldName = "key")
+    @UniqueField(fieldName = "name")
     public void addRender(RenderAddDTO dto) {
         Render render = BeanUtil.copyProperties(dto, Render.class);
         boolean flag = save(render);
@@ -60,7 +60,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.UPDATE)
-    @UniqueField(serviceClass = RenderServiceImpl.class, fieldName = "key")
+    @UniqueField(fieldName = "name")
     public void updateRender(RenderUpdateDTO dto) {
         if (DEFAULT_RENDER_IDS.contains(dto.getId())) {
             log.warn("【Render Service】更新失败，系统预设字段不可修改：{}", dto);
@@ -69,7 +69,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
 
         boolean flag = update(new LambdaUpdateWrapper<Render>()
                 .eq(Render::getId, dto.getId())
-                .set(StrUtil.isNotBlank(dto.getKey()), Render::getKey, dto.getKey())
+                .set(StrUtil.isNotBlank(dto.getName()), Render::getName, dto.getName())
                 .set(StrUtil.isNotBlank(dto.getValue()), Render::getValue, dto.getValue())
                 .set(StrUtil.isNotBlank(dto.getRemark()), Render::getRemark, dto.getRemark())
                 .set(Render::getUpdatedAt, dto.getUpdatedAt()));

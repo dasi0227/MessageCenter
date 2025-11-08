@@ -1,7 +1,6 @@
 package com.dasi.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -20,9 +19,7 @@ public class Render {
 
     @TableId(type = IdType.AUTO)
     private Long id;
-    @TableField("`key`")
-    private String key;
-    @TableField("`value`")
+    private String name;
     private String value;
     private String remark;
     private LocalDateTime createdAt;

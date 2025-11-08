@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -19,26 +17,25 @@ import java.lang.reflect.Field;
 @Slf4j
 public class UniqueFieldAspect {
 
-    @Autowired
-    private ApplicationContext context;
-
+    @SuppressWarnings("unchecked")
     @Before("@annotation(uniqueField)")
     public void before(JoinPoint joinPoint, UniqueField uniqueField) {
-        // 获取 dto
+        Object target = joinPoint.getTarget();
+        if (!(target instanceof IService<?> service)) {
+            log.error("【UniqueField】目标对象不是 IService 实现类，跳过唯一性校验: {}", target.getClass().getName());
+            return;
+        }
+
         Object dto = joinPoint.getArgs()[0];
-
-        // 获取 Service
-        @SuppressWarnings("unchecked")
-        IService<Object> service = (IService<Object>) context.getBean(uniqueField.serviceClass());
-
-        // 获取值
         Object fieldValue = tryGetFieldValue(dto, uniqueField.fieldName());
         Object idValue = tryGetFieldValue(dto, uniqueField.idName());
 
-        // 查询
-        if (service.count(new QueryWrapper<>()
+        QueryWrapper wrapper = new QueryWrapper<>()
                 .eq(fieldValue != null, uniqueField.fieldName(), fieldValue)
-                .ne(idValue != null, uniqueField.idName(), idValue)) > 0) {
+                .ne(idValue != null, uniqueField.idName(), idValue);
+        long count = service.count(wrapper);
+
+        if (count > 0) {
             throw new UniqueFieldConflictException(uniqueField.resultInfo());
         }
     }
@@ -48,7 +45,7 @@ public class UniqueFieldAspect {
             Field field = obj.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             return field.get(obj);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        } catch (Exception e) {
             return null;
         }
     }

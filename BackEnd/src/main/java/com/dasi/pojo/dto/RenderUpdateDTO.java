@@ -11,7 +11,7 @@ public class RenderUpdateDTO {
     @NotNull(message = "字段 id 不能为空")
     private Long id;
     @NotBlank(message = "字段 key 不能为空")
-    private String key;
+    private String name;
     @NotBlank(message = "字段 value 不能为空")
     private String value;
     private String remark;

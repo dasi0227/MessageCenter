@@ -5,6 +5,7 @@ import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.result.PageResult;
 import com.dasi.pojo.dto.*;
 import com.dasi.pojo.entity.Contact;
+import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Mailbox;
 import com.dasi.pojo.vo.ContactLoginVO;
 import jakarta.validation.Valid;
@@ -25,4 +26,6 @@ public interface ContactService extends IService<Contact> {
     ContactLoginVO login(@Valid ContactLoginDTO dto);
 
     PageResult<Mailbox> getMailboxPage(@Valid MailboxPageDTO dto);
+
+    void checkStatus(Dispatch dispatch);
 }

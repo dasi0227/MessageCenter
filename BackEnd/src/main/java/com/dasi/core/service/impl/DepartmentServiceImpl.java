@@ -45,7 +45,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
-    @UniqueField(serviceClass = DepartmentServiceImpl.class, fieldName = "name")
+    @UniqueField(fieldName = "name")
     public void addDepartment(DepartmentAddDTO dto) {
         Department department = BeanUtil.copyProperties(dto, Department.class);
         boolean flag = save(department);
@@ -60,7 +60,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
-    @UniqueField(serviceClass = DepartmentServiceImpl.class, fieldName = "name")
+    @UniqueField(fieldName = "name")
     public void updateDepartment(DepartmentUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<Department>()
                 .eq(Department::getId, dto.getId())

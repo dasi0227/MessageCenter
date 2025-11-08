@@ -63,7 +63,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.UPDATE)
-    @UniqueField(serviceClass = SensitiveWordServiceImpl.class, fieldName = "word")
+    @UniqueField(fieldName = "word")
     public void updateSensitiveWord(SensitiveWordUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<SensitiveWord>()
                 .eq(SensitiveWord::getId, dto.getId())

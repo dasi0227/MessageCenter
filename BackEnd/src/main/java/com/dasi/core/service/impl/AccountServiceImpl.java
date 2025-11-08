@@ -51,7 +51,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     @AutoFill(FillType.INSERT)
-    @UniqueField(serviceClass = AccountServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    @UniqueField(fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
     public void register(AccountLoginDTO dto) {
         Account account = BeanUtil.copyProperties(dto, Account.class);
         account.setPassword(SecureUtil.md5(dto.getPassword()));
@@ -117,7 +117,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.INSERT)
-    @UniqueField(serviceClass = AccountServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    @UniqueField(fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
     public void addAccount(AccountAddDTO dto) {
         Account account = BeanUtil.copyProperties(dto, Account.class);
         account.setPassword(SecureUtil.md5(dto.getPassword()));
@@ -131,7 +131,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.UPDATE)
-    @UniqueField(serviceClass = AccountServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    @UniqueField(fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
     public void updateAccount(AccountUpdateDTO dto) {
         if (AccountContextHolder.get().getId().equals(dto.getId())) {
             log.warn("【Account Service】更新失败，无法修改当前登录账户：{}", dto);

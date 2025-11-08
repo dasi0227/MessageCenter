@@ -4,7 +4,7 @@
         <el-card class="guide-card" shadow="never">
             <p><strong>使用说明：</strong></p>
             <ul>
-                <li>使用 <strong>¥{key}¥</strong> 包裹变量名，即可自动渲染为对应的 value。</li>
+                <li>使用 <strong>¥{name}¥</strong> 包裹变量名，即可自动渲染为对应的 value。</li>
                 <li>系统默认变量以 <strong>#</strong> 开头：
                     <strong>#contact</strong>（联系人名称），
                     <strong>#department</strong>（部门名称），
@@ -12,7 +12,7 @@
                     <strong>#date</strong>（日期），
                     <strong>#datetime</strong>（时间）。
                 </li>
-                <li><strong>不允许嵌套渲染</strong>，即 key 内部不能有 ¥{}¥ 结构。</li>
+                <li><strong>不允许嵌套渲染</strong>，即 name 内部不能有 ¥{}¥ 结构。</li>
             </ul>
         </el-card>
 
@@ -27,16 +27,16 @@
                 v-for="item in renderList"
                 :key="item.id"
                 class="render-card"
-                :class="{ system: item.key.startsWith('#') }"
+                :class="{ system: item.name.startsWith('#') }"
                 shadow="hover"
                 @click="openEdit(item)"
             >
-                <div class="render-key">{{ item.key }}</div>
+                <div class="render-key">{{ item.name }}</div>
                 <div class="render-value">{{ item.value ?? 'null' }}</div>
                 <div v-if="item.remark" class="render-remark">{{ item.remark }}</div>
 
                 <el-icon
-                    v-if="!item.key.startsWith('#')"
+                    v-if="!item.name.startsWith('#')"
                     class="delete-btn"
                     @click.stop="handleDelete(item)"
                 >
@@ -48,8 +48,8 @@
         <!-- 新增弹窗 -->
         <el-dialog v-model="addVisible" title="新增变量" width="500px" align-center>
             <el-form :model="addForm" label-width="80px">
-                <el-form-item label="键 (key)">
-                    <el-input v-model="addForm.key" placeholder="请输入变量键，例如 name" />
+                <el-form-item label="名称 (name)">
+                    <el-input v-model="addForm.name" placeholder="请输入变量名，例如 greeting" />
                 </el-form-item>
                 <el-form-item label="值 (value)">
                     <el-input v-model="addForm.value" placeholder="请输入变量值" />
@@ -74,16 +74,16 @@
         <!-- 编辑弹窗 -->
         <el-dialog v-model="editVisible" title="查看变量" width="500px" align-center>
             <el-form :model="editForm" label-width="80px">
-                <el-form-item label="键 (key)">
+                <el-form-item label="名称 (name)">
                     <el-input
-                        v-model="editForm.key"
-                        :disabled="isSystemKey(editForm.key)"
+                        v-model="editForm.name"
+                        :disabled="isSystemName(editForm.name)"
                     />
                 </el-form-item>
                 <el-form-item label="值 (value)">
                     <el-input
                         v-model="editForm.value"
-                        :disabled="isSystemKey(editForm.key)"
+                        :disabled="isSystemName(editForm.name)"
                     />
                 </el-form-item>
                 <el-form-item label="备注">
@@ -91,7 +91,7 @@
                         type="textarea"
                         v-model="editForm.remark"
                         :rows="3"
-                        :disabled="isSystemKey(editForm.key)"
+                        :disabled="isSystemName(editForm.name)"
                     />
                 </el-form-item>
             </el-form>
@@ -99,7 +99,7 @@
                 <div class="dialog-footer">
                     <el-button @click="editVisible = false">关闭</el-button>
                     <el-button
-                        v-if="!isSystemKey(editForm.key)"
+                        v-if="!isSystemName(editForm.name)"
                         type="primary"
                         @click="submitEdit"
                     >
@@ -121,10 +121,10 @@ const renderList = ref([])
 const addVisible = ref(false)
 const editVisible = ref(false)
 
-const addForm = ref({ key: '', value: '', remark: '' })
-const editForm = ref({ id: null, key: '', value: '', remark: '' })
+const addForm = ref({ name: '', value: '', remark: '' })
+const editForm = ref({ id: null, name: '', value: '', remark: '' })
 
-const isSystemKey = (key) => key?.startsWith('#')
+const isSystemName = (name) => name?.startsWith('#')
 
 // 获取列表
 const getList = async () => {
@@ -141,29 +141,29 @@ const openEdit = (item) => {
 
 // 提交修改
 const submitEdit = async () => {
-    if (!editForm.value.key || !editForm.value.value)
-        return ElMessage.warning('键和值不能为空')
+    if (!editForm.value.name || !editForm.value.value)
+        return ElMessage.warning('名称和值不能为空')
 
     const { data } = await request.post('/render/update', editForm.value)
     if (data.code === 200) {
-        ElMessage({ message: '修改成功', type: 'success' })
+        ElMessage.success('修改成功')
         editVisible.value = false
         getList()
     } else {
-        ElMessage({ message: data.msg || '修改失败', type: 'error' })
+        ElMessage.error(data.msg || '修改失败')
     }
 }
 
 // 删除
 const handleDelete = (item) => {
-    ElMessageBox.confirm(`确定要删除变量「${item.key}」吗？`, '提示', { type: 'warning' })
+    ElMessageBox.confirm(`确定要删除变量「${item.name}」吗？`, '提示', { type: 'warning' })
         .then(async () => {
             const { data } = await request.post(`/render/remove/${item.id}`)
             if (data.code === 200) {
-                ElMessage({ message: '删除成功', type: 'success' })
+                ElMessage.success('删除成功')
                 getList()
             } else {
-                ElMessage({ message: data.msg || '删除失败', type: 'error' })
+                ElMessage.error(data.msg || '删除失败')
             }
         })
         .catch(() => {})
@@ -171,22 +171,22 @@ const handleDelete = (item) => {
 
 // 新增
 const handleAdd = () => {
-    addForm.value = { key: '', value: '', remark: '' }
+    addForm.value = { name: '', value: '', remark: '' }
     addVisible.value = true
 }
 
 // 提交新增
 const submitAdd = async () => {
-    if (!addForm.value.key || !addForm.value.value)
-        return ElMessage.warning('键和值不能为空')
+    if (!addForm.value.name || !addForm.value.value)
+        return ElMessage.warning('名称和值不能为空')
 
     const { data } = await request.post('/render/add', addForm.value)
     if (data.code === 200) {
-        ElMessage({ message: '新增成功', type: 'success' })
+        ElMessage.success('新增成功')
         addVisible.value = false
         getList()
     } else {
-        ElMessage({ message: data.msg || '新增失败', type: 'error' })
+        ElMessage.error(data.msg || '新增失败')
     }
 }
 
@@ -201,6 +201,7 @@ onMounted(() => getList())
     background-color: #f9fafc;
     border-left: 4px solid #409eff;
     margin-bottom: 20px;
+    padding: 12px 18px;
 }
 .guide-card li {
     margin-bottom: 10px;

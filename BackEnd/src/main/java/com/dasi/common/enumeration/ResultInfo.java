@@ -26,6 +26,7 @@ public enum ResultInfo {
     CONTACT_NOT_FOUND               (10, "联系人不存在"),
     CONTACT_PASSWORD_ERROR          (10, "联系人密码错误"),
     CONTACT_NAME_ALREADY_EXISTS     (10, "联系人名称已存在"),
+    CONTACT_STATUS_OFF              (10, "联系人不可用"),
     RENDER_UPDATE_FAIL              (10, "系统预设字段不可修改"),
     RENDER_REMOVE_FAIL              (10, "系统预设字段不可删除"),
     RENDER_KEY_NOT_FOUND            (10, "渲染失败：存在未定义的占位符"),

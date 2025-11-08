@@ -33,7 +33,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.INSERT)
-    @UniqueField(serviceClass = TemplateServiceImpl.class, fieldName = "name")
+    @UniqueField(fieldName = "name")
     public void addTemplate(TemplateAddDTO dto) {
         Template template = BeanUtil.copyProperties(dto, Template.class);
         boolean flag = save(template);
@@ -47,7 +47,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.UPDATE)
-    @UniqueField(serviceClass = TemplateServiceImpl.class, fieldName = "name")
+    @UniqueField(fieldName = "name")
     public void updateTemplate(TemplateUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<Template>()
                 .eq(Template::getId, dto.getId())

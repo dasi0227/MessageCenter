@@ -10,6 +10,7 @@ import com.dasi.common.constant.DefaultConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgStatus;
+import com.dasi.common.exception.ContactException;
 import com.dasi.common.exception.RenderException;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
@@ -108,11 +109,14 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         }
 
         // 占位符渲染处理 + 投递
+        String route = dto.getChannel().getRoute(rabbitMqProperties);
+        String exchange = rabbitMqProperties.getExchange();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
                 for (Dispatch dispatch : dispatchList) {
                     try {
+                        contactService.checkStatus(dispatch);
                         String subject = renderResolveUtil.resolve(message.getSubject(), dispatch);
                         String content = renderResolveUtil.resolve(message.getContent(), dispatch);
                         Payload payload = Payload.builder()
@@ -121,16 +125,10 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                                 .content(content)
                                 .attachments(message.getAttachments())
                                 .build();
-
-                        String route = dto.getChannel().getRoute(rabbitMqProperties);
-                        rabbitTemplate.convertAndSend(
-                                rabbitMqProperties.getExchange(),
-                                route,
-                                payload
-                        );
-                    } catch (RenderException e) {
+                        rabbitTemplate.convertAndSend(exchange, route, payload);
+                    } catch (RenderException | ContactException e) {
                         dispatchService.updateFailStatus(dispatch.getId(), e.getMessage());
-                        log.error("【Message Service】消息渲染失败：{}", e.getMessage());
+                        log.error("【Message Service】分发失败：error={}, dispatch={}", e.getMessage(), dispatch);
                     }
                 }
             }
