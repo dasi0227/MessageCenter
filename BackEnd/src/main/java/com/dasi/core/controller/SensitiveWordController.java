@@ -31,7 +31,7 @@ public class SensitiveWordController {
     }
 
     @PostMapping("/remove/{id}")
-    public Result<Void> removeSensitiveWord(@PathVariable("id") String id) {
+    public Result<Void> removeSensitiveWord(@PathVariable("id") Long id) {
         sensitiveWordService.removeSensitiveWord(id);
         return Result.success();
     }

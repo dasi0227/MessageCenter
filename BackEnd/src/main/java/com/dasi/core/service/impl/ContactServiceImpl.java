@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.annotation.UniqueField;
 import com.dasi.common.context.ContactContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgChannel;
@@ -28,7 +29,6 @@ import com.dasi.pojo.vo.ContactLoginVO;
 import com.dasi.util.InboxUtil;
 import com.dasi.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,50 +53,55 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     private MailboxMapper mailboxMapper;
 
     @Override
-    @AdminOnly
-    @AutoFill(FillType.INSERT)
-    @Transactional(rollbackFor = Exception.class)
-    public void addContact(ContactAddDTO dto) {
-        // 检查重名
-        if (exists(new LambdaQueryWrapper<Contact>().eq(Contact::getName, dto.getName()))) {
-            throw new ContactException(ResultInfo.CONTACT_NAME_ALREADY_EXISTS);
-        }
+    public PageResult<Contact> getContactPage(ContactPageDTO dto) {
+        Page<Contact> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 
-        // 构建联系人
-        Contact contact = BeanUtil.copyProperties(dto, Contact.class);
-        contact.setPassword(SecureUtil.md5(dto.getPassword()));
-        contact.setInbox(inboxUtil.nextId());
-        save(contact);
+        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<Contact>()
+                .like(StrUtil.isNotBlank(dto.getName()), Contact::getName, dto.getName())
+                .like(StrUtil.isNotBlank(dto.getPhone()), Contact::getPhone, dto.getPhone())
+                .like(StrUtil.isNotBlank(dto.getEmail()), Contact::getEmail, dto.getEmail())
+                .eq(dto.getStatus() != null, Contact::getStatus, dto.getStatus())
+                .orderByAsc(Contact::getName);
 
-        log.debug("【Contact Service】新增联系人：{}", dto);
+        Page<Contact> contacts = page(param, wrapper);
+
+        return PageResult.of(contacts);
     }
 
     @Override
     @AdminOnly
+    @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
-    public void removeContact(Long id) {
-        if (!removeById(id)) {
-            throw new ContactException(ResultInfo.CONTACT_REMOVE_FAIL);
+    @UniqueField(serviceClass = ContactServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
+    public void addContact(ContactAddDTO dto) {
+        Contact contact = BeanUtil.copyProperties(dto, Contact.class);
+        contact.setPassword(SecureUtil.md5(dto.getPassword()));
+        contact.setInbox(inboxUtil.nextId());
+        boolean flag = save(contact);
+
+        if (!flag) {
+            log.warn("【Contact Service】新增联系人失败：{}", dto);
         }
-        log.debug("【Contact Service】删除联系人：{}", id);
     }
 
     @Override
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
+    @UniqueField(serviceClass = ContactServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
     public void updateContact(ContactUpdateDTO dto) {
-        Contact contact = getById(dto.getId());
-        if (contact == null) {
-            throw new ContactException(ResultInfo.CONTACT_NOT_FOUND);
-        }
+        boolean flag = update(new LambdaUpdateWrapper<Contact>()
+                .eq(Contact::getId, dto.getId())
+                .set(StrUtil.isNotBlank(dto.getName()), Contact::getName, dto.getName())
+                .set(StrUtil.isNotBlank(dto.getPhone()), Contact::getPhone, dto.getPhone())
+                .set(StrUtil.isNotBlank(dto.getEmail()), Contact::getEmail, dto.getEmail())
+                .set(StrUtil.isNotBlank(dto.getPassword()), Contact::getPassword, SecureUtil.md5(dto.getPassword()))
+                .set(Contact::getStatus, dto.getStatus())
+                .set(Contact::getUpdatedAt, dto.getUpdatedAt()));
 
-        BeanUtils.copyProperties(dto, contact);
-        if (!updateById(contact)) {
-            throw new ContactException(ResultInfo.CONTACT_UPDATE_FAIL);
+        if (!flag) {
+            log.warn("【Contact Service】更新失败，没有记录或值无变化：{}", dto);
         }
-
-        log.debug("【Contact Service】更新联系人：{}", dto);
     }
 
     @Override
@@ -104,27 +109,25 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
     public void updateStatus(ContactStatusDTO dto) {
-        if (!update(new LambdaUpdateWrapper<Contact>()
+        boolean flag = update(new LambdaUpdateWrapper<Contact>()
                 .eq(Contact::getId, dto.getId())
                 .set(Contact::getStatus, dto.getStatus())
-                .set(Contact::getUpdatedAt, dto.getUpdatedAt()))) {
-            throw new ContactException(ResultInfo.CONTACT_UPDATE_FAIL);
+                .set(Contact::getUpdatedAt, dto.getUpdatedAt()));
+
+        if (!flag) {
+            log.warn("【Contact Service】更新联系人状态失败：{}", dto);
         }
-        log.debug("【Contact Service】更新联系人状态：{}", dto);
     }
 
     @Override
-    public String resolveTarget(Long contactId, MsgChannel channel) {
-        Contact contact = getById(contactId);
-        if (contact == null) {
-            throw new ContactException(ResultInfo.CONTACT_NOT_FOUND);
-        }
+    @AdminOnly
+    @Transactional(rollbackFor = Exception.class)
+    public void removeContact(Long id) {
+        boolean flag = removeById(id);
 
-        return switch (channel) {
-            case EMAIL -> contact.getEmail();
-            case SMS -> contact.getPhone();
-            case MAILBOX -> String.valueOf(contact.getInbox());
-        };
+        if (!flag) {
+            log.warn("【Contact Service】删除失败，联系人不存在：{}", id);
+        }
     }
 
     @Override
@@ -154,16 +157,14 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         vo.setToken(token);
 
         log.debug("【Contact Service】联系人登陆：{}", dto);
-
         return vo;
     }
 
     @Override
     public PageResult<Mailbox> getMailboxPage(MailboxPageDTO dto) {
-        Long contactId = ContactContextHolder.get().getId();
         Long inbox = ContactContextHolder.get().getInbox();
-
         Page<Mailbox> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+
         LambdaQueryWrapper<Mailbox> wrapper = new LambdaQueryWrapper<Mailbox>()
                 .eq(Mailbox::getInbox, inbox)
                 .eq(dto.getIs_read() != null, Mailbox::getIsRead, dto.getIs_read())
@@ -172,27 +173,24 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
                 .like(StrUtil.isNotBlank(dto.getSubject()), Mailbox::getSubject, dto.getSubject())
                 .like(StrUtil.isNotBlank(dto.getContent()), Mailbox::getContent, dto.getContent())
                 .orderByDesc(Mailbox::getArrivedAt);
+
         IPage<Mailbox> result = mailboxMapper.selectPage(page, wrapper);
 
-        log.debug("【Mailbox Service】查询联系人信箱：contactId={}, inbox={}", contactId, inbox);
         return PageResult.of(result);
     }
 
     @Override
-    public PageResult<Contact> getContactPage(ContactPageDTO dto) {
-        Page<Contact> param = new Page<>(dto.getPageNum(), dto.getPageSize());
+    public String resolveTarget(Long contactId, MsgChannel channel) {
+        Contact contact = getById(contactId);
+        if (contact == null) {
+            throw new ContactException(ResultInfo.CONTACT_NOT_FOUND);
+        }
 
-        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<Contact>()
-                .like(StrUtil.isNotBlank(dto.getName()), Contact::getName, dto.getName())
-                .like(StrUtil.isNotBlank(dto.getPhone()), Contact::getPhone, dto.getPhone())
-                .like(StrUtil.isNotBlank(dto.getEmail()), Contact::getEmail, dto.getEmail())
-                .eq(dto.getStatus() != null, Contact::getStatus, dto.getStatus())
-                .orderByAsc(Contact::getName);
-
-        Page<Contact> contacts = page(param, wrapper);
-
-        log.debug("【Contact Service】分页查询联系人：{}", dto);
-        return PageResult.of(contacts);
+        return switch (channel) {
+            case EMAIL -> contact.getEmail();
+            case SMS -> contact.getPhone();
+            case MAILBOX -> String.valueOf(contact.getInbox());
+        };
     }
 
 }

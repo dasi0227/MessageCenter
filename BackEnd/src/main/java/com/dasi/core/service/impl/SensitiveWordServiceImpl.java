@@ -1,14 +1,14 @@
 package com.dasi.core.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.annotation.UniqueField;
 import com.dasi.common.enumeration.FillType;
-import com.dasi.common.enumeration.ResultInfo;
-import com.dasi.common.exception.SensitiveWordException;
 import com.dasi.core.mapper.SensitiveWordMapper;
 import com.dasi.core.service.SensitiveWordService;
 import com.dasi.pojo.dto.SensitiveWordUpdateDTO;
@@ -20,9 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,62 +36,56 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
 
     @Override
     public List<SensitiveWord> getSensitiveWordList() {
-        List<SensitiveWord> words = list(new LambdaQueryWrapper<SensitiveWord>().orderByDesc(SensitiveWord::getCreatedAt));
-        log.debug("【SensitiveWord Service】查询敏感词列表：{}", words);
-        return words;
+        return list(new LambdaQueryWrapper<SensitiveWord>().orderByDesc(SensitiveWord::getCreatedAt));
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.INSERT)
-    @Transactional(rollbackFor = Exception.class)
     public void addSensitiveWords(SensitiveWordsAddDTO dto) {
-        Set<String> input = dto.getWords();
-        Set<String> exist = sensitiveWordDetectUtil.getWords();
+        // 得到差集
+        Set<String> keep = new HashSet<>(dto.getWords());
+        keep.removeAll(sensitiveWordDetectUtil.getWords());
 
-        Set<String> newWords = input.stream()
-                .filter(word -> !exist.contains(word))
-                .collect(Collectors.toSet());
-
-        if (newWords.isEmpty()) {
-            throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_ALREADY_EXISTS);
+        if (keep.isEmpty()) {
+            log.warn("【SensitiveWord Service】插入失败，全部敏感词都已经存在：{}", dto);
+        } else {
+            List<SensitiveWord> words = keep.stream()
+                    .map(word -> BeanUtil.copyProperties(dto, SensitiveWord.class))
+                    .toList();
+            sensitiveWordMapper.insertWords(words);
+            sensitiveWordDetectUtil.reload();
         }
-
-        List<SensitiveWord> words = newWords.stream()
-                .map(word -> SensitiveWord.builder().createdAt(dto.getCreatedAt()).word(word).build())
-                .toList();
-
-        sensitiveWordMapper.insertWords(words);
-        sensitiveWordDetectUtil.reload();
-        log.debug("【SensitiveWord Service】新增敏感词：{}", newWords);
     }
 
     @Override
-    @AdminOnly
     @Transactional(rollbackFor = Exception.class)
-    public void removeSensitiveWord(String id) {
-        if (!removeById(id)) {
-            throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_REMOVE_FAIL);
-        }
-        sensitiveWordDetectUtil.reload();
-        log.debug("【SensitiveWord Service】删除敏感词：{}", id);
-    }
-
-    @Override
     @AdminOnly
-    @Transactional(rollbackFor = Exception.class)
+    @AutoFill(FillType.UPDATE)
+    @UniqueField(serviceClass = SensitiveWordServiceImpl.class, fieldName = "word")
     public void updateSensitiveWord(SensitiveWordUpdateDTO dto) {
-        if (exists(new LambdaQueryWrapper<SensitiveWord>().
-                eq(SensitiveWord::getWord, dto.getWord())
-                .ne(SensitiveWord::getId, dto.getId()))) {
-            throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_ALREADY_EXISTS);
-        }
-        if (!update(new LambdaUpdateWrapper<SensitiveWord>()
+        boolean flag = update(new LambdaUpdateWrapper<SensitiveWord>()
                 .eq(SensitiveWord::getId, dto.getId())
-                .set(StrUtil.isNotBlank(dto.getWord()), SensitiveWord::getWord, dto.getWord()))) {
-            throw new SensitiveWordException(ResultInfo.SENSITIVE_WORD_UPDATE_FAIL);
+                .set(StrUtil.isNotBlank(dto.getWord()), SensitiveWord::getWord, dto.getWord())
+                .set(SensitiveWord::getUpdatedAt, dto.getUpdatedAt()));
+
+        if (!flag) {
+            log.warn("【SensitiveWord Service】更新失败，没有记录或值无变化：{}", dto);
+        } else {
+            sensitiveWordDetectUtil.reload();
         }
-        sensitiveWordDetectUtil.reload();
-        log.debug("【SensitiveWord Service】更新敏感词：{}", dto);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @AdminOnly
+    public void removeSensitiveWord(Long id) {
+        boolean flag = removeById(id);
+        if (!flag) {
+            log.warn("【SensitiveWord Service】删除失败，敏感词不存在：{}", id);
+        } else {
+            sensitiveWordDetectUtil.reload();
+        }
     }
 }

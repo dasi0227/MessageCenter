@@ -20,4 +20,5 @@ public class SensitiveWord {
     private Long id;
     private String word;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

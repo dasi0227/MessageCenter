@@ -11,7 +11,7 @@ import java.util.List;
 public interface SensitiveWordService extends IService<SensitiveWord> {
     void addSensitiveWords(SensitiveWordsAddDTO dto);
 
-    void removeSensitiveWord(String id);
+    void removeSensitiveWord(Long id);
 
     void updateSensitiveWord(@Valid SensitiveWordUpdateDTO dto);
 

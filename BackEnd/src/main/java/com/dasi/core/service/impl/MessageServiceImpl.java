@@ -143,14 +143,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     public PageResult<MessagePageVO> getMessagePage(MessagePageDTO dto) {
         Page<MessagePageVO> param = new Page<>(dto.getPageNum(), dto.getPageSize());
         IPage<MessagePageVO> result = messageMapper.selectMessagePage(param, dto);
-        log.debug("【Message Service】分页查询消息：{}", dto);
         return PageResult.of(result);
     }
 
     @Override
     public MessageDetailVO getMessageDetail(Long dispatchId) {
-        MessageDetailVO vo = messageMapper.selectMessageDetail(dispatchId);
-        log.debug("【Message Service】查询消息详情：{}", vo);
-        return vo;
+        return messageMapper.selectMessageDetail(dispatchId);
     }
 }

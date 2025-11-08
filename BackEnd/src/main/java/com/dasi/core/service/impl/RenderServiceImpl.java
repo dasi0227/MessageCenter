@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.annotation.UniqueField;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.ResultInfo;
+import com.dasi.common.exception.MessageCenterException;
 import com.dasi.common.exception.RenderException;
 import com.dasi.core.mapper.RenderMapper;
 import com.dasi.core.service.RenderService;
@@ -21,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.dasi.common.constant.DefaultConstant.DEFAULT_RENDER_IDS;
@@ -35,62 +36,65 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
 
     @Override
     public List<Render> getRenderList() {
-        List<Render> list = list(new LambdaQueryWrapper<Render>().orderByAsc(Render::getCreatedAt));
-        log.debug("【Render Service】查询渲染字段列表：{}", list);
-        return list;
+        return list(new LambdaQueryWrapper<Render>().orderByAsc(Render::getCreatedAt));
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.INSERT)
-    @Transactional(rollbackFor = Exception.class)
+    @UniqueField(serviceClass = RenderServiceImpl.class, fieldName = "key")
     public void addRender(RenderAddDTO dto) {
-        if (exists(new LambdaQueryWrapper<Render>().eq(Render::getKey, dto.getKey()))) {
-            throw new RenderException(ResultInfo.RENDER_KEY_ALREADY_EXISTS);
-        }
-
         Render render = BeanUtil.copyProperties(dto, Render.class);
-        save(render);
-        renderResolveUtil.reload();
-        log.debug("【Render Service】新增渲染字段：{}", render);
+        boolean flag = save(render);
+
+        if (!flag) {
+            log.warn("【Render Service】插入失败：{}", dto);
+        } else {
+            renderResolveUtil.reload();
+        }
     }
 
+
     @Override
+    @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.UPDATE)
-    @Transactional(rollbackFor = Exception.class)
+    @UniqueField(serviceClass = RenderServiceImpl.class, fieldName = "key")
     public void updateRender(RenderUpdateDTO dto) {
         if (DEFAULT_RENDER_IDS.contains(dto.getId())) {
-            throw new RenderException(ResultInfo.RENDER_UPDATE_FAIL);
+            log.warn("【Render Service】更新失败，系统预设字段不可修改：{}", dto);
+            throw new MessageCenterException(ResultInfo.RENDER_UPDATE_FAIL);
         }
-        if (exists(new LambdaQueryWrapper<Render>().
-                eq(Render::getKey, dto.getKey())
-                .ne(Render::getId, dto.getId()))) {
-            throw new RenderException(ResultInfo.RENDER_KEY_ALREADY_EXISTS);
-        }
-        if (!update(new LambdaUpdateWrapper<Render>()
+
+        boolean flag = update(new LambdaUpdateWrapper<Render>()
                 .eq(Render::getId, dto.getId())
                 .set(StrUtil.isNotBlank(dto.getKey()), Render::getKey, dto.getKey())
                 .set(StrUtil.isNotBlank(dto.getValue()), Render::getValue, dto.getValue())
                 .set(StrUtil.isNotBlank(dto.getRemark()), Render::getRemark, dto.getRemark())
-                .set(Render::getUpdatedAt, LocalDateTime.now()))) {
-            throw new RenderException(ResultInfo.RENDER_UPDATE_FAIL);
+                .set(Render::getUpdatedAt, dto.getUpdatedAt()));
+
+        if (!flag) {
+            log.warn("【Render Service】更新失败，没有记录或值无变化：{}", dto);
+        } else {
+            renderResolveUtil.reload();
         }
-        renderResolveUtil.reload();
-        log.debug("【Render Service】更新渲染字段：{}", dto);
     }
 
     @Override
-    @AdminOnly
     @Transactional(rollbackFor = Exception.class)
+    @AdminOnly
     public void removeRender(Long id) {
         if (DEFAULT_RENDER_IDS.contains(id)) {
+            log.warn("【Render Service】删除失败，系统预设字段不可删除：{}", id);
             throw new RenderException(ResultInfo.RENDER_REMOVE_FAIL);
         }
-        if (!removeById(id)) {
-            throw new RenderException(ResultInfo.RENDER_REMOVE_FAIL);
+
+        boolean flag = removeById(id);
+        if (!flag) {
+            log.warn("【Render Service】删除失败，渲染字段不存在：{}", id);
+        } else {
+            renderResolveUtil.reload();
         }
-        renderResolveUtil.reload();
-        log.debug("【Render Service】删除渲染字段：{}", id);
     }
 }

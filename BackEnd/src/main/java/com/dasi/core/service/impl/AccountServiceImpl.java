@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.annotation.UniqueField;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.AccountRole;
 import com.dasi.common.enumeration.FillType;
@@ -46,49 +47,43 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Autowired
     private JwtProperties jwtProperties;
 
-    @Override
-    @AutoFill(FillType.INSERT)
-    @Transactional(rollbackFor = Exception.class)
-    public void register(AccountLoginDTO dto) {
-        // 检查重名
-        if (exists(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()))) {
-            throw new AccountException(ResultInfo.ACCOUNT_NAME_ALREADY_EXIST);
-        }
 
-        // 构建账户
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @AutoFill(FillType.INSERT)
+    @UniqueField(serviceClass = AccountServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    public void register(AccountLoginDTO dto) {
         Account account = BeanUtil.copyProperties(dto, Account.class);
         account.setPassword(SecureUtil.md5(dto.getPassword()));
         account.setRole(AccountRole.USER);
-        save(account);
+        boolean flag = save(account);
 
-        log.debug("【Account Service】注册账户：{}", dto);
+        if (!flag) {
+            log.warn("【Account Service】注册失败：{}", dto);
+        }
     }
 
     @Override
     public AccountLoginVO login(AccountLoginDTO dto) {
-        // 查询账户
         Account account = getOne(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()), false);
         if (account == null) {
-            throw new AccountException(ResultInfo.ACCOUNT_NOT_FOUND);
+            throw new MessageCenterException(ResultInfo.ACCOUNT_NOT_FOUND);
         }
 
-        // 校验密码
         String password = SecureUtil.md5(dto.getPassword());
         if (!password.equals(account.getPassword())) {
-            throw new AccountException(ResultInfo.ACCOUNT_PASSWORD_ERROR);
+            throw new MessageCenterException(ResultInfo.ACCOUNT_PASSWORD_ERROR);
         }
 
-        // 生成 Token
         Map<String, Object> claims = new HashMap<>();
         claims.put(jwtProperties.getAccountIdClaimKey(), account.getId());
         claims.put(jwtProperties.getAccountRoleClaimKey(), account.getRole());
         String token = jwtUtil.createToken(claims);
 
-        // 构造视图
         AccountLoginVO vo = BeanUtil.copyProperties(account, AccountLoginVO.class);
         vo.setToken(token);
 
-        log.debug("【Account Service】账户登陆：{}", dto);
+        log.debug("【Account Service】账户登录成功：{}", dto);
         return vo;
     }
 
@@ -115,68 +110,76 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         // 分页查询
         Page<Account> result = page(param, wrapper);
 
-        log.debug("【Account Service】分页查询账户：{}", dto);
         return PageResult.of(result);
     }
 
     @Override
-    @AutoFill(FillType.UPDATE)
-    @AdminOnly
     @Transactional(rollbackFor = Exception.class)
+    @AdminOnly
+    @AutoFill(FillType.INSERT)
+    @UniqueField(serviceClass = AccountServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    public void addAccount(AccountAddDTO dto) {
+        Account account = BeanUtil.copyProperties(dto, Account.class);
+        account.setPassword(SecureUtil.md5(dto.getPassword()));
+        boolean flag = save(account);
+        if (!flag) {
+            log.warn("【Account Service】插入失败：{}", dto);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @AdminOnly
+    @AutoFill(FillType.UPDATE)
+    @UniqueField(serviceClass = AccountServiceImpl.class, fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
     public void updateAccount(AccountUpdateDTO dto) {
         if (AccountContextHolder.get().getId().equals(dto.getId())) {
-            throw new AccountException(ResultInfo.ACCOUNT_REMOVE_UPDATE_DENIED);
+            log.warn("【Account Service】更新失败，无法修改当前登录账户：{}", dto);
+            throw new MessageCenterException(ResultInfo.ACCOUNT_UPDATE_ADMIN_DENIED);
         }
-        if (!update(new LambdaUpdateWrapper<Account>()
+
+        Account target = getById(dto.getId());
+        if (target != null && target.getRole() == AccountRole.ADMIN) {
+            log.warn("【Account Service】删除失败，无法更新管理员账户：{}", dto);
+            throw new MessageCenterException(ResultInfo.ACCOUNT_UPDATE_CURRENT_DENIED);
+        }
+
+        boolean flag = update(new LambdaUpdateWrapper<Account>()
                 .eq(Account::getId, dto.getId())
                 .set(StrUtil.isNotBlank(dto.getName()), Account::getName, dto.getName())
                 .set(dto.getPassword() != null, Account::getPassword, SecureUtil.md5(dto.getPassword()))
                 .set(Account::getRole, dto.getRole())
-                .set(Account::getUpdatedAt, dto.getUpdatedAt()))) {
-            throw new AccountException(ResultInfo.ACCOUNT_UPDATE_ERROR);
+                .set(Account::getUpdatedAt, dto.getUpdatedAt()));
+
+        if (!flag) {
+            log.warn("【Account Service】更新失败，没有记录或值无变化：{}", dto);
         }
-        log.debug("【Account Service】更新账户：{}", dto);
     }
 
-    @AdminOnly
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @AdminOnly
     public void removeAccount(Long id) {
         if (AccountContextHolder.get().getId().equals(id)) {
-            throw new AccountException(ResultInfo.ACCOUNT_REMOVE_UPDATE_DENIED);
+            log.warn("【Account Service】删除失败，无法删除当前登录账户：{}", id);
+            throw new MessageCenterException(ResultInfo.ACCOUNT_REMOVE_CURRENT_DENIED);
         }
-        if (getById(id).getRole().equals(AccountRole.ADMIN)) {
-            throw new AccountException(ResultInfo.ACCOUNT_REMOVE_DENIED);
+
+        Account target = getById(id);
+        if (target != null && target.getRole() == AccountRole.ADMIN) {
+            log.warn("【Account Service】删除失败，无法删除管理员账户：{}", id);
+            throw new MessageCenterException(ResultInfo.ACCOUNT_REMOVE_ADMIN_DENIED);
         }
-        if (!removeById(id)) {
-            throw new AccountException(ResultInfo.ACCOUNT_REMOVE_ERROR);
+
+        boolean flag = removeById(id);
+
+        if (!flag) {
+            log.warn("【Account Service】删除失败，账户不存在：{}", id);
         }
-        log.debug("【Account Service】删除账户：{}", id);
     }
 
     @Override
     public List<String> getAccountRole() {
-        log.debug("【Account Service】查询账户角色");
-        return Arrays.stream(AccountRole.values())
-                .map(Enum::name)
-                .toList();
-    }
-
-    @Override
-    @AdminOnly
-    @AutoFill(FillType.INSERT)
-    @Transactional(rollbackFor = Exception.class)
-    public void addAccount(AccountAddDTO dto) {
-        // 检查重名
-        if (exists(new LambdaQueryWrapper<Account>().eq(Account::getName, dto.getName()))) {
-            throw new AccountException(ResultInfo.ACCOUNT_NAME_ALREADY_EXIST);
-        }
-
-        // 构建联系人
-        Account account = BeanUtil.copyProperties(dto, Account.class);
-        account.setPassword(SecureUtil.md5(dto.getPassword()));
-        save(account);
-
-        log.debug("【Account Service】新增账户：{}", dto);
+        return Arrays.stream(AccountRole.values()).map(Enum::name).toList();
     }
 }

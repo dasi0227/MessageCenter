@@ -8,9 +8,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.annotation.UniqueField;
 import com.dasi.common.enumeration.FillType;
-import com.dasi.common.enumeration.ResultInfo;
-import com.dasi.common.exception.DepartmentException;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.DepartmentMapper;
 import com.dasi.core.service.DepartmentService;
@@ -25,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
+
     @Override
     public PageResult<Department> getDepartmentPage(DepartmentPageDTO dto) {
         Page<Department> pageParam = new Page<>(dto.getPageNum(), dto.getPageSize());
@@ -37,50 +37,52 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
         Page<Department> result = page(pageParam, wrapper);
 
-        log.debug("【Department Service】分页查询部门：{}", dto);
         return PageResult.of(result);
     }
+
 
     @Override
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
+    @UniqueField(serviceClass = DepartmentServiceImpl.class, fieldName = "name")
     public void addDepartment(DepartmentAddDTO dto) {
-        if (exists(new LambdaQueryWrapper<Department>().eq(Department::getName, dto.getName()))) {
-            throw new DepartmentException(ResultInfo.DEPARTMENT_NAME_ALREADY_EXISTS);
-        }
-
         Department department = BeanUtil.copyProperties(dto, Department.class);
-        save(department);
+        boolean flag = save(department);
 
-        log.debug("【Department Service】新增部门：{}", dto);
+        if (!flag) {
+            log.warn("【Department Service】新增部门失败：{}", dto);
+        }
     }
+
 
     @Override
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
+    @UniqueField(serviceClass = DepartmentServiceImpl.class, fieldName = "name")
     public void updateDepartment(DepartmentUpdateDTO dto) {
-        if (!update(new LambdaUpdateWrapper<Department>()
+        boolean flag = update(new LambdaUpdateWrapper<Department>()
                 .eq(Department::getId, dto.getId())
                 .set(StrUtil.isNotBlank(dto.getName()), Department::getName, dto.getName())
                 .set(StrUtil.isNotBlank(dto.getAddress()), Department::getAddress, dto.getAddress())
                 .set(StrUtil.isNotBlank(dto.getDescription()), Department::getDescription, dto.getDescription())
-                .set(Department::getUpdatedAt, dto.getUpdatedAt()))) {
-            throw new DepartmentException(ResultInfo.DEPARTMENT_UPDATE_FAIL);
-        }
+                .set(Department::getUpdatedAt, dto.getUpdatedAt()));
 
-        log.debug("【Department Service】更新部门：{}", dto);
+        if (!flag) {
+            log.warn("【Department Service】更新失败，没有记录或值无变化：{}", dto);
+        }
     }
+
 
     @Override
     @AdminOnly
     @Transactional(rollbackFor = Exception.class)
     public void removeDepartment(Long id) {
-        if (!removeById(id)) {
-            throw new DepartmentException(ResultInfo.DEPARTMENT_REMOVE_FAIL);
-        }
+        boolean flag = removeById(id);
 
-        log.debug("【Department Service】删除部门：{}", id);
+        if (!flag) {
+            log.warn("【Department Service】删除失败，部门不存在：{}", id);
+        }
     }
 }
