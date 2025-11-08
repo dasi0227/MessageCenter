@@ -16,6 +16,7 @@ public class JwtProperties {
     private String accountTokenName;
     private String accountIdClaimKey;
     private String accountRoleClaimKey;
+    private String accountNameClaimKey;
 
     private String contactTokenName;
     private String contactIdClaimKey;

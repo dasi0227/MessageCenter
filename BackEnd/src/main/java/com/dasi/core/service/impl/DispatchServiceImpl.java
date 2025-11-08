@@ -1,14 +1,13 @@
 package com.dasi.core.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.core.mapper.DispatchMapper;
 import com.dasi.core.service.DispatchService;
 import com.dasi.pojo.entity.Dispatch;
-import com.dasi.pojo.entity.Mailbox;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,41 +18,23 @@ import java.time.LocalDateTime;
 @Slf4j
 public class DispatchServiceImpl extends ServiceImpl<DispatchMapper, Dispatch> implements DispatchService {
 
-    @Autowired
-    private DispatchMapper dispatchMapper;
-
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateSendStatus(Long dispatchId) {
+    public void updateFinishStatus(Dispatch dispatch, MsgStatus status, String errorMsg) {
         update(new LambdaUpdateWrapper<Dispatch>()
-                .eq(Dispatch::getId, dispatchId)
-                .set(Dispatch::getStatus, MsgStatus.SENDING)
-                .set(Dispatch::getSentAt, LocalDateTime.now())
-        );
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateFinishStatus(Long id, MsgStatus status, String errorMsg) {
-        update(new LambdaUpdateWrapper<Dispatch>()
-            .eq(Dispatch::getId, id)
+            .eq(Dispatch::getId, dispatch.getId())
             .set(Dispatch::getStatus, status)
-            .set(Dispatch::getErrorMsg, errorMsg)
+            .set(StrUtil.isNotBlank(errorMsg), Dispatch::getErrorMsg, errorMsg)
             .set(Dispatch::getFinishedAt, LocalDateTime.now())
         );
     }
 
     @Override
-    public void updateFailStatus(Long dispatchId, String errorMsg) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateSendStatus(Dispatch dispatch) {
         update(new LambdaUpdateWrapper<Dispatch>()
-                .eq(Dispatch::getId, dispatchId)
-                .set(Dispatch::getStatus, MsgStatus.FAIL)
-                .set(Dispatch::getErrorMsg, errorMsg)
-                .set(Dispatch::getFinishedAt, LocalDateTime.now())
+                .eq(Dispatch::getId, dispatch.getId())
+                .set(Dispatch::getStatus, MsgStatus.SENDING)
         );
-    }
-
-    @Override
-    public Mailbox selectMailboxInfo(Long dispatchId) {
-        return dispatchMapper.selectMailboxInfo(dispatchId);
     }
 }

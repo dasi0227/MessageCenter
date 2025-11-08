@@ -1,45 +1,50 @@
 package com.dasi.channel;
 
+import com.dasi.common.constant.SendConstant;
 import com.dasi.common.enumeration.MsgStatus;
-import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.SendException;
-import com.dasi.core.mapper.MailboxMapper;
 import com.dasi.core.service.DispatchService;
+import com.dasi.core.service.MailboxService;
 import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Mailbox;
-import com.dasi.pojo.entity.Message;
-import com.dasi.pojo.entity.Payload;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Component
 @Slf4j
 public class MailboxSender {
 
     @Autowired
-    private MailboxMapper mailboxMapper;
+    private MailboxService mailboxService;
 
     @Autowired
     private DispatchService dispatchService;
 
     @Transactional
-    public void send(Payload payload) {
-        Dispatch dispatch = payload.getDispatch();
-
+    public void send(Dispatch dispatch) {
         try {
-            Mailbox mailbox = dispatchService.selectMailboxInfo(dispatch.getId());
-            mailbox.setSubject(payload.getSubject());
-            mailbox.setContent(payload.getContent());
-            mailbox.setAttachments(payload.getAttachments());
-            mailboxMapper.insert(mailbox);
-            dispatchService.updateFinishStatus(dispatch.getId(), MsgStatus.SUCCESS, null);
+            Mailbox mailbox = Mailbox.builder()
+                    .inbox(Long.valueOf(dispatch.getTarget()))
+                    .departmentName(dispatch.getDepartmentName())
+                    .subject(dispatch.getSubject())
+                    .content(dispatch.getContent())
+                    .attachments(dispatch.getAttachments())
+                    .isRead(0)
+                    .isDeleted(0)
+                    .arrivedAt(LocalDateTime.now())
+                    .build();
+            mailboxService.save(mailbox);
+            dispatchService.updateFinishStatus(dispatch, MsgStatus.SUCCESS, null);
             log.debug("【投递器】投递站内信成功：{}", mailbox);
         } catch (Exception e) {
-            log.error("【投递器】投递站内信失败：{}", e.getMessage());
-            dispatchService.updateFinishStatus(dispatch.getId(), MsgStatus.FAIL, e.getMessage());
-            throw new SendException(ResultInfo.SEND_MAILBOX_FAIL);
+            String errorMsg = SendConstant.SEND_MAILBOX_FAIL + e.getMessage();
+            dispatchService.updateFinishStatus(dispatch, MsgStatus.FAIL, errorMsg);
+            log.error("【投递器】投递站内信失败：{}", errorMsg);
+            throw new SendException(errorMsg);
         }
     }
 }

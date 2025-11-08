@@ -2,15 +2,15 @@ package com.dasi.pojo.dto;
 
 import com.dasi.common.annotation.EnumValid;
 import com.dasi.common.constant.DefaultConstant;
-import com.dasi.common.enumeration.MsgChannel;
+import com.dasi.common.enumeration.MsgStatus;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-public class MessagePageDTO {
+public class DispatchPageDTO {
+    private Long messageId;
+
     // 分页参数
     @NotNull(message = "页码不能为空")
     @Min(value = 1, message = "页码应该从 1 开始")
@@ -22,14 +22,8 @@ public class MessagePageDTO {
     private String content;
 
     // 精确查询
-    @EnumValid(enumClass = MsgChannel.class)
-    private MsgChannel channel;
-    private Long accountId;
-    private String accountName;
-    private Long departmentId;
-    private String departmentName;
-
-    // 时间查询
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    @EnumValid(enumClass = MsgStatus.class)
+    private MsgStatus status;
+    private Long contactId;
+    private String contactName;
 }

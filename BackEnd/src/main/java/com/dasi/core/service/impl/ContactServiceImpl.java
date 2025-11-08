@@ -11,12 +11,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.annotation.UniqueField;
+import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.ContactContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.AccountException;
 import com.dasi.common.exception.ContactException;
+import com.dasi.common.exception.SendException;
 import com.dasi.common.properties.JwtProperties;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.ContactMapper;
@@ -35,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -67,6 +70,11 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
         Page<Contact> contacts = page(param, wrapper);
 
         return PageResult.of(contacts);
+    }
+
+    @Override
+    public List<Contact> getContactList() {
+        return list();
     }
 
     @Override
@@ -170,7 +178,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
                 .eq(Mailbox::getInbox, inbox)
                 .eq(dto.getIs_read() != null, Mailbox::getIsRead, dto.getIs_read())
                 .eq(dto.getIs_deleted() != null, Mailbox::getIsDeleted, dto.getIs_deleted())
-                .like(StrUtil.isNotBlank(dto.getAddresser()), Mailbox::getAddresser, dto.getAddresser())
+                .like(StrUtil.isNotBlank(dto.getDepartmentName()), Mailbox::getDepartmentName, dto.getDepartmentName())
                 .like(StrUtil.isNotBlank(dto.getSubject()), Mailbox::getSubject, dto.getSubject())
                 .like(StrUtil.isNotBlank(dto.getContent()), Mailbox::getContent, dto.getContent())
                 .orderByDesc(Mailbox::getArrivedAt);
@@ -195,10 +203,18 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     }
 
     @Override
-    public void checkStatus(Dispatch dispatch) {
+    public void check(Dispatch dispatch) {
         Contact contact = getById(dispatch.getContactId());
-        if (contact == null || contact.getStatus() == null || contact.getStatus() == 0) {
-            throw new ContactException(ResultInfo.CONTACT_STATUS_OFF);
+        if (contact == null) {
+            String errorMsg = SendConstant.CONTACT_MISSING + dispatch.getContactName();
+            log.warn("【联系人检查】{}", errorMsg);
+            throw new SendException(errorMsg);
+        }
+        if (contact.getStatus() == null || contact.getStatus() == 0) {
+            String errorMsg = SendConstant.CONTACT_DISABLED + dispatch.getContactName();
+            log.warn("【联系人检查】{}", errorMsg);
+            throw new SendException(errorMsg);
         }
     }
+
 }

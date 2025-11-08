@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class AccountContext {
     private Long id;
     private AccountRole role;
+    private String name;
 }

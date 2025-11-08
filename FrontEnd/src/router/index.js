@@ -14,6 +14,8 @@ import Contact      from '../views/ContactView.vue'
 import Sensitive    from '../views/SensitiveView.vue'
 import Template     from '../views/TemplateView.vue'
 import Render       from '../views/RenderView.vue'
+import Message      from '../views/MessageView.vue'
+import Dispatch     from '../views/DispatchView.vue'
 
 
 // 路由器配置
@@ -31,7 +33,10 @@ const router = createRouter({
                 { path: '/account', component: Account, meta: { title: '账户管理' } },
                 { path: '/department', component: Department, meta: { title: '部门管理' } },
                 { path: '/contact', component: Contact, meta: { title: '联系人管理' } },
-                // { path: '/message', component: Message, meta: { title: '发送消息' } },
+                // { path: '/send', component: Send, meta: { title: '发送消息' } },
+                
+                { path: '/message', component: Message, meta: { title: '消息管理' } },
+                { path: '/dispatch', component: Dispatch, meta: { title: '消息详情' } },
                 { path: '/template', component: Template, meta: { title: '模板管理' } },
                 { path: '/sensitive', component: Sensitive, meta: { title: '敏感词管理' } },
                 { path: '/render', component: Render, meta: { title: '占位符管理' } },

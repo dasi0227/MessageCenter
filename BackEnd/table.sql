@@ -42,50 +42,6 @@ CREATE TABLE IF NOT EXISTS contact (
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 消息
-DROP TABLE IF EXISTS message;
-CREATE TABLE IF NOT EXISTS message (
-    id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
-    subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
-    content     TEXT            NOT NULL                    COMMENT '消息内容',
-    attachments MEDIUMTEXT                                  COMMENT '消息附件',
-    created_at  DATETIME        NOT NULL                    COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 发送
-DROP TABLE IF EXISTS dispatch;
-CREATE TABLE IF NOT EXISTS dispatch (
-    id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
-    msg_id      BIGINT          NOT NULL                    COMMENT '消息 id',
-    account_id  BIGINT          NOT NULL                    COMMENT '操作人 id',
-    department_id BIGINT        NOT NULL                    COMMENT '发件人 id',
-    contact_id  BIGINT          NOT NULL                    COMMENT '收件人 id',
-    target      VARCHAR(32)     NOT NULL                    COMMENT '收件人地址',
-    channel     VARCHAR(32)     NOT NULL                    COMMENT '消息渠道',
-    status      VARCHAR(32)     NOT NULL                    COMMENT '消息状态',
-    error_msg   VARCHAR(256)    DEFAULT NULL                COMMENT '错误信息',
-    schedule_at DATETIME        DEFAULT NULL                COMMENT '定时时间',
-    created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
-    sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间',
-    finished_at DATETIME        DEFAULT NULL                COMMENT '完成时间',
-    UNIQUE KEY uk_msg_contact (msg_id, department_id, contact_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 信箱
-DROP TABLE IF EXISTS mailbox;
-CREATE TABLE IF NOT EXISTS mailbox (
-    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    inbox       BIGINT          NOT NULL                    COMMENT '信箱号',
-    addresser   VARCHAR(32)     NOT NULL                    COMMENT '发件人名',
-    subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
-    content     TEXT            NOT NULL                    COMMENT '消息内容',
-    attachments MEDIUMTEXT                                  COMMENT '消息附件',
-    is_read     TINYINT         DEFAULT 0                   COMMENT '是否已读：0=未读，1=已读',
-    is_deleted  TINYINT         DEFAULT 0                   COMMENT '是否删除：0=正常，1=删除',
-    arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间',
-    read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- 模板
 DROP TABLE IF EXISTS template;
 CREATE TABLE IF NOT EXISTS template (
@@ -113,4 +69,57 @@ CREATE TABLE IF NOT EXISTS render (
     remark      VARCHAR(256)    DEFAULT NULL                COMMENT '备注说明',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 消息
+DROP TABLE IF EXISTS message;
+CREATE TABLE IF NOT EXISTS message (
+    id               BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '雪花 id',
+    template_id      BIGINT          DEFAULT NULL                COMMENT '模版 id',
+    channel          VARCHAR(32)     NOT NULL                    COMMENT '消息渠道',
+    subject          VARCHAR(255)    NOT NULL                    COMMENT '消息标题',
+    content          TEXT            DEFAULT NULL                COMMENT '消息正文内容',
+    attachments      JSON            DEFAULT NULL                COMMENT '附件 URL 列表',
+    account_id       BIGINT          NOT NULL                    COMMENT '操作人 id',
+    account_name     VARCHAR(64)     NOT NULL                    COMMENT '操作人姓名',
+    department_id    BIGINT          NOT NULL                    COMMENT '发件人 id',
+    department_name  VARCHAR(64)     NOT NULL                    COMMENT '发件人姓名',
+    contact_ids      JSON            NOT NULL                    COMMENT '收件人 id 列表',
+    created_at       DATETIME        NOT NULL                    COMMENT '创建时间',
+    schedule_at      DATETIME        DEFAULT NULL                COMMENT '定时时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息主体表';
+
+-- 发送
+DROP TABLE IF EXISTS dispatch;
+CREATE TABLE IF NOT EXISTS dispatch (
+    id                BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '雪花 id',
+    message_id        BIGINT          NOT NULL                    COMMENT '消息 id',
+    subject           VARCHAR(255)    NOT NULL                    COMMENT '消息标题（渲染后）',
+    content           TEXT            DEFAULT NULL                COMMENT '消息正文内容（渲染后）',
+    attachments       JSON            DEFAULT NULL                COMMENT '附件 URL 列表',
+    department_id     BIGINT          NOT NULL                    COMMENT '发件人 id',
+    department_name   VARCHAR(64)     NOT NULL                    COMMENT '发件人姓名',
+    created_at        DATETIME        NOT NULL                    COMMENT '创建时间',
+    contact_id        BIGINT          NOT NULL                    COMMENT '收件人 id',
+    contact_name      VARCHAR(64)     NOT NULL                    COMMENT '收件人姓名',
+    target            VARCHAR(255)    DEFAULT NULL                COMMENT '收件目标',
+    status            VARCHAR(32)     NOT NULL                    COMMENT '消息状态',
+    error_msg         VARCHAR(512)    DEFAULT NULL                COMMENT '错误信息',
+    sent_at           DATETIME        DEFAULT NULL                COMMENT '发送时间',
+    finished_at       DATETIME        DEFAULT NULL                COMMENT '完成时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息派发表';
+
+-- 信箱
+DROP TABLE IF EXISTS mailbox;
+CREATE TABLE IF NOT EXISTS mailbox (
+    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
+    inbox       BIGINT          NOT NULL                    COMMENT '信箱号',
+    department_name VARCHAR(32) NOT NULL                    COMMENT '发件人名',
+    subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
+    content     TEXT            NOT NULL                    COMMENT '消息内容',
+    attachments JSON                                        COMMENT '消息附件',
+    is_read     TINYINT         DEFAULT 0                   COMMENT '是否已读：0=未读，1=已读',
+    is_deleted  TINYINT         DEFAULT 0                   COMMENT '是否删除：0=正常，1=删除',
+    arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间',
+    read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

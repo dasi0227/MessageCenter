@@ -10,6 +10,8 @@ import com.dasi.pojo.entity.Mailbox;
 import com.dasi.pojo.vo.ContactLoginVO;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 public interface ContactService extends IService<Contact> {
     void addContact(ContactAddDTO dto);
 
@@ -27,5 +29,7 @@ public interface ContactService extends IService<Contact> {
 
     PageResult<Mailbox> getMailboxPage(@Valid MailboxPageDTO dto);
 
-    void checkStatus(Dispatch dispatch);
+    void check(Dispatch dispatch);
+
+    List<Contact> getContactList();
 }

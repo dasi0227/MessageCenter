@@ -1,18 +1,22 @@
 package com.dasi.core.controller;
 
+import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.result.PageResult;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.MessageService;
+import com.dasi.pojo.dto.DispatchPageDTO;
 import com.dasi.pojo.dto.MessagePageDTO;
 import com.dasi.pojo.dto.MessageSendDTO;
-import com.dasi.pojo.vo.MessageDetailVO;
-import com.dasi.pojo.vo.MessagePageVO;
+import com.dasi.pojo.entity.Dispatch;
+import com.dasi.pojo.entity.Message;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/msg")
+@RequestMapping("/api/message")
 public class MessageController {
 
     @Autowired
@@ -24,15 +28,21 @@ public class MessageController {
         return Result.success();
     }
 
+    @GetMapping("/channel/list")
+    public Result<List<String>> getChannelList() {
+        List<String> result = MsgChannel.getChannelList();
+        return Result.success(result);
+    }
+
     @PostMapping("/page")
-    public Result<PageResult<MessagePageVO>> getMessagePage(@Valid @RequestBody MessagePageDTO dto) {
-        PageResult<MessagePageVO> pageResult = messageService.getMessagePage(dto);
+    public Result<PageResult<Message>> getMessagePage(@Valid @RequestBody MessagePageDTO dto) {
+        PageResult<Message> pageResult = messageService.getMessagePage(dto);
         return Result.success(pageResult);
     }
 
-    @GetMapping("/detail/{id}")
-    public Result<MessageDetailVO> getMessageDetail(@PathVariable("id") Long dispatchId) {
-        MessageDetailVO messageDetailVO = messageService.getMessageDetail(dispatchId);
-        return Result.success(messageDetailVO);
+    @PostMapping("/detail")
+    public Result<PageResult<Dispatch>> getMessageDetail(@Valid @RequestBody DispatchPageDTO dto) {
+        PageResult<Dispatch> result = messageService.getMessageDetail(dto);
+        return Result.success(result);
     }
 }

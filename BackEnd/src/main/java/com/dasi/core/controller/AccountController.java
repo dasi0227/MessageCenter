@@ -50,6 +50,12 @@ public class AccountController {
         return Result.success(pageResult);
     }
 
+    @GetMapping("/list")
+    public Result<List<Account>> getAccountList() {
+        List<Account> result = accountService.getAccountList();
+        return Result.success(result);
+    }
+
     @GetMapping("/role")
     public Result<List<String>> getAccountRole() {
         List<String> list = accountService.getAccountRole();

@@ -15,10 +15,8 @@ public class MailboxPageDTO {
     private Long pageNum;
     private Long pageSize = DefaultConstant.DEFAULT_PAGE_SIZE;
 
-    // 精确查询
-    private String addresser;
-
     // 模糊查询
+    private String departmentName;
     private String subject;
     private String content;
 

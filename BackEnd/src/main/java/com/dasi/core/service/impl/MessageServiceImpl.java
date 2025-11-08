@@ -2,32 +2,24 @@ package com.dasi.core.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AutoFill;
-import com.dasi.common.constant.DefaultConstant;
+import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgStatus;
-import com.dasi.common.exception.ContactException;
-import com.dasi.common.exception.RenderException;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
-import com.dasi.core.mapper.DispatchMapper;
 import com.dasi.core.mapper.MessageMapper;
-import com.dasi.core.service.ContactService;
-import com.dasi.core.service.DispatchService;
-import com.dasi.core.service.MessageService;
+import com.dasi.core.service.*;
+import com.dasi.pojo.dto.DispatchPageDTO;
 import com.dasi.pojo.dto.MessagePageDTO;
 import com.dasi.pojo.dto.MessageSendDTO;
+import com.dasi.pojo.entity.Contact;
 import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Message;
-import com.dasi.pojo.entity.Payload;
-import com.dasi.pojo.vo.MessageDetailVO;
-import com.dasi.pojo.vo.MessagePageVO;
-import com.dasi.util.RenderResolveUtil;
-import com.dasi.util.SensitiveWordDetectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +37,7 @@ import java.util.List;
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
 
     @Autowired
-    private MessageMapper messageMapper;
-
-    @Autowired
-    private DispatchMapper dispatchMapper;
+    private DispatchService dispatchService;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -57,95 +46,128 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private RabbitMqProperties rabbitMqProperties;
 
     @Autowired
-    private SensitiveWordDetectUtil sensitiveWordDetectUtil;
-
-    @Autowired
-    private RenderResolveUtil renderResolveUtil;
-
-    @Autowired
-    private DispatchService dispatchService;
-
-    @Autowired
     private ContactService contactService;
+
+    @Autowired
+    private RenderService renderService;
+
+    @Autowired
+    private SensitiveWordService sensitiveWordService;
 
     @Override
     @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
     public void sendMessage(MessageSendDTO dto) {
-        // 创建消息
+        // 构建消息主体
+        Long accountId = AccountContextHolder.get().getId();
+        String accountName = AccountContextHolder.get().getName();
+
         Message message = BeanUtil.copyProperties(dto, Message.class);
+        message.setAccountId(accountId);
+        message.setAccountName(accountName);
         save(message);
 
-        // 确定操作人、发件人和收件人
-        Long accountId = AccountContextHolder.get().getId();
-        Long departmentId = dto.getDepartmentId();
+        // 查询收件人信息
+        List<Contact> contactList = contactService.listByIds(dto.getContactIds());
+
+        // 构建分发主体
         List<Dispatch> dispatchList = new ArrayList<>();
-        for (Long contactId : dto.getContactIds()) {
-            String target = contactService.resolveTarget(contactId, dto.getChannel());
+        List<Dispatch> sendList = new ArrayList<>();
+        for (Contact contact : contactList) {
             Dispatch dispatch = Dispatch.builder()
-                    .accountId(accountId)               // 操作人
-                    .departmentId(departmentId)         // 发件部门
-                    .contactId(contactId)               // 收件人
-                    .msgId(message.getId())             // 消息ID
-                    .channel(dto.getChannel())          // 渠道
-                    .status(MsgStatus.PENDING)          // 初始状态
-                    .target(target)
-                    .scheduleAt(dto.getScheduleAt())
+                    .messageId(message.getId())
+                    .subject(dto.getSubject())
+                    .content(dto.getContent())
+                    .attachments(dto.getAttachments())
+                    .departmentId(dto.getDepartmentId())
+                    .departmentName(dto.getDepartmentName())
+                    .contactId(contact.getId())
+                    .contactName(contact.getName())
+                    .target(contactService.resolveTarget(contact.getId(), dto.getChannel()))
+                    .status(MsgStatus.PENDING)
+                    .errorMsg(null)
                     .createdAt(LocalDateTime.now())
                     .build();
-            dispatchMapper.insert(dispatch);
-            dispatchList.add(dispatch);
-        }
 
-        // 敏感词处理
-        String sensitiveWords = sensitiveWordDetectUtil.detect(message);
-        if (StrUtil.isNotEmpty(sensitiveWords)) {
-            String errorMsg = DefaultConstant.DEFAULT_SENSITIVE_WORD_WARNING + sensitiveWords;
-            for (Dispatch dispatch : dispatchList) {
-                dispatchService.updateFailStatus(dispatch.getId(), errorMsg);
+            // 检查消息
+            try {
+                contactService.check(dispatch);
+                renderService.decode(dispatch);
+                sensitiveWordService.detect(dispatch);
+            } catch (Exception exception) {
+                dispatch.setStatus(MsgStatus.FAIL);
+                dispatch.setErrorMsg(exception.getMessage());
             }
-            log.warn("【Message Service】发送消息失败，检测到敏感词：{}", sensitiveWords);
-            return;
-        }
 
-        // 占位符渲染处理 + 投递
+            dispatchList.add(dispatch);
+            if (dispatch.getStatus() != MsgStatus.FAIL) {
+                sendList.add(dispatch);
+            }
+        }
+        dispatchService.saveBatch(dispatchList);
+
+        // 投递，TODO：处理 dto.getScheduleAt() 的延迟发送
         String route = dto.getChannel().getRoute(rabbitMqProperties);
         String exchange = rabbitMqProperties.getExchange();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                for (Dispatch dispatch : dispatchList) {
+                for (Dispatch dispatch : sendList) {
                     try {
-                        contactService.checkStatus(dispatch);
-                        String subject = renderResolveUtil.resolve(message.getSubject(), dispatch);
-                        String content = renderResolveUtil.resolve(message.getContent(), dispatch);
-                        Payload payload = Payload.builder()
-                                .dispatch(dispatch)
-                                .subject(subject)
-                                .content(content)
-                                .attachments(message.getAttachments())
-                                .build();
-                        rabbitTemplate.convertAndSend(exchange, route, payload);
-                    } catch (RenderException | ContactException e) {
-                        dispatchService.updateFailStatus(dispatch.getId(), e.getMessage());
-                        log.error("【Message Service】分发失败：error={}, dispatch={}", e.getMessage(), dispatch);
+                        rabbitTemplate.convertAndSend(exchange, route, dispatch);
+                    } catch (Exception e) {
+                        String errorMsg = SendConstant.MQ_SEND_ERROR + e.getMessage();
+                        dispatchService.updateFinishStatus(dispatch, MsgStatus.FAIL, errorMsg);
+                        log.error("【Message Service】消息投递失败：dispatchId={}, error={}", dispatch.getId(), e.getMessage());
                     }
                 }
             }
         });
-
-        log.debug("【Message Service】发送消息成功：{}", dto);
     }
 
     @Override
-    public PageResult<MessagePageVO> getMessagePage(MessagePageDTO dto) {
-        Page<MessagePageVO> param = new Page<>(dto.getPageNum(), dto.getPageSize());
-        IPage<MessagePageVO> result = messageMapper.selectMessagePage(param, dto);
+    public PageResult<Message> getMessagePage(MessagePageDTO dto) {
+        Page<Message> param = new Page<>(dto.getPageNum(), dto.getPageSize());
+
+        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<Message>()
+                // 精确查询
+                .eq(dto.getChannel() != null, Message::getChannel, dto.getChannel())
+                .eq(dto.getAccountId() != null, Message::getAccountId, dto.getAccountId())
+                .eq(dto.getDepartmentId() != null, Message::getDepartmentId, dto.getDepartmentId())
+                // 模糊查询
+                .like(StrUtil.isNotBlank(dto.getDepartmentName()), Message::getDepartmentName, dto.getDepartmentName())
+                .like(StrUtil.isNotBlank(dto.getAccountName()), Message::getAccountName, dto.getAccountName())
+                .like(StrUtil.isNotBlank(dto.getSubject()), Message::getSubject, dto.getSubject())
+                .like(StrUtil.isNotBlank(dto.getContent()), Message::getContent, dto.getContent())
+                // 时间查询
+                .ge(dto.getStartTime() != null, Message::getCreatedAt, dto.getStartTime())
+                .le(dto.getEndTime() != null, Message::getCreatedAt, dto.getEndTime())
+                // 排序
+                .orderByDesc(Message::getCreatedAt);
+
+        Page<Message> result = page(param, wrapper);
         return PageResult.of(result);
     }
 
     @Override
-    public MessageDetailVO getMessageDetail(Long dispatchId) {
-        return messageMapper.selectMessageDetail(dispatchId);
+    public PageResult<Dispatch> getMessageDetail(DispatchPageDTO dto) {
+        Page<Dispatch> param = new Page<>(dto.getPageNum(), dto.getPageSize());
+
+        LambdaQueryWrapper<Dispatch> wrapper = new LambdaQueryWrapper<Dispatch>()
+                // 外键
+                .eq(dto.getMessageId() != null, Dispatch::getMessageId, dto.getMessageId())
+                // 精确查询
+                .eq(dto.getStatus() != null, Dispatch::getStatus, dto.getStatus())
+                .eq(dto.getContactId() != null, Dispatch::getContactId, dto.getContactId())
+                // 模糊查询
+                .like(StrUtil.isNotBlank(dto.getContactName()), Dispatch::getContactName, dto.getContactName())
+                .like(StrUtil.isNotBlank(dto.getSubject()), Dispatch::getSubject, dto.getSubject())
+                .like(StrUtil.isNotBlank(dto.getContent()), Dispatch::getContent, dto.getContent())
+                .orderByDesc(Dispatch::getCreatedAt);
+
+        Page<Dispatch> result = dispatchService.page(param, wrapper);
+
+        return PageResult.of(result);
     }
+
 }

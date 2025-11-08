@@ -43,9 +43,10 @@ public class JwtAccountInterceptor implements HandlerInterceptor {
         Claims claims = jwtUtil.parseToken(token);
         Long id = Long.valueOf(claims.get(jwtProperties.getAccountIdClaimKey()).toString());
         AccountRole role = AccountRole.valueOf(claims.get(jwtProperties.getAccountRoleClaimKey()).toString());
-        AccountContextHolder.set(new AccountContext(id, role));
+        String name = claims.get(jwtProperties.getAccountNameClaimKey()).toString();
+        AccountContextHolder.set(new AccountContext(id, role, name));
 
-        log.debug("【令牌校验成功】当前管理员 ID：{}", id);
+        log.debug("【令牌校验成功】当前管理员：id={}, role={}, name={}", id, role, name);
         return true;
     }
 

@@ -29,4 +29,6 @@ public interface AccountService extends IService<Account> {
     List<String> getAccountRole();
 
     void addAccount(@Valid AccountAddDTO dto);
+
+    List<Account> getAccountList();
 }

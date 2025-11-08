@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/contact")
 public class ContactController {
@@ -22,6 +24,12 @@ public class ContactController {
     public Result<PageResult<Contact>> getContactPage(@Valid @RequestBody ContactPageDTO dto) {
         PageResult<Contact> pageResult = contactService.getContactPage(dto);
         return Result.success(pageResult);
+    }
+
+    @GetMapping("/list")
+    public Result<List<Contact>> getContactList() {
+        List<Contact> result = contactService.getContactList();
+        return Result.success(result);
     }
 
     @PostMapping("/add")

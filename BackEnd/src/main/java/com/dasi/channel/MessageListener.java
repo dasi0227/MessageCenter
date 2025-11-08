@@ -1,7 +1,7 @@
 package com.dasi.channel;
 
 import com.dasi.core.service.DispatchService;
-import com.dasi.pojo.entity.Payload;
+import com.dasi.pojo.entity.Dispatch;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,23 +25,23 @@ public class MessageListener {
     private DispatchService dispatchService;
 
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).MAILBOX.getQueue(@rabbitMqProperties)}")
-    public void listenMailbox(Payload payload) {
-        log.info("【监听器】发送站内信：{}", payload);
-        dispatchService.updateSendStatus(payload.getDispatch().getId());
-        mailboxSender.send(payload);
+    public void listenMailbox(Dispatch dispatch) {
+        log.info("【监听器】发送站内信：{}", dispatch);
+        dispatchService.updateSendStatus(dispatch);
+        mailboxSender.send(dispatch);
     }
 
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).SMS.getQueue(@rabbitMqProperties)}")
-    public void listenSms(Payload payload) {
-        log.info("【监听器】发送短信：{}", payload);
-        dispatchService.updateSendStatus(payload.getDispatch().getId());
-        smsSender.send(payload);
+    public void listenSms(Dispatch dispatch) {
+        log.info("【监听器】发送短信：{}", dispatch);
+        dispatchService.updateSendStatus(dispatch);
+        smsSender.send(dispatch);
     }
 
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).EMAIL.getQueue(@rabbitMqProperties)}")
-    public void listenEmail(Payload payload) {
-        log.info("【监听器】发送邮件：{}", payload);
-        dispatchService.updateSendStatus(payload.getDispatch().getId());
-        emailSender.send(payload);
+    public void listenEmail(Dispatch dispatch) {
+        log.info("【监听器】发送邮件：{}", dispatch);
+        dispatchService.updateSendStatus(dispatch);
+        emailSender.send(dispatch);
     }
 }

@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/department")
 public class DepartmentController {
@@ -21,6 +23,12 @@ public class DepartmentController {
     @PostMapping("/page")
     public Result<PageResult<Department>> getDepartmentPage(@Valid @RequestBody DepartmentPageDTO dto) {
         PageResult<Department> result = departmentService.getDepartmentPage(dto);
+        return Result.success(result);
+    }
+
+    @GetMapping("/list")
+    public Result<List<Department>> getDepartmentList() {
+        List<Department> result = departmentService.getDepartmentList();
         return Result.success(result);
     }
 

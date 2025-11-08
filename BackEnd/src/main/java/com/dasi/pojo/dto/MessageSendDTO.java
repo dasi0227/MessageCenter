@@ -1,5 +1,6 @@
 package com.dasi.pojo.dto;
 
+import com.dasi.common.annotation.EnumValid;
 import com.dasi.common.enumeration.MsgChannel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,23 +12,29 @@ import java.util.List;
 
 @Data
 public class MessageSendDTO {
+
+    private Long            templateId;
+
+    @EnumValid(enumClass = MsgChannel.class)
     @NotNull(message = "消息类型不能为空")
-    private MsgChannel channel;
+    private MsgChannel      channel;
 
     @NotBlank(message = "消息标题不能为空")
-    private String subject;
+    private String          subject;
 
     @NotBlank(message = "消息内容不能为空")
-    private String content;
+    private String          content;
 
-    @NotNull(message = "部门 id 不能为空")
-    private Long departmentId;
+    private List<String>    attachments;
 
+    // 人信息
+    @NotNull(message = "发件人不能为空")
+    private Long            departmentId;
+    @NotNull(message = "发件人不能为空")
+    private String          departmentName;
     @NotEmpty(message = "至少需要一个收件人")
-    private List<Long> contactIds;
+    private List<Long>      contactIds;
 
-    private LocalDateTime scheduleAt;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime   createdAt;
+    private LocalDateTime   scheduleAt;
 }

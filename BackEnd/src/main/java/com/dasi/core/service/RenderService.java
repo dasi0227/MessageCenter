@@ -1,6 +1,7 @@
 package com.dasi.core.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Render;
 import com.dasi.pojo.dto.RenderAddDTO;
 import com.dasi.pojo.dto.RenderUpdateDTO;
@@ -16,4 +17,6 @@ public interface RenderService extends IService<Render> {
     void updateRender(@Valid RenderUpdateDTO dto);
 
     void removeRender(Long id);
+
+    void decode(Dispatch dispatch);
 }

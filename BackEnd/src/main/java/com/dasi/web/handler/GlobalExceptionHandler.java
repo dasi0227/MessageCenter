@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
         ResultInfo resultInfo = ResultInfo.DATABASE_ERROR;
         String message = exception.getMessage();
         log.error("【数据库错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
+        exception.printStackTrace();
         return Result.fail(resultInfo, message);
     }
 
@@ -40,6 +41,7 @@ public class GlobalExceptionHandler {
         ResultInfo resultInfo = ResultInfo.SERVER_ERROR;
         String message = exception.getMessage();
         log.error("【服务器错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
+        exception.printStackTrace();
         return Result.fail(resultInfo, message);
     }
 }

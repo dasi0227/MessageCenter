@@ -78,6 +78,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         Map<String, Object> claims = new HashMap<>();
         claims.put(jwtProperties.getAccountIdClaimKey(), account.getId());
         claims.put(jwtProperties.getAccountRoleClaimKey(), account.getRole());
+        claims.put(jwtProperties.getAccountNameClaimKey(), account.getName());
         String token = jwtUtil.createToken(claims);
 
         AccountLoginVO vo = BeanUtil.copyProperties(account, AccountLoginVO.class);
@@ -111,6 +112,11 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         Page<Account> result = page(param, wrapper);
 
         return PageResult.of(result);
+    }
+
+    @Override
+    public List<Account> getAccountList() {
+        return list();
     }
 
     @Override
