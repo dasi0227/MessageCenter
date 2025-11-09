@@ -27,15 +27,10 @@ public class DashboardController {
         return Result.success(vo);
     }
 
-    @GetMapping("/year")
-    public Result<StatYearVO> getStatYear() {
-        StatYearVO vo = dashboardService.getStatYear();
+    @GetMapping("/timeline")
+    public Result<StatTimelineVO> getStatTimeline() {
+        StatTimelineVO vo = dashboardService.getStatTimeline();
         return Result.success(vo);
     }
 
-    @GetMapping("/month")
-    public Result<StatMonthVO> getStatWeek() {
-        StatMonthVO vo = dashboardService.getStatMonth();
-        return Result.success(vo);
-    }
 }

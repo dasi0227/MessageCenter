@@ -4,7 +4,7 @@
         <el-card class="guide-card" shadow="never">
             <p><strong>使用说明：</strong></p>
             <ul>
-                <li>使用 <strong>¥{name}¥</strong> 包裹变量名，即可自动渲染为对应的 value。</li>
+                <li>使用 <strong>${name}</strong> 包裹变量名，即可自动渲染为对应的 value。</li>
                 <li>系统默认变量以 <strong>#</strong> 开头：
                     <strong>#contact</strong>（联系人名称），
                     <strong>#department</strong>（部门名称），
@@ -12,7 +12,7 @@
                     <strong>#date</strong>（日期），
                     <strong>#datetime</strong>（时间）。
                 </li>
-                <li><strong>不允许嵌套渲染</strong>，即 name 内部不能有 ¥{}¥ 结构。</li>
+                <li><strong>不允许嵌套渲染</strong>，即 name 内部不能有 ${} 结构。</li>
             </ul>
         </el-card>
 

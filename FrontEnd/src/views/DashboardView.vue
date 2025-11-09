@@ -13,11 +13,11 @@
         <!-- 分发维度统计 -->
         <el-row :gutter="20" class="charts">
             <el-col :span="12"><el-card><div ref="accountChart" class="chart"></div></el-card></el-col>
-            <el-col :span="12"><el-card><div ref="departmentChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12"><el-card><div ref="channelChart" class="chart"></div></el-card></el-col>
         </el-row>
 
         <el-row :gutter="20" class="charts">
-            <el-col :span="12"><el-card><div ref="channelChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12"><el-card><div ref="departmentChart" class="chart"></div></el-card></el-col>
             <el-col :span="12"><el-card><div ref="contactChart" class="chart"></div></el-card></el-col>
         </el-row>
 
@@ -34,7 +34,7 @@ import { ref, onMounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import request from '../api/request'
 
-/* Chart refs */
+/* refs */
 const accountChart = ref()
 const departmentChart = ref()
 const contactChart = ref()
@@ -42,70 +42,63 @@ const channelChart = ref()
 const yearChart = ref()
 const monthChart = ref()
 
-/* 顶部统计卡片数据 */
+/* 顶部统计卡片 */
 const statList = ref([])
 
-/* 绘图函数 */
-const drawCharts = (dispatch, year, month) => {
+/* 绘制函数 */
+const drawCharts = (dispatch, timeline) => {
     const baseOpt = { tooltip: { trigger: 'axis' }, xAxis: {}, yAxis: {} }
 
-    // 账户维度
     const ac = echarts.init(accountChart.value)
     ac.setOption({
         ...baseOpt,
-        title: { text: '账户处理量 TOP5' },
+        title: { text: '账户处理量' },
         xAxis: { type: 'category', data: dispatch.accountNames },
         series: [{ type: 'bar', data: dispatch.accountCounts, color: '#409EFF' }]
     })
 
-    // 部门维度
     const dc = echarts.init(departmentChart.value)
     dc.setOption({
         ...baseOpt,
-        title: { text: '部门发送量 TOP5' },
+        title: { text: '部门发送量' },
         xAxis: { type: 'category', data: dispatch.departmentNames },
         series: [{ type: 'bar', data: dispatch.departmentCounts, color: '#67C23A' }]
     })
 
-    // 联系人维度
     const cc = echarts.init(contactChart.value)
     cc.setOption({
         ...baseOpt,
-        title: { text: '联系人接收量 TOP5' },
+        title: { text: '联系人接收量' },
         xAxis: { type: 'category', data: dispatch.contactNames },
         series: [{ type: 'bar', data: dispatch.contactCounts, color: '#E6A23C' }]
     })
 
-    // 渠道维度
     const ch = echarts.init(channelChart.value)
     ch.setOption({
         ...baseOpt,
-        title: { text: '渠道发送量 TOP5' },
+        title: { text: '渠道发送量' },
         xAxis: { type: 'category', data: dispatch.channelNames },
         series: [{ type: 'bar', data: dispatch.channelCounts, color: '#F56C6C' }]
     })
 
-    // 年度趋势
     const yc = echarts.init(yearChart.value)
     yc.setOption({
         title: { text: '年度发送趋势' },
         tooltip: { trigger: 'axis' },
-        xAxis: { data: year.months },
+        xAxis: { data: timeline.months },
         yAxis: {},
-        series: [{ type: 'line', smooth: true, data: year.counts, color: '#C39DA9' }]
+        series: [{ type: 'line', smooth: true, data: timeline.monthCounts, color: '#C39DA9' }]
     })
 
-    // 月度趋势
     const mc = echarts.init(monthChart.value)
     mc.setOption({
         title: { text: '本月发送趋势' },
         tooltip: { trigger: 'axis' },
-        xAxis: { data: month.days },
+        xAxis: { data: timeline.days },
         yAxis: {},
-        series: [{ type: 'line', smooth: true, data: month.counts, color: '#A15EFF' }]
+        series: [{ type: 'line', smooth: true, data: timeline.dayCounts, color: '#A15EFF' }]
     })
 
-    // 自适应
     window.addEventListener('resize', () => {
         ac.resize()
         dc.resize()
@@ -116,18 +109,15 @@ const drawCharts = (dispatch, year, month) => {
     })
 }
 
-/* 页面加载 */
+/* 初始化加载 */
 onMounted(async () => {
-    const [num, dispatch, year, month] = await Promise.all([
+    const [numRes, dispatchRes, timelineRes] = await Promise.all([
         request.get('/dashboard/num'),
         request.get('/dashboard/dispatch'),
-        request.get('/dashboard/year'),
-        request.get('/dashboard/month')
+        request.get('/dashboard/timeline')
     ])
 
-    const n = num.data.data
-
-    // 顶部卡片列表
+    const n = numRes.data.data
     statList.value = [
         { label: '消息总数', value: n.messageTotal },
         { label: '投递总数', value: n.dispatchTotal },
@@ -138,13 +128,13 @@ onMounted(async () => {
         { label: '账户数', value: n.accountNum },
         { label: '部门数', value: n.departmentNum },
         { label: '联系人', value: n.contactNum },
-        { label: '敏感词', value: n.sensitiveWordNum },
+        { label: '敏感词数', value: n.sensitiveWordNum },
         { label: '模板数', value: n.templateNum },
-        { label: '渠道数', value: n.channelNum }
+        { label: '占位符数', value: n.renderNum }
     ]
 
     await nextTick()
-    drawCharts(dispatch.data.data, year.data.data, month.data.data)
+    drawCharts(dispatchRes.data.data, timelineRes.data.data)
 })
 </script>
 

@@ -1,11 +1,12 @@
 package com.dasi.core.service.impl;
 
+import cn.hutool.core.map.MapUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.core.mapper.*;
 import com.dasi.core.service.DashboardService;
 import com.dasi.pojo.entity.Dispatch;
+import com.dasi.pojo.entity.Message;
 import com.dasi.pojo.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,12 @@ public class DashboardServiceImpl implements DashboardService {
     @Autowired
     private SensitiveWordMapper sensitiveWordMapper;
 
+    @Autowired
+    private TemplateMapper templateMapper;
+
+    @Autowired
+    private RenderMapper renderMapper;
+
     @Override
     public StatNumVO getStatNum() {
         // 消息与投递统计
@@ -55,9 +62,8 @@ public class DashboardServiceImpl implements DashboardService {
 
         // 系统配置统计
         long sensitiveWordNum = sensitiveWordMapper.selectCount(null);
-//        long templateNum = templateMapper.selectCount(null);
-        long templateNum = 0L;
-        long channelNum = Arrays.stream(MsgChannel.values()).count();
+        long templateNum = templateMapper.selectCount(null);
+        long renderNum = renderMapper.selectCount(null);
 
         // 封装结果
         StatNumVO vo = StatNumVO.builder()
@@ -72,7 +78,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .contactNum(contactNum)
                 .sensitiveWordNum(sensitiveWordNum)
                 .templateNum(templateNum)
-                .channelNum(channelNum)
+                .renderNum(renderNum)
                 .build();
 
         log.debug("【Dashboard Service】数量统计：{}", vo);
@@ -80,77 +86,85 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public StatYearVO getStatYear() {
+    public StatDispatchVO getStatDispatch() {
+        Map<String, Long> accountMap = new HashMap<>();
+        Map<String, Long> departmentMap = new HashMap<>();
+        Map<String, Long> contactMap = new HashMap<>();
+        Map<String, Long> channelMap = new HashMap<>();
+
+        Map<Long, Message> messageMap = messageMapper.selectList(null).stream()
+                .collect(Collectors.toMap(Message::getId, m -> m));
+
+        dispatchMapper.selectList(null).forEach(d -> {
+            Message m = messageMap.get(d.getMessageId());
+            if (m == null) return;
+
+            accountMap.merge(m.getAccountName(), 1L, Long::sum);
+            departmentMap.merge(m.getDepartmentName(), 1L, Long::sum);
+            contactMap.merge(d.getContactName(), 1L, Long::sum);
+            channelMap.merge(m.getChannel().name(), 1L, Long::sum);
+        });
+
+        var sortedAccountMap = MapUtil.sortByValue(accountMap, true);
+        var sortedDepartmentMap = MapUtil.sortByValue(departmentMap, true);
+        var sortedContactMap = MapUtil.sortByValue(contactMap, true);
+        var sortedChannelMap = MapUtil.sortByValue(channelMap, true);
+
+        return StatDispatchVO.builder()
+                .accountNames(new ArrayList<>(sortedAccountMap.keySet()))
+                .accountCounts(new ArrayList<>(sortedAccountMap.values()))
+                .departmentNames(new ArrayList<>(sortedDepartmentMap.keySet()))
+                .departmentCounts(new ArrayList<>(sortedDepartmentMap.values()))
+                .contactNames(new ArrayList<>(sortedContactMap.keySet()))
+                .contactCounts(new ArrayList<>(sortedContactMap.values()))
+                .channelNames(new ArrayList<>(sortedChannelMap.keySet()))
+                .channelCounts(new ArrayList<>(sortedChannelMap.values()))
+                .build();
+    }
+
+    @Override
+    public StatTimelineVO getStatTimeline() {
         LocalDate now = LocalDate.now();
         int year = now.getYear();
+        int month = now.getMonthValue();
+        YearMonth ym = YearMonth.of(year, month);
+        int days = ym.lengthOfMonth();
 
-        Map<Integer, Long> monthCount = dispatchMapper.selectList(null).stream()
+        // 查询一次即可
+        List<Dispatch> dispatchList = dispatchMapper.selectList(null);
+
+        // ===== 年度统计 =====
+        Map<Integer, Long> monthCount = dispatchList.stream()
                 .filter(d -> d.getCreatedAt() != null && d.getCreatedAt().getYear() == year)
                 .collect(Collectors.groupingBy(d -> d.getCreatedAt().getMonthValue(), Collectors.counting()));
 
         List<String> months = new ArrayList<>();
-        List<Long> counts = new ArrayList<>();
+        List<Long> monthCounts = new ArrayList<>();
         for (int i = 1; i <= 12; i++) {
             months.add(String.format("%02d", i));
-            counts.add(monthCount.getOrDefault(i, 0L));
+            monthCounts.add(monthCount.getOrDefault(i, 0L));
         }
 
-        StatYearVO vo = StatYearVO.builder()
-                .months(months)
-                .counts(counts)
-                .build();
-
-        log.info("【Dashboard Service】年度统计：{}", vo);
-        return vo;
-    }
-
-    @Override
-    public StatMonthVO getStatMonth() {
-        LocalDate now = LocalDate.now();
-        YearMonth ym = YearMonth.of(now.getYear(), now.getMonth());
-        int days = ym.lengthOfMonth();
-
-        Map<Integer, Long> dayCount = dispatchMapper.selectList(null).stream()
+        // ===== 月度统计 =====
+        Map<Integer, Long> dayCount = dispatchList.stream()
                 .filter(d -> d.getCreatedAt() != null
-                        && d.getCreatedAt().getYear() == now.getYear()
-                        && d.getCreatedAt().getMonthValue() == now.getMonthValue())
+                        && d.getCreatedAt().getYear() == year
+                        && d.getCreatedAt().getMonthValue() == month)
                 .collect(Collectors.groupingBy(d -> d.getCreatedAt().getDayOfMonth(), Collectors.counting()));
 
         List<String> daysList = new ArrayList<>();
-        List<Long> counts = new ArrayList<>();
+        List<Long> dayCounts = new ArrayList<>();
         for (int i = 1; i <= days; i++) {
             daysList.add(String.format("%02d", i));
-            counts.add(dayCount.getOrDefault(i, 0L));
+            dayCounts.add(dayCount.getOrDefault(i, 0L));
         }
 
-        StatMonthVO vo = StatMonthVO.builder()
+        // ===== 构建结果 =====
+        return StatTimelineVO.builder()
+                .months(months)
+                .monthCounts(monthCounts)
                 .days(daysList)
-                .counts(counts)
+                .dayCounts(dayCounts)
                 .build();
-
-        log.info("【Dashboard Service】月度统计：{}", vo);
-        return vo;
-    }
-
-    @Override
-    public StatDispatchVO getStatDispatch() {
-        List<Map<String, Object>> accountList = dispatchMapper.countByAccount();
-        List<Map<String, Object>> departmentList = dispatchMapper.countByDepartment();
-        List<Map<String, Object>> contactList = dispatchMapper.countByContact();
-        List<Map<String, Object>> channelList = dispatchMapper.countByChannel();
-
-        StatDispatchVO vo = StatDispatchVO.builder()
-                .accountNames(accountList.stream().map(m -> m.get("name").toString()).toList())
-                .accountCounts(accountList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
-                .departmentNames(departmentList.stream().map(m -> m.get("name").toString()).toList())
-                .departmentCounts(departmentList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
-                .contactNames(contactList.stream().map(m -> m.get("name").toString()).toList())
-                .contactCounts(contactList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
-                .channelNames(channelList.stream().map(m -> m.get("name").toString()).toList())
-                .channelCounts(channelList.stream().map(m -> ((Number) m.get("count")).longValue()).toList())
-                .build();
-
-        log.debug("【Dashboard Service】分发统计：{}", vo);
-        return vo;
     }
 }

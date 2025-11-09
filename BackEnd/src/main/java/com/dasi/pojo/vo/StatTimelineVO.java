@@ -11,7 +11,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatMonthVO {
-    private List<String> days;
-    private List<Long> counts;
+public class StatTimelineVO {
+    List<String> months;
+    List<Long> monthCounts;
+    List<String> days;
+    List<Long> dayCounts;
 }

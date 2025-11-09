@@ -2,13 +2,13 @@
     <div class="message-page">
         <!-- 顶部筛选栏 -->
         <div class="toolbar">
-            <!-- 操作人 -->
+            <!-- 账户 -->
             <el-select
                 v-model="selectedAccount"
                 value-key="id"
                 filterable
                 clearable
-                placeholder="选择操作人"
+                placeholder="选择账户"
                 style="width: 120px; margin-right: 10px"
             >
                 <el-option
@@ -76,27 +76,24 @@
         </div>
 
         <!-- 消息表格 -->
-        <el-table :data="tableData" stripe border style="width: 100%; margin-top: 20px">
-            <el-table-column prop="accountName" label="操作人" width="140" />
-            <el-table-column prop="departmentName" label="部门" width="160" />
-            <el-table-column prop="channel" label="渠道" width="120" />
-            <el-table-column prop="subject" label="标题" width="220" />
-            <el-table-column
-                prop="contactNames"
-                label="收件人"
-                show-overflow-tooltip
-                min-width="220"
-            >
+        <el-table
+            :data="tableData"
+            stripe
+            border
+            fit
+            style="width: 100%; margin-top: 20px"
+        >
+            <el-table-column prop="accountName" label="账户" min-width="100" />
+            <el-table-column prop="departmentName" label="部门" min-width="120" />
+            <el-table-column prop="channel" label="渠道" min-width="100" />
+            <el-table-column prop="subject" label="标题" min-width="180" show-overflow-tooltip />
+            <el-table-column prop="contactNames" label="联系人" min-width="200" show-overflow-tooltip>
                 <template #default="{ row }">
                     <span>{{ row.contactNames || '—' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column
-                prop="createdAt"
-                label="创建时间"
-                :formatter="(_, __, value) => formatDate(value)"
-                width="180"
-            />
+            <el-table-column prop="createdAt" label="创建时间" width="180"
+                            :formatter="(_, __, value) => formatDate(value)" />
             <el-table-column label="操作" width="120">
                 <template #default="scope">
                     <el-button type="primary" size="small" @click="viewDetail(scope.row)">
@@ -224,8 +221,7 @@ const resetFilters = () => {
 // 查看详情
 const viewDetail = (row) => {
   router.push({
-    path: '/dispatch',
-    state: { messageId: row.id, subject: row.subject || '' }
+    path: `/dispatch/${row.id}`
   })
 }
 

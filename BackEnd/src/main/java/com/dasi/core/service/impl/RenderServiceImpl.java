@@ -35,8 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.dasi.common.constant.DefaultConstant.DEFAULT_RENDER_IDS;
-
 @Service
 @Slf4j
 public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> implements RenderService {
@@ -72,7 +70,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @AutoFill(FillType.UPDATE)
     @UniqueField(fieldName = "name")
     public void updateRender(RenderUpdateDTO dto) {
-        if (DEFAULT_RENDER_IDS.contains(dto.getId())) {
+        if (SYS_KEYS_ID.contains(dto.getId())) {
             log.warn("【Render Service】更新失败，系统预设字段不可修改：{}", dto);
             throw new MessageCenterException(ResultInfo.RENDER_UPDATE_FAIL);
         }
@@ -95,7 +93,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     public void removeRender(Long id) {
-        if (DEFAULT_RENDER_IDS.contains(id)) {
+        if (SYS_KEYS_ID.contains(id)) {
             log.warn("【Render Service】删除失败，系统预设字段不可删除：{}", id);
             throw new RenderException(ResultInfo.RENDER_REMOVE_FAIL);
         }
@@ -110,7 +108,8 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
 
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}]+)}");
     private static final Map<String, String> RENDER_MAP = new ConcurrentHashMap<>();
-    private static final Set<String> SYS_KEYS = Set.of("#contact", "#department", "#date", "#datetime", "#uuid");
+    private static final Set<String> SYS_KEYS_NAME = Set.of("#account", "#contact", "#department", "#date", "#datetime", "#uuid");
+    private static final Set<Long> SYS_KEYS_ID = Set.of(1L, 2L, 3L, 4L, 5L);
 
     @PostConstruct
     public void init() {
@@ -165,7 +164,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
 
     private String resolveValue(String key, Dispatch dispatch) {
         // 系统变量
-        if (SYS_KEYS.contains(key)) {
+        if (SYS_KEYS_NAME.contains(key)) {
             return switch (key) {
                 case "#contact" -> dispatch.getContactName();
                 case "#department" -> dispatch.getDepartmentName();

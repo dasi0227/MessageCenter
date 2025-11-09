@@ -9,6 +9,7 @@ import lombok.Data;
 
 @Data
 public class DispatchPageDTO {
+    @NotNull(message = "消息 id 不能为空")
     private Long messageId;
 
     // 分页参数

@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.dasi.common.enumeration.MsgStatus;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,9 +25,11 @@ import java.util.List;
 public class Dispatch implements Serializable {
 
     @TableId(type = IdType.ASSIGN_ID)
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long            id;             // 雪花 id
 
     // 冗余消息信息
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long            messageId;      // 消息 id
     private String          subject;        // 消息标题（渲染）
     private String          content;        // 消息正文内容（渲染）

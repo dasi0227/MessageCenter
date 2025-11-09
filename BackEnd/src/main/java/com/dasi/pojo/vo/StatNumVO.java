@@ -27,5 +27,5 @@ public class StatNumVO {
     // 系统配置相关
     private Long sensitiveWordNum;    // 敏感词数量
     private Long templateNum;         // 模板数量
-    private Long channelNum;          // 渠道数量
+    private Long renderNum;           // 渲染数量
 }

@@ -86,6 +86,7 @@ INSERT INTO sensitive_word (word, created_at, updated_at) VALUES
 ('成人网站', NOW(), NOW()),
 ('非法集资', NOW(), NOW());
 
+DELETE FROM template;
 INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('欢迎信模板', '欢迎加入校园通知系统', '亲爱的用户，欢迎使用本系统，祝您体验愉快！', NOW(), NOW()),
 ('活动通知模板', '校园活动报名开始啦', '本周末将举办迎新晚会，欢迎同学们积极报名参加！', NOW(), NOW()),
@@ -106,14 +107,15 @@ INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('毕业典礼模板', '毕业典礼邀请函', '亲爱的同学，诚邀您参加 2025 届毕业典礼，共赴青春盛宴！', NOW(), NOW());
 
 
+DELETE FROM render;
 INSERT INTO render (name, value, remark, created_at, updated_at) VALUES
-('#account', NULL, '自动解析为账户名称', NOW(), NOW()),
-('#department', NULL, '自动解析为部门名称', NOW(), NOW()),
-('#contact', NULL, '自动解析为联系人名称', NOW(), NOW()),
-('#date', NULL, '自动解析为当前日期（yyyy-MM-dd）', NOW(), NOW()),
-('#datetime', NULL, '自动解析为当前时间（yyyy-MM-dd HH:mm:ss）', NOW(), NOW()),
-('greeting', '您好，${{#contact}}$！', '自定义问候语模板', NOW(), NOW()),
-('signature', '此致，敬礼', '通用签名', NOW(), NOW()),
-('school', '中山大学', '固定字段：学校名称', NOW(), NOW()),
-('website', 'https://dasi.blog', '固定字段：博客网站', NOW(), NOW()),
-('notice', '请在${{#date}}$前完成操作', '自动带日期的提醒文本', NOW(), NOW());
+('account', NULL, '系统内置变量 account', NOW(), NOW()),
+('#contact', NULL, '系统内置变量 contact', NOW(), NOW()),
+('#department', NULL, '系统内置变量 department', NOW(), NOW()),
+('#date', NULL, '系统内置变量 date', NOW(), NOW()),
+('#datetime', NULL, '系统内置变量 datetime', NOW(), NOW()),
+('#uuid', NULL, '系统内置变量 uuid', NOW(), NOW()),
+('school', '中山大学', '中山大学名称', NOW(), NOW()),
+('blog', 'https://dasi.plus', 'Dasi 的博客网站', NOW(), NOW()),
+('greet', '尊敬的先生/女士，您好！', '问候文本', NOW(), NOW()),
+('salute', '此致，敬礼', '敬礼文本', NOW(), NOW());

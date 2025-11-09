@@ -1,6 +1,7 @@
 package com.dasi.core.controller;
 
 import com.dasi.common.enumeration.MsgChannel;
+import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.result.PageResult;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.MessageService;
@@ -31,6 +32,12 @@ public class MessageController {
     @GetMapping("/channel/list")
     public Result<List<String>> getChannelList() {
         List<String> result = MsgChannel.getChannelList();
+        return Result.success(result);
+    }
+
+    @GetMapping("/status/list")
+    public Result<List<String>> getStatusList() {
+        List<String> result = MsgStatus.getStatusList();
         return Result.success(result);
     }
 
