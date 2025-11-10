@@ -112,6 +112,12 @@
                         </el-switch>
                     </el-tooltip>
 
+                    <!-- 刷新按钮 -->
+                    <el-button type="success" plain class="refresh-btn" @click="refreshPage">
+                        <el-icon><Refresh /></el-icon>
+                        <span>刷新</span>
+                    </el-button>
+
                     <!-- 退出按钮 -->
                     <el-button type="primary" plain class="logout-btn" @click="logout">
                         <el-icon><User /></el-icon>
@@ -124,6 +130,24 @@
             <el-main class="main" :class="{ dark: darkMode }">
                 <router-view />
             </el-main>
+
+            <!-- 底部信息栏 -->
+            <el-footer class="footer" :class="{ dark: darkMode }">
+                <div class="footer-content">
+                    <span>© 2025 Dasi · MessageCenter · V2.0</span>
+                    <div class="links">
+                        <a href="https://dasi.plus" target="_blank">
+                            <el-icon><Link /></el-icon>
+                            博客
+                        </a>
+                        <span>|</span>
+                        <a href="https://github.com/dasi0227/MessageCenter" target="_blank">
+                            <el-icon><StarFilled /></el-icon>
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+            </el-footer>
         </el-container>
     </el-container>
 </template>
@@ -132,7 +156,7 @@
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Sunny, Moon, User, FullScreen, Monitor, Fold, Expand } from '@element-plus/icons-vue'
+import { Sunny, Moon, User, FullScreen, Monitor, Fold, Expand, Refresh, Link, StarFilled } from '@element-plus/icons-vue'
 import { useAccountStore } from '../store/account'
 
 const router = useRouter()
@@ -186,20 +210,29 @@ const logout = () => {
     ElMessage.success('已退出登录')
     router.push('/login')
 }
+
+const refreshPage = () => {
+    router.replace(route.fullPath)
+}
+
 </script>
 
 <style scoped>
-/* 整体布局 */
+/* 根容器固定视口 */
 .layout-container {
+    display: flex;
     height: 100vh;
+    overflow: hidden;
 }
 
-/* 左侧模块菜单栏 */
+/* 左侧菜单 */
 .aside {
     background-color: #1e2b3a;
     color: #fff;
     display: flex;
     flex-direction: column;
+    transition: width 0.3s ease;
+    height: 100%;
 }
 .aside-header {
     display: flex;
@@ -207,8 +240,6 @@ const logout = () => {
     padding: 16px;
     border-bottom: 1px solid #2c3e50;
 }
-
-/* 左侧个人信息 */
 .avatar {
     width: 70px;
     height: 70px;
@@ -228,31 +259,37 @@ const logout = () => {
 .account-info .role.admin {
     color: #ff4d4f;
 }
-
 .account-info .role.user {
     color: #52c41a;
 }
-
-/* 菜单 */
 .el-menu {
     border-right: none;
+    transition: all 0.3s ease;
 }
-.el-sub-menu__title:hover {
-    background-color: #273849 !important;
-}
+.el-sub-menu__title:hover,
 .el-menu-item:hover {
     background-color: #273849 !important;
 }
 
-/* 顶部导航栏 */
+/* 右侧整体布局 */
+.layout-container > .el-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden; /* 防止整体滚动 */
+}
+
+/* 顶部栏 */
 .header {
+    flex-shrink: 0;
+    height: 60px;
     background-color: #409eff;
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    height: 60px;
     transition: background-color 0.3s;
 }
 .header.dark {
@@ -268,41 +305,71 @@ const logout = () => {
     align-items: center;
 }
 
-/* 全屏切换按钮样式 */
-.fullscreen-switch {
-    margin-right: 30px;
-    transform: scale(1.4);
-    --el-switch-on-color: #2563eb;
-    --el-switch-off-color: #9ca3af;
+/* 主体部分——只在这里滚动 */
+.main {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #f4f6f9;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+}
+.main.dark {
+    background-color: #1f1f1f;
+    color: #eee;
 }
 
-/* 侧边栏折叠切换 */
-.collapse-switch {
-    margin-right: 30px;
-    transform: scale(1.4);
-    --el-switch-on-color: #2563eb;
-    --el-switch-off-color: #9ca3af;
+/* 底部栏 */
+.footer {
+    flex-shrink: 0;
+    height: 40px;
+    background-color: #409eff;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
 }
-.aside {
-    transition: width 0.3s ease;
+.footer.dark {
+    background-color: #1e293b;
+    color: #f0f0f0;
 }
-.el-menu {
-    transition: all 0.3s ease;
+.footer-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 16px;
+}
+.footer-content .links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.footer-content .links a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffd04b;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+.footer-content .links a:hover {
+    color: #fff;
 }
 
-/* 明暗模式 */
+/* 控件样式 */
+.fullscreen-switch,
+.collapse-switch,
 .theme-switch {
     margin-right: 30px;
     transform: scale(1.4);
     --el-switch-on-color: #2563eb;
+    --el-switch-off-color: #9ca3af;
+}
+.theme-switch {
     --el-switch-off-color: #d6ad08;
 }
-
-.fullscreen-btn:hover {
-    color: #ffd04b;
-}
-
-/* 退出按钮 */
 .logout-btn {
     display: flex;
     align-items: center;
@@ -311,23 +378,9 @@ const logout = () => {
     font-weight: 500;
     transition: all 0.2s;
 }
-
 .logout-btn:hover {
     background-color: #0d05e6;
     border-color: black;
     color: #fff;
 }
-
-/* 主内容区 */
-.main {
-    background-color: #f4f6f9;
-    padding: 20px;
-    transition: background-color 0.3s;
-}
-
-.main.dark {
-    background-color: #1f1f1f;
-    color: #eee;
-}
-
 </style>
