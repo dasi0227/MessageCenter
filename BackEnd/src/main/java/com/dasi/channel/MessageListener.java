@@ -31,17 +31,17 @@ public class MessageListener {
         mailboxSender.send(dispatch);
     }
 
-    @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).SMS.getQueue(@rabbitMqProperties)}")
-    public void listenSms(Dispatch dispatch) {
-        log.info("【监听器】发送短信：{}", dispatch);
-        dispatchService.updateSendStatus(dispatch);
-        smsSender.send(dispatch);
-    }
-
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).EMAIL.getQueue(@rabbitMqProperties)}")
     public void listenEmail(Dispatch dispatch) {
         log.info("【监听器】发送邮件：{}", dispatch);
         dispatchService.updateSendStatus(dispatch);
         emailSender.send(dispatch);
+    }
+
+    @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).SMS.getQueue(@rabbitMqProperties)}")
+    public void listenSms(Dispatch dispatch) {
+        log.info("【监听器】发送短信：{}", dispatch);
+        dispatchService.updateSendStatus(dispatch);
+        smsSender.send(dispatch);
     }
 }

@@ -85,12 +85,12 @@
                     <el-button type="primary" plain @click="openScheduleDialog">选择时间</el-button>
                     <div class="value-list">
                         <el-tag
-                            v-if="scheduledTime"
+                            v-if="scheduleTime"
                             closable
                             type="warning"
                             @close="removeSchedule"
                         >
-                            {{ formatSchedule(scheduledTime) }}
+                            {{ formatSchedule(scheduleTime) }}
                         </el-tag>
                     </div>
                 </div>
@@ -212,8 +212,12 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import request from '../api/request'
 import { ElMessage } from 'element-plus'
+
+const route = useRoute()
+const router = useRouter()
 
 // ---------- 基础状态 ----------
 const selectedDepartment = ref(null)
@@ -223,7 +227,7 @@ const attachments = ref([])
 const selectedTemplate = ref(null)
 const subject = ref('')
 const content = ref('')
-const scheduledTime = ref(null)
+const scheduleTime = ref(null)
 
 // ---------- 弹窗控制 ----------
 const departmentDialogVisible = ref(false)
@@ -271,6 +275,39 @@ onMounted(async () => {
     if (contactRes.data.code === 200) contactList.value = contactRes.data.data
     if (tempRes.data.code === 200) templateList.value = tempRes.data.data
     if (channelRes.data.code === 200) channelList.value = channelRes.data.data
+
+    await nextTick()
+
+    if (route.query.fromResend === '1') {
+        const {
+            departmentId,
+            departmentName,
+            channel: qChannel,
+            subject: qSubject,
+            content: qContent,
+            contactIds: qContactIds
+        } = route.query
+
+        // 部门
+        if (departmentId && departmentName)
+            selectedDepartment.value = { id: Number(departmentId), name: departmentName }
+
+        // 渠道
+        if (qChannel) selectedChannel.value = String(qChannel)
+
+        // 标题与内容
+        if (qSubject != null) subject.value = String(qSubject)
+        if (qContent != null) content.value = String(qContent)
+
+        // 联系人
+        if (qContactIds) {
+            let ids = []
+            try { ids = JSON.parse(qContactIds) } catch { ids = [] }
+            selectedContacts.value = contactList.value.filter(c => ids.includes(c.id))
+        }
+
+        ElMessage.success('已载入上次发送内容，可直接修改后发送')
+    }
 })
 
 // ---------- 部门 ----------
@@ -347,14 +384,14 @@ const removeTemplate = () => {
 // ---------- 定时 ----------
 const tempScheduledTime = ref(null)
 const openScheduleDialog = () => {
-    tempScheduledTime.value = scheduledTime.value
+    tempScheduledTime.value = scheduleTime.value
     scheduleDialogVisible.value = true
 }
 const confirmSchedule = () => {
-    scheduledTime.value = tempScheduledTime.value
+    scheduleTime.value = tempScheduledTime.value
     scheduleDialogVisible.value = false
 }
-const removeSchedule = () => (scheduledTime.value = null)
+const removeSchedule = () => (scheduleTime.value = null)
 const formatSchedule = (time) => (time ? time : '')
 
 // ---------- 附件 ----------
@@ -400,7 +437,7 @@ const handleSend = async () => {
             departmentId: selectedDepartment.value.id,
             departmentName: selectedDepartment.value.name,
             contactIds: selectedContacts.value.map(c => c.id),
-            scheduledTime: scheduledTime.value || null
+            scheduleAt: scheduleTime.value || null
         }
         const { data } = await request.post('/message/send', payload)
         if (data.code === 200) {
@@ -424,7 +461,11 @@ const resetForm = () => {
     selectedTemplate.value = null
     subject.value = ''
     content.value = ''
-    scheduledTime.value = null
+    scheduleTime.value = null
+
+    if (route.query.fromResend) {
+        router.replace({ path: '/send' })
+    }
 }
 </script>
 

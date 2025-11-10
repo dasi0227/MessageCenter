@@ -34,6 +34,7 @@ public class DispatchServiceImpl extends ServiceImpl<DispatchMapper, Dispatch> i
     public void updateSendStatus(Dispatch dispatch) {
         update(new LambdaUpdateWrapper<Dispatch>()
                 .eq(Dispatch::getId, dispatch.getId())
+                .set(Dispatch::getSentAt, LocalDateTime.now())
                 .set(Dispatch::getStatus, MsgStatus.SENDING)
         );
     }

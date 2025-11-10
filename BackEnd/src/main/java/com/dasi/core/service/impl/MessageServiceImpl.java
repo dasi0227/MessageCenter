@@ -10,6 +10,7 @@ import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgStatus;
+import com.dasi.common.exception.SendException;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.MessageMapper;
@@ -29,6 +30,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,9 +93,10 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
             // 检查消息
             try {
+                checkScheduleAt(dto.getScheduleAt());
                 contactService.check(dispatch);
-                renderService.decode(dispatch);
                 sensitiveWordService.detect(dispatch);
+                renderService.decode(dispatch);
             } catch (Exception exception) {
                 dispatch.setStatus(MsgStatus.FAIL);
                 dispatch.setErrorMsg(exception.getMessage());
@@ -106,15 +109,19 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         }
         dispatchService.saveBatch(dispatchList);
 
-        // 投递，TODO：处理 dto.getScheduleAt() 的延迟发送
+        // 投递
         String route = dto.getChannel().getRoute(rabbitMqProperties);
         String exchange = rabbitMqProperties.getExchange();
+        long delayMillis = dto.getScheduleAt() == null ? 0L : ChronoUnit.MILLIS.between(LocalDateTime.now(), dto.getScheduleAt());
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
                 for (Dispatch dispatch : sendList) {
                     try {
-                        rabbitTemplate.convertAndSend(exchange, route, dispatch);
+                        rabbitTemplate.convertAndSend(exchange, route, dispatch, processor -> {
+                            processor.getMessageProperties().setDelayLong(delayMillis);
+                            return processor;
+                        });
                     } catch (Exception e) {
                         String errorMsg = SendConstant.MQ_SEND_ERROR + e.getMessage();
                         dispatchService.updateFinishStatus(dispatch, MsgStatus.FAIL, errorMsg);
@@ -123,6 +130,18 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 }
             }
         });
+    }
+
+    private void checkScheduleAt(LocalDateTime scheduleAt) {
+        if (scheduleAt == null) {
+            return;
+        }
+        if (scheduleAt.isBefore(LocalDateTime.now())) {
+            throw new SendException(SendConstant.SCHEDULE_BEFORE_NOW);
+        }
+        if (ChronoUnit.DAYS.between(LocalDateTime.now(), scheduleAt) > 31) {
+            throw new SendException(SendConstant.SCHEDULE_AFTER_MONTH);
+        }
     }
 
     @Override

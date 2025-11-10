@@ -2,6 +2,7 @@ package com.dasi.pojo.dto;
 
 import com.dasi.common.annotation.EnumValid;
 import com.dasi.common.enumeration.MsgChannel;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -36,5 +37,7 @@ public class MessageSendDTO {
     private List<Long>      contactIds;
 
     private LocalDateTime   createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     private LocalDateTime   scheduleAt;
 }

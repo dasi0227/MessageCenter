@@ -49,11 +49,11 @@
 
         <!-- 数据表格 -->
         <el-table :data="tableData" stripe border style="width: 100%; margin-top: 20px">
-            <el-table-column prop="contactName" label="联系人" width="160" />
-            <el-table-column prop="target" label="目标地址" width="200" />
-            
-            <!-- 💡 状态彩色标签 -->
-            <el-table-column label="状态" width="140">
+            <el-table-column prop="contactName" label="联系人" width="80" />
+            <el-table-column prop="target" label="目标地址" width="160" />
+
+            <!-- 状态 -->
+            <el-table-column label="状态" width="80">
                 <template #default="{ row }">
                     <span
                         class="status-tag"
@@ -69,7 +69,8 @@
                 </template>
             </el-table-column>
 
-            <el-table-column prop="errorMsg" label="错误信息" show-overflow-tooltip>
+            <!-- 错误信息：加宽 -->
+            <el-table-column prop="errorMsg" label="错误信息" min-width="300" show-overflow-tooltip>
                 <template #default="{ row }">{{ row.errorMsg || '—' }}</template>
             </el-table-column>
 
@@ -85,11 +86,13 @@
                 :formatter="(_, __, v) => formatDate(v)"
                 width="180"
             />
-            <!-- 💡 查看内容按钮 -->
-            <el-table-column label="操作" width="120">
+            <el-table-column label="操作" width="200">
                 <template #default="{ row }">
                     <el-button type="primary" size="small" @click="openDetail(row)">
                         查看内容
+                    </el-button>
+                    <el-button type="primary" size="small" @click="resend(row)">
+                        重发
                     </el-button>
                 </template>
             </el-table-column>
@@ -193,6 +196,22 @@ const getPage = async () => {
     } catch {
         ElMessage.error('请求失败，请检查接口')
     }
+}
+
+// 重发消息
+const resend = (row) => {
+    router.push({
+        path: '/send',
+        query: {
+            fromResend: '1',
+            departmentId: messageInfo.value.departmentId,
+            departmentName: messageInfo.value.departmentName,
+            channel: messageInfo.value.channel,
+            subject: row.subject || messageInfo.value.subject,
+            content: row.content || messageInfo.value.content,
+            contactIds: JSON.stringify([row.contactId]),
+        },
+    })
 }
 
 // 筛选

@@ -22,7 +22,11 @@ public class RabbitMqConfig {
 
     @Bean
     public DirectExchange exchangeMessageCenter() {
-        return new DirectExchange(rabbitMqProperties.getExchange(), true, false);
+        return ExchangeBuilder
+                .directExchange(rabbitMqProperties.getExchange())
+                .delayed()
+                .durable(true)
+                .build();
     }
 
     @Bean
