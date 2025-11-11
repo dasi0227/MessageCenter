@@ -7,8 +7,10 @@
 <script setup>
 </script>
 
-<style scoped>
-#app {
-    height: 100vh;
+<style>
+html, body, #app {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
 }
 </style>

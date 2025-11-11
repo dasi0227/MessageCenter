@@ -69,6 +69,8 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
                 .set(StrUtil.isNotBlank(dto.getName()), Department::getName, dto.getName())
                 .set(StrUtil.isNotBlank(dto.getAddress()), Department::getAddress, dto.getAddress())
                 .set(StrUtil.isNotBlank(dto.getDescription()), Department::getDescription, dto.getDescription())
+                .set(StrUtil.isNotBlank(dto.getPhone()), Department::getPhone, dto.getPhone())
+                .set(StrUtil.isNotBlank(dto.getEmail()), Department::getEmail, dto.getEmail())
                 .set(Department::getUpdatedAt, dto.getUpdatedAt()));
 
         if (!flag) {

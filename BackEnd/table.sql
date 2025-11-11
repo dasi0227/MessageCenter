@@ -16,15 +16,14 @@ CREATE TABLE IF NOT EXISTS account (
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO account (name, password, role, created_at, updated_at)
-VALUES ('dasi', '90c0bd850970a1dc69cd4a297de3c300', 'ADMIN', NOW(), NOW());
-
 -- 部门
 CREATE TABLE department (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '部门ID',
     name        VARCHAR(32)     NOT NULL UNIQUE             COMMENT '部门名称',
     address     VARCHAR(128)    NOT NULL UNIQUE             COMMENT '部门地址',
     description VARCHAR(256)    NOT NULL UNIQUE             COMMENT '部门描述',
+    phone       VARCHAR(32)     DEFAULT NULL                COMMENT '手机号',
+    email       VARCHAR(128)    DEFAULT NULL                COMMENT '邮箱',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
     updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

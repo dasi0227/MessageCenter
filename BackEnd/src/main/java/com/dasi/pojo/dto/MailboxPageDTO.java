@@ -1,6 +1,6 @@
 package com.dasi.pojo.dto;
 
-import com.dasi.common.constant.DefaultConstant;
+import com.dasi.common.constant.SystemConstant;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +13,7 @@ public class MailboxPageDTO {
     @NotNull(message = "页码不能为空")
     @Min(value = 1, message = "页码应该从 1 开始")
     private Long pageNum;
-    private Long pageSize = DefaultConstant.DEFAULT_PAGE_SIZE;
+    private Long pageSize = SystemConstant.PAGE_SIZE;
 
     // 模糊查询
     private String departmentName;

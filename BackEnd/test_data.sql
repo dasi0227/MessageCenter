@@ -1,3 +1,12 @@
+INSERT INTO account (name, password, role, created_at, updated_at)
+VALUES ('测试管理员', '90c0bd850970a1dc69cd4a297de3c300', 'ADMIN', NOW(), NOW());
+
+INSERT INTO department (name, address, description, email, phone, created_at, updated_at) VALUES
+('测试部门', '测试地址', '测试描述', '1740929297@qq.com', '13570095585', NOW(), NOW());
+
+INSERT INTO contact (name, password, inbox, phone, email, status, created_at, updated_at) VALUES
+('测试联系人', 'e10adc3949ba59abbe56e057f20f883e', 10000, '13416222182', 'wanyw0227@gmail.com', 1, NOW(), NOW());
+
 INSERT INTO account (name, password, role, created_at, updated_at) VALUES
 ('李老师',  'e10adc3949ba59abbe56e057f20f883e', 'USER', NOW(), NOW()),
 ('王老师',  'e10adc3949ba59abbe56e057f20f883e', 'USER', NOW(), NOW()),
@@ -20,27 +29,27 @@ INSERT INTO account (name, password, role, created_at, updated_at) VALUES
 ('冯老师',  'e10adc3949ba59abbe56e057f20f883e', 'USER', NOW(), NOW()),
 ('赖老师',  'e10adc3949ba59abbe56e057f20f883e', 'USER', NOW(), NOW());
 
-INSERT INTO department (name, address, description, created_at, updated_at) VALUES
-('计算机学院', '东校区信息楼201', '负责计算机科学与技术专业教学与科研工作', NOW(), NOW()),
-('电子信息学院', '东校区实验楼305', '负责电子信息工程相关课程与实验教学', NOW(), NOW()),
-('自动化学院', '南校区科技楼102', '专注于自动化与智能控制系统研究', NOW(), NOW()),
-('软件学院', '西校区软件楼301', '软件工程及人工智能研究教学单位', NOW(), NOW()),
-('物理学院', '北校区理科楼203', '物理学基础研究与应用方向培养基地', NOW(), NOW()),
-('化学学院', '北校区实验楼209', '开展化学合成与分析方向科研教学', NOW(), NOW()),
-('数学学院', '东校区数学楼401', '数学与统计相关专业培养单位', NOW(), NOW()),
-('外国语学院', '南校区外语楼106', '承担英语、日语及多语种教学任务', NOW(), NOW()),
-('经济管理学院', '西校区经管楼502', '经济学与工商管理领域教学科研', NOW(), NOW()),
-('艺术学院', '南校区艺术楼201', '美术、音乐及设计学科教学与创作', NOW(), NOW()),
-('新闻传播学院', '西校区传媒楼202', '新闻学与传播学研究与实践基地', NOW(), NOW()),
-('法学院', '东校区法学楼305', '培养法律专业人才与法治研究', NOW(), NOW()),
-('生命科学学院', '北校区生科楼404', '生物科学与技术方向教学科研', NOW(), NOW()),
-('环境科学学院', '南校区环保楼301', '环境监测与生态保护研究方向', NOW(), NOW()),
-('教育学院', '东校区教育楼501', '教育学与心理学相关专业培养单位', NOW(), NOW()),
-('材料学院', '北校区材料楼306', '新材料开发与材料物理研究', NOW(), NOW()),
-('建筑学院', '西校区建筑楼102', '建筑设计与城市规划方向教学科研', NOW(), NOW()),
-('体育学院', '南校区体育馆201', '体育教育与运动训练研究', NOW(), NOW()),
-('医学部', '南校区医学楼301', '医学基础与临床教学科研单位', NOW(), NOW()),
-('国际交流学院', '东校区国际楼101', '负责留学生教育与国际合作交流', NOW(), NOW());
+INSERT INTO department (name, address, description, email, phone, created_at, updated_at) VALUES
+('计算机学院', '东校区信息楼201', '负责计算机科学与技术专业教学与科研工作', 'cs@univ.edu.cn', '13800010001', NOW(), NOW()),
+('电子信息学院', '东校区实验楼305', '负责电子信息工程相关课程与实验教学', 'ee@univ.edu.cn', '13800010002', NOW(), NOW()),
+('自动化学院', '南校区科技楼102', '专注于自动化与智能控制系统研究', 'automation@univ.edu.cn', '13800010003', NOW(), NOW()),
+('软件学院', '西校区软件楼301', '软件工程及人工智能研究教学单位', 'software@univ.edu.cn', '13800010004', NOW(), NOW()),
+('物理学院', '北校区理科楼203', '物理学基础研究与应用方向培养基地', 'physics@univ.edu.cn', '13800010005', NOW(), NOW()),
+('化学学院', '北校区实验楼209', '开展化学合成与分析方向科研教学', 'chemistry@univ.edu.cn', '13800010006', NOW(), NOW()),
+('数学学院', '东校区数学楼401', '数学与统计相关专业培养单位', 'math@univ.edu.cn', '13800010007', NOW(), NOW()),
+('外国语学院', '南校区外语楼106', '承担英语、日语及多语种教学任务', 'foreign@univ.edu.cn', '13800010008', NOW(), NOW()),
+('经济管理学院', '西校区经管楼502', '经济学与工商管理领域教学科研', 'economics@univ.edu.cn', '13800010009', NOW(), NOW()),
+('艺术学院', '南校区艺术楼201', '美术、音乐及设计学科教学与创作', 'arts@univ.edu.cn', '13800010010', NOW(), NOW()),
+('新闻传播学院', '西校区传媒楼202', '新闻学与传播学研究与实践基地', 'media@univ.edu.cn', '13800010011', NOW(), NOW()),
+('法学院', '东校区法学楼305', '培养法律专业人才与法治研究', 'law@univ.edu.cn', '13800010012', NOW(), NOW()),
+('生命科学学院', '北校区生科楼404', '生物科学与技术方向教学科研', 'biology@univ.edu.cn', '13800010013', NOW(), NOW()),
+('环境科学学院', '南校区环保楼301', '环境监测与生态保护研究方向', 'environment@univ.edu.cn', '13800010014', NOW(), NOW()),
+('教育学院', '东校区教育楼501', '教育学与心理学相关专业培养单位', 'education@univ.edu.cn', '13800010015', NOW(), NOW()),
+('材料学院', '北校区材料楼306', '新材料开发与材料物理研究', 'materials@univ.edu.cn', '13800010016', NOW(), NOW()),
+('建筑学院', '西校区建筑楼102', '建筑设计与城市规划方向教学科研', 'architecture@univ.edu.cn', '13800010017', NOW(), NOW()),
+('体育学院', '南校区体育馆201', '体育教育与运动训练研究', 'sports@univ.edu.cn', '13800010018', NOW(), NOW()),
+('医学部', '南校区医学楼301', '医学基础与临床教学科研单位', 'medicine@univ.edu.cn', '13800010019', NOW(), NOW()),
+('国际交流学院', '东校区国际楼101', '负责留学生教育与国际合作交流', 'international@univ.edu.cn', '13800010020', NOW(), NOW());
 
 INSERT INTO contact (name, password, inbox, phone, email, status, created_at, updated_at) VALUES
 ('张伟', '123456', 10001, '13800138001', 'zhangwei@example.com', 1, NOW(), NOW()),
@@ -86,7 +95,6 @@ INSERT INTO sensitive_word (word, created_at, updated_at) VALUES
 ('成人网站', NOW(), NOW()),
 ('非法集资', NOW(), NOW());
 
-DELETE FROM template;
 INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('欢迎信模板', '欢迎加入校园通知系统', '亲爱的用户，欢迎使用本系统，祝您体验愉快！', NOW(), NOW()),
 ('活动通知模板', '校园活动报名开始啦', '本周末将举办迎新晚会，欢迎同学们积极报名参加！', NOW(), NOW()),
@@ -106,8 +114,6 @@ INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('志愿活动模板', '志愿者活动报名', '本周六志愿活动火热报名中，点击报名参与社区服务！', NOW(), NOW()),
 ('毕业典礼模板', '毕业典礼邀请函', '亲爱的同学，诚邀您参加 2025 届毕业典礼，共赴青春盛宴！', NOW(), NOW());
 
-
-DELETE FROM render;
 INSERT INTO render (name, value, remark, created_at, updated_at) VALUES
 ('account', NULL, '系统内置变量 account', NOW(), NOW()),
 ('#contact', NULL, '系统内置变量 contact', NOW(), NOW()),

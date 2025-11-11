@@ -1,7 +1,7 @@
 package com.dasi.pojo.dto;
 
 import com.dasi.common.annotation.AtLeastOneContact;
-import com.dasi.common.constant.DefaultConstant;
+import com.dasi.common.constant.SystemConstant;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -15,7 +15,7 @@ public class ContactAddDTO {
 
     @NotBlank(message = "联系人密码不能为空")
     @Pattern(regexp = "^[A-Za-z0-9]{6,}$", message = "密码必须为 6 位字母或数字")
-    private String password = DefaultConstant.DEFAULT_PASSWORD;
+    private String password = SystemConstant.PASSWORD;
 
     @Pattern(regexp = "^$|^1[3-9]\\d{9}$", message = "手机号格式错误")
     private String phone;
@@ -25,7 +25,7 @@ public class ContactAddDTO {
 
     @Min(value = 0, message = "状态只能是 0 或 1")
     @Max(value = 1, message = "状态只能是 0 或 1")
-    private Integer status = DefaultConstant.DEFAULT_STATUS;
+    private Integer status = 1;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

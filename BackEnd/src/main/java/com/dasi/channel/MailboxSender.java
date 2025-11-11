@@ -39,11 +39,11 @@ public class MailboxSender {
                     .build();
             mailboxService.save(mailbox);
             dispatchService.updateFinishStatus(dispatch, MsgStatus.SUCCESS, null);
-            log.debug("【投递器】投递站内信成功：{}", mailbox);
+            log.debug("【MailboxSender】站内信投递成功：{}", mailbox);
         } catch (Exception e) {
             String errorMsg = SendConstant.SEND_MAILBOX_FAIL + e.getMessage();
             dispatchService.updateFinishStatus(dispatch, MsgStatus.FAIL, errorMsg);
-            log.error("【投递器】投递站内信失败：{}", errorMsg);
+            log.error("【MailboxSender】站内信投递失败：{}", errorMsg);
             throw new SendException(errorMsg);
         }
     }

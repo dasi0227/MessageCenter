@@ -1,17 +1,20 @@
 <template>
     <div class="dispatch-page">
-        <!-- 💡 顶部消息基本信息 -->
+        <!-- 顶部消息基本信息 -->
         <div class="header">
             <el-page-header @back="router.back" :content="`消息 ID：${messageId}`" />
             <el-card class="message-info" shadow="never">
                 <div class="info-item"><strong>账户：</strong>{{ messageInfo.accountName || '—' }}</div>
                 <div class="info-item"><strong>部门：</strong>{{ messageInfo.departmentName || '—' }}</div>
                 <div class="info-item"><strong>原始标题：</strong>{{ messageInfo.subject || '—' }}</div>
-                <div class="info-item"><strong>原始内容：</strong>{{ messageInfo.content || '—' }}</div>
+                <div class="info-item truncate-content">
+                    <strong>原始内容：</strong>
+                    <span>{{ messageInfo.content || '—' }}</span>
+                </div>
             </el-card>
         </div>
 
-        <!-- 💡 筛选栏 -->
+        <!-- 筛选栏 -->
         <div class="toolbar">
             <el-select
                 v-model="selectedContact"
@@ -20,12 +23,7 @@
                 placeholder="选择联系人"
                 style="width: 200px; margin-right: 10px"
             >
-                <el-option
-                    v-for="item in contactList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id"
-                />
+                <el-option v-for="item in contactList" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
 
             <el-select
@@ -35,12 +33,7 @@
                 placeholder="选择状态"
                 style="width: 150px; margin-right: 10px"
             >
-                <el-option
-                    v-for="s in statusList"
-                    :key="s"
-                    :label="s"
-                    :value="s"
-                />
+                <el-option v-for="s in statusList" :key="s" :label="s" :value="s" />
             </el-select>
 
             <el-button type="primary" @click="handleSearch">搜索</el-button>
@@ -49,11 +42,9 @@
 
         <!-- 数据表格 -->
         <el-table :data="tableData" stripe border style="width: 100%; margin-top: 20px">
-            <el-table-column prop="contactName" label="联系人" width="80" />
-            <el-table-column prop="target" label="目标地址" width="160" />
-
-            <!-- 状态 -->
-            <el-table-column label="状态" width="80">
+            <el-table-column prop="contactName" label="联系人" width="100" />
+            <el-table-column prop="target" label="目标地址" width="200" />
+            <el-table-column label="状态" width="120">
                 <template #default="{ row }">
                     <span
                         class="status-tag"
@@ -68,28 +59,13 @@
                     </span>
                 </template>
             </el-table-column>
-
-            <!-- 错误信息：加宽 -->
-            <el-table-column prop="errorMsg" label="错误信息" min-width="300" show-overflow-tooltip>
+            <el-table-column prop="errorMsg" label="错误信息" min-width="400" show-overflow-tooltip>
                 <template #default="{ row }">{{ row.errorMsg || '—' }}</template>
             </el-table-column>
-
-            <el-table-column
-                prop="sentAt"
-                label="发送时间"
-                :formatter="(_, __, v) => formatDate(v)"
-                width="180"
-            />
-            <el-table-column
-                prop="finishedAt"
-                label="完成时间"
-                :formatter="(_, __, v) => formatDate(v)"
-                width="180"
-            />
-            <el-table-column label="操作" width="200">
+            <el-table-column label="操作" width="160">
                 <template #default="{ row }">
                     <el-button type="primary" size="small" @click="openDetail(row)">
-                        查看内容
+                        查看详情
                     </el-button>
                     <el-button type="primary" size="small" @click="resend(row)">
                         重发
@@ -110,16 +86,32 @@
             />
         </div>
 
-        <!-- 💡 弹窗：查看标题和内容 -->
-        <el-dialog v-model="detailVisible" title="消息内容" width="600px" align-center>
-            <el-form label-width="80px">
-                <el-form-item label="标题">
-                    <el-input v-model="detail.subject" readonly />
-                </el-form-item>
-                <el-form-item label="内容">
-                    <el-input type="textarea" v-model="detail.content" :rows="8" readonly />
-                </el-form-item>
-            </el-form>
+        <!-- 弹窗：查看详情 -->
+        <el-dialog v-model="detailVisible" title="派送详情" width="700px" align-center>
+            <el-descriptions :column="1" border>
+                <el-descriptions-item label="联系人">{{ detail.contactName || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="目标地址">{{ detail.target || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="状态">
+                    <span
+                        class="status-tag"
+                        :class="{
+                            success: detail.status === 'SUCCESS',
+                            fail: detail.status === 'FAIL',
+                            sending: detail.status === 'SENDING',
+                            pending: detail.status === 'PENDING'
+                        }"
+                    >
+                        {{ detail.status }}
+                    </span>
+                </el-descriptions-item>
+                <el-descriptions-item label="错误信息">{{ detail.errorMsg || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="发送时间">{{ formatDate(detail.sentAt) || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="完成时间">{{ formatDate(detail.finishedAt) || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="标题">{{ detail.subject || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="内容">
+                    <div style="white-space: pre-wrap;">{{ detail.content || '—' }}</div>
+                </el-descriptions-item>
+            </el-descriptions>
             <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="detailVisible = false">关闭</el-button>
@@ -146,20 +138,20 @@ const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-// 💡 筛选条件
+// 筛选条件
 const selectedContact = ref(null)
 const selectedStatus = ref(null)
 const contactList = ref([])
 const statusList = ref([])
 
-// 💡 详情弹窗
+// 详情弹窗
 const detailVisible = ref(false)
-const detail = ref({ subject: '', content: '' })
+const detail = ref({})
 
-// 💡 顶部消息信息
+// 顶部消息信息
 const messageInfo = ref({})
 
-// 加载下拉数据
+// 初始化选项
 const initOptions = async () => {
     try {
         const [contactRes, statusRes, msgInfoRes] = await Promise.all([
@@ -214,22 +206,20 @@ const resend = (row) => {
     })
 }
 
-// 筛选
+// 搜索与重置
 const handleSearch = () => {
     pageNum.value = 1
     getPage()
 }
-
-// 重置
 const resetFilters = () => {
     selectedContact.value = null
     selectedStatus.value = null
     getPage()
 }
 
-// 💡 打开内容详情弹窗
+// 打开详情弹窗
 const openDetail = (row) => {
-    detail.value = { subject: row.subject, content: row.content }
+    detail.value = { ...row }
     detailVisible.value = true
 }
 
@@ -252,6 +242,15 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+.truncate-content span {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;       /* 限制显示 3 行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-all;
 }
 .info-item {
     line-height: 1.6;
@@ -284,5 +283,17 @@ onMounted(async () => {
 }
 .status-tag.pending {
     background-color: #909399;
+}
+:deep(.el-descriptions__label) {
+    width: 120px !important; /* 固定标签宽度 */
+    flex: 0 0 120px !important;
+}
+:deep(.el-descriptions__cell) {
+    align-items: flex-start; /* 内容顶对齐更自然 */
+}
+:deep(.el-dialog__body) {
+    max-height: 60vh; /* 弹窗内容最大高度 */
+    overflow-y: auto; /* 弹窗内滚动 */
+    padding-right: 10px;
 }
 </style>

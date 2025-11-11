@@ -121,7 +121,7 @@
         </el-card>
 
         <!-- 部门弹窗 -->
-        <el-dialog v-model="departmentDialogVisible" title="选择部门" width="500px" :close-on-click-modal="false">
+        <el-dialog v-model="departmentDialogVisible" title="选择部门" width="550px" :close-on-click-modal="false">
             <div class="dialog-header-bar">
                 <el-input v-model="departmentSearch" placeholder="输入部门名称查找" clearable style="width:60%" />
                 <div class="dialog-buttons">
@@ -131,7 +131,13 @@
             </div>
             <div class="dialog-table-wrapper">
                 <el-table :data="filteredDepartments" @row-click="selectDepartment" highlight-current-row :row-class-name="highlightRow" height="340">
-                    <el-table-column prop="name" label="部门名称" />
+                    <el-table-column prop="name" label="部门名称" width="150" />
+                    <el-table-column prop="phone" label="手机号" width="160">
+                        <template #default="{ row }">{{ row.phone || '-' }}</template>
+                    </el-table-column>
+                    <el-table-column prop="email" label="邮箱" min-width="200">
+                        <template #default="{ row }">{{ row.email || '-' }}</template>
+                    </el-table-column>
                 </el-table>
             </div>
         </el-dialog>

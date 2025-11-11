@@ -17,7 +17,6 @@ import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.AccountException;
-import com.dasi.common.exception.ContactException;
 import com.dasi.common.exception.SendException;
 import com.dasi.common.properties.JwtProperties;
 import com.dasi.common.result.PageResult;
@@ -192,14 +191,20 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     public String resolveTarget(Long contactId, MsgChannel channel) {
         Contact contact = getById(contactId);
         if (contact == null) {
-            throw new ContactException(ResultInfo.CONTACT_NOT_FOUND);
+            throw new SendException(SendConstant.CONTACT_NOT_FOUND + contactId);
         }
 
-        return switch (channel) {
+        String target = switch (channel) {
             case EMAIL -> contact.getEmail();
             case SMS -> contact.getPhone();
             case MAILBOX -> String.valueOf(contact.getInbox());
         };
+
+        if (target == null || target.trim().isEmpty()) {
+            throw new SendException(SendConstant.CONTACT_TARGET_NOT_FOUND + channel);
+        }
+
+        return target;
     }
 
     @Override

@@ -18,7 +18,6 @@
                 background-color="#1e2b3a"
                 text-color="#bfcbd9"
                 active-text-color="#409EFF"
-                unique-opened
                 :collapse="isCollapsed"
             >
                 <!-- 系统模块 -->
@@ -247,7 +246,7 @@ const refreshPage = () => {
     margin-right: 10px;
 }
 .account-info .name {
-    font-size: 30px;
+    font-size: 18px;
     font-weight: 600;
     color: #fff;
 }

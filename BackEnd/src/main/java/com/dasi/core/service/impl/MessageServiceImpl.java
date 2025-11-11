@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AutoFill;
+import com.dasi.common.constant.SystemConstant;
 import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
@@ -85,15 +86,14 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                     .departmentName(dto.getDepartmentName())
                     .contactId(contact.getId())
                     .contactName(contact.getName())
-                    .target(contactService.resolveTarget(contact.getId(), dto.getChannel()))
                     .status(MsgStatus.PENDING)
                     .errorMsg(null)
                     .createdAt(LocalDateTime.now())
                     .build();
 
-            // 检查消息
             try {
                 checkScheduleAt(dto.getScheduleAt());
+                dispatch.setTarget(contactService.resolveTarget(contact.getId(), dto.getChannel()));
                 contactService.check(dispatch);
                 sensitiveWordService.detect(dispatch);
                 renderService.decode(dispatch);
@@ -109,10 +109,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         }
         dispatchService.saveBatch(dispatchList);
 
-        // 投递
+        // MQ 参数解析
         String route = dto.getChannel().getRoute(rabbitMqProperties);
         String exchange = rabbitMqProperties.getExchange();
         long delayMillis = dto.getScheduleAt() == null ? 0L : ChronoUnit.MILLIS.between(LocalDateTime.now(), dto.getScheduleAt());
+
+        // 发送到消息队列
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
@@ -123,7 +125,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                             return processor;
                         });
                     } catch (Exception e) {
-                        String errorMsg = SendConstant.MQ_SEND_ERROR + e.getMessage();
+                        String errorMsg = SendConstant.MQ_SEND_FAIL + e.getMessage();
                         dispatchService.updateFinishStatus(dispatch, MsgStatus.FAIL, errorMsg);
                         log.error("【Message Service】消息投递失败：dispatchId={}, error={}", dispatch.getId(), e.getMessage());
                     }

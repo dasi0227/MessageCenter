@@ -21,6 +21,9 @@ public class Department {
     private String name;
     private String address;
     private String description;
+    private String email;
+    private String phone;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
+

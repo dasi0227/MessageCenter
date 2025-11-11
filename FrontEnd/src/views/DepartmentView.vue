@@ -26,19 +26,11 @@
 
         <!-- 数据表格 -->
         <el-table :data="tableData" stripe border style="width: 100%; margin-top: 20px">
-            <el-table-column prop="name" label="部门名称" width="120" />
-            <el-table-column prop="address" label="地址" width="200" />
-            <el-table-column prop="description" label="介绍" width="300" />
-            <el-table-column
-                prop="createdAt"
-                label="创建时间"
-                :formatter="(_, __, value) => formatDate(value)"
-            />
-            <el-table-column
-                prop="updatedAt"
-                label="更新时间"
-                :formatter="(_, __, value) => formatDate(value)"
-            />
+            <el-table-column prop="name" label="部门名称" width="150" />
+            <el-table-column prop="phone" label="手机号" width="160" />
+            <el-table-column prop="email" label="邮箱" width="200" />
+            <el-table-column prop="address" label="地址" width="220" />
+            <el-table-column prop="description" label="介绍" min-width="200" show-overflow-tooltip />
             <el-table-column label="操作" width="180">
                 <template #default="scope">
                     <el-button type="primary" size="small" @click="handleEdit(scope.row)">修改</el-button>
@@ -62,19 +54,25 @@
         <!-- 修改弹窗 -->
         <el-dialog v-model="editVisible" title="修改部门信息" width="500px">
             <el-form :model="editForm" label-width="80px">
-                <el-form-item label="名称">
+                <el-form-item label="名称" required>
                     <el-input v-model="editForm.name" placeholder="请输入部门名称" />
                 </el-form-item>
-                <el-form-item label="地址">
+                <el-form-item label="地址" required>
                     <el-input v-model="editForm.address" placeholder="请输入部门地址" />
                 </el-form-item>
-                <el-form-item label="介绍">
+                <el-form-item label="介绍" required>
                     <el-input
                         v-model="editForm.description"
                         type="textarea"
                         rows="3"
                         placeholder="请输入部门介绍"
                     />
+                </el-form-item>
+                <el-form-item label="手机号" required>
+                    <el-input v-model="editForm.phone" placeholder="请输入手机号" />
+                </el-form-item>
+                <el-form-item label="邮箱" required>
+                    <el-input v-model="editForm.email" placeholder="请输入邮箱" />
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -86,19 +84,25 @@
         <!-- 新增弹窗 -->
         <el-dialog v-model="addVisible" title="新增部门" width="500px">
             <el-form :model="addForm" label-width="80px">
-                <el-form-item label="名称">
+                <el-form-item label="名称" required>
                     <el-input v-model="addForm.name" placeholder="请输入部门名称" />
                 </el-form-item>
-                <el-form-item label="地址">
+                <el-form-item label="地址" required>
                     <el-input v-model="addForm.address" placeholder="请输入部门地址" />
                 </el-form-item>
-                <el-form-item label="介绍">
+                <el-form-item label="介绍" required>
                     <el-input
                         v-model="addForm.description"
                         type="textarea"
                         rows="3"
                         placeholder="请输入部门介绍"
                     />
+                </el-form-item>
+                <el-form-item label="手机号" required>
+                    <el-input v-model="addForm.phone" placeholder="请输入手机号" />
+                </el-form-item>
+                <el-form-item label="邮箱" required>
+                    <el-input v-model="addForm.email" placeholder="请输入邮箱" />
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -113,22 +117,25 @@
 import { ref, onMounted } from 'vue'
 import request from '../api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { formatDate } from '../utils/format'
 
+// 筛选字段
 const name = ref('')
 const address = ref('')
 const description = ref('')
 
+// 数据分页
 const tableData = ref([])
 const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
+// 弹窗
 const editVisible = ref(false)
 const addVisible = ref(false)
 
-const editForm = ref({ id: null, name: '', address: '', description: '' })
-const addForm = ref({ name: '', address: '', description: '' })
+// 表单
+const editForm = ref({ id: null, name: '', address: '', description: '', phone: '', email: '' })
+const addForm = ref({ name: '', address: '', description: '', phone: '', email: '' })
 
 // 分页查询
 const getPage = async () => {
@@ -174,9 +181,9 @@ const handleDelete = (row) => {
         .catch(() => {})
 }
 
-// 修改部门
+// 修改
 const handleEdit = (row) => {
-    editForm.value = { id: row.id, name: row.name, address: row.address, description: row.description }
+    editForm.value = { ...row }
     editVisible.value = true
 }
 
@@ -191,9 +198,9 @@ const submitEdit = async () => {
     }
 }
 
-// 新增部门
+// 新增
 const handleAdd = () => {
-    addForm.value = { name: '', address: '', description: '' }
+    addForm.value = { name: '', address: '', description: '', phone: '', email: '' }
     addVisible.value = true
 }
 
@@ -208,6 +215,7 @@ const submitAdd = async () => {
     }
 }
 
+// 初始化
 onMounted(() => {
     getPage()
 })
