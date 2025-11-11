@@ -122,3 +122,15 @@ CREATE TABLE IF NOT EXISTS mailbox (
     arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间',
     read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE failure (
+    id              BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
+    dispatch_id     VARCHAR(64)     NOT NULL                    COMMENT '分发 id',
+    error_type      VARCHAR(255)    DEFAULT NULL                COMMENT '异常类型',
+    error_message   VARCHAR(1024)   DEFAULT NULL                COMMENT '异常信息',
+    error_stack     LONGTEXT        DEFAULT NULL                COMMENT '调用栈',
+    status          VARCHAR(32)     NOT NULL                    COMMENT '错误状态',
+    created_at      DATETIME        NOT NULL                    COMMENT '创建时间',
+    resolved_at     DATETIME        DEFAULT NULL                COMMENT '解决时间',
+    payload         JSON            NOT NULL                    COMMENT '原始 Dispatch'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

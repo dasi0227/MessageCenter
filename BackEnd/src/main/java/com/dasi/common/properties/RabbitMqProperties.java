@@ -13,4 +13,7 @@ public class RabbitMqProperties {
     private String exchange;
     private Map<String, String> route;
     private Map<String, String> queue;
+    private String dlxExchange;
+    private String dlxQueue;
+    private String dlxRoute;
 }

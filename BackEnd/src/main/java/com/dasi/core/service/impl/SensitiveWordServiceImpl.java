@@ -18,7 +18,6 @@ import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.SensitiveWord;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +32,6 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, SensitiveWord> implements SensitiveWordService {
-
-    @Autowired
-    private SensitiveWordMapper sensitiveWordMapper;
 
     @Override
     public List<SensitiveWord> getSensitiveWordList() {
@@ -58,9 +54,10 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
                     .map(word -> SensitiveWord.builder()
                             .word(word)
                             .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
                             .build())
                     .toList();
-            sensitiveWordMapper.insertWords(words);
+            saveBatch(words);
             reload();
         }
     }

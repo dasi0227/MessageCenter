@@ -10,8 +10,4 @@ import java.util.List;
 
 @Mapper
 public interface SensitiveWordMapper extends BaseMapper<SensitiveWord> {
-    @Select("SELECT word FROM sensitive_word ORDER BY word")
-    List<String> selectAllWords();
-
-    void insertWords(@Param("words") List<SensitiveWord> words);
 }

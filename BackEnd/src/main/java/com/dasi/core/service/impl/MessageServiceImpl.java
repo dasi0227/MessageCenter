@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AutoFill;
-import com.dasi.common.constant.SystemConstant;
 import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
@@ -110,8 +109,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         dispatchService.saveBatch(dispatchList);
 
         // MQ 参数解析
-        String route = dto.getChannel().getRoute(rabbitMqProperties);
         String exchange = rabbitMqProperties.getExchange();
+        String route = dto.getChannel().getRoute(rabbitMqProperties);
         long delayMillis = dto.getScheduleAt() == null ? 0L : ChronoUnit.MILLIS.between(LocalDateTime.now(), dto.getScheduleAt());
 
         // 发送到消息队列

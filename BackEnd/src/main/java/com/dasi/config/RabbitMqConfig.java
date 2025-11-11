@@ -21,29 +21,47 @@ public class RabbitMqConfig {
     private RabbitMqProperties rabbitMqProperties;
 
     @Bean
-    public DirectExchange exchangeMessageCenter() {
-        return ExchangeBuilder
+    public Declarables declareBindings() {
+        List<Declarable> list = new ArrayList<>();
+
+        // 主交换机
+        DirectExchange exchange = ExchangeBuilder
                 .directExchange(rabbitMqProperties.getExchange())
                 .delayed()
                 .durable(true)
                 .build();
-    }
+        list.add(exchange);
 
-    @Bean
-    public Declarables declareBindings() {
-        DirectExchange exchange = exchangeMessageCenter();
-        List<Declarable> list = new ArrayList<>();
-
+        // 各业务队列绑定
         for (MsgChannel channel : MsgChannel.values()) {
-            String queueName = channel.getQueue(rabbitMqProperties);
-            String routeKey = channel.getRoute(rabbitMqProperties);
-
-            Queue queue = new Queue(queueName, true);
-            Binding binding = BindingBuilder.bind(queue).to(exchange).with(routeKey);
+            Queue queue = QueueBuilder
+                    .durable(channel.getQueue(rabbitMqProperties))
+                    .withArgument("x-dead-letter-exchange", rabbitMqProperties.getDlxExchange())
+                    .withArgument("x-dead-letter-routing-key", rabbitMqProperties.getDlxRoute())
+                    .build();
+            Binding binding = BindingBuilder
+                    .bind(queue)
+                    .to(exchange)
+                    .with(channel.getRoute(rabbitMqProperties));
 
             list.add(queue);
             list.add(binding);
         }
+
+        DirectExchange dlxExchange = ExchangeBuilder
+                .directExchange(rabbitMqProperties.getDlxExchange())
+                .durable(true)
+                .build();
+        list.add(dlxExchange);
+        list.add(dlxExchange);
+
+        Queue dlqQueue = QueueBuilder.durable(rabbitMqProperties.getDlxQueue()).build();
+        Binding dlqBinding = BindingBuilder
+                .bind(dlqQueue)
+                .to(dlxExchange)
+                .with(rabbitMqProperties.getDlxRoute());
+        list.add(dlqQueue);
+        list.add(dlqBinding);
 
         log.info("RabbitMQ Init Successfully");
         return new Declarables(list);

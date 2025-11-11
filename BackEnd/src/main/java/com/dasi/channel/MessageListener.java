@@ -1,7 +1,9 @@
 package com.dasi.channel;
 
 import com.dasi.core.service.DispatchService;
+import com.dasi.core.service.FailureService;
 import com.dasi.pojo.entity.Dispatch;
+import com.dasi.pojo.entity.Failure;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,35 +15,38 @@ import org.springframework.stereotype.Component;
 public class MessageListener {
 
     @Autowired
-    private MailboxSender mailboxSender;
-
-    @Autowired
-    private EmailSender emailSender;
-
-    @Autowired
-    private SmsSender smsSender;
+    private MessageSender messageSender;
 
     @Autowired
     private DispatchService dispatchService;
 
+    @Autowired
+    private FailureService failureService;
+
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).MAILBOX.getQueue(@rabbitMqProperties)}")
     public void listenMailbox(Dispatch dispatch) {
-        log.info("【监听器】发送站内信：{}", dispatch);
+        log.debug("【Listener】监听到站内信：{}", dispatch);
         dispatchService.updateSendStatus(dispatch);
-        mailboxSender.send(dispatch);
+        messageSender.sendMailbox(dispatch);
     }
 
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).EMAIL.getQueue(@rabbitMqProperties)}")
     public void listenEmail(Dispatch dispatch) {
-        log.info("【监听器】发送邮件：{}", dispatch);
+        log.debug("【Listener】监听到邮件：{}", dispatch);
         dispatchService.updateSendStatus(dispatch);
-        emailSender.send(dispatch);
+        messageSender.sendEmail(dispatch);
     }
 
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).SMS.getQueue(@rabbitMqProperties)}")
     public void listenSms(Dispatch dispatch) {
-        log.info("【监听器】发送短信：{}", dispatch);
+        log.debug("【Listener】监听到短信：{}", dispatch);
         dispatchService.updateSendStatus(dispatch);
-        smsSender.send(dispatch);
+        messageSender.sendSms(dispatch);
+    }
+
+    @RabbitListener(queues = "#{@rabbitMqProperties.getDlxQueue()}")
+    public void listenDlx(Failure failure) {
+        log.debug("【Listener】监听到死信：{}", failure);
+        failureService.save(failure);
     }
 }
