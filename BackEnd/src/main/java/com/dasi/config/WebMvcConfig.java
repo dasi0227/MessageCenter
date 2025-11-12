@@ -24,7 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(pageViewInterceptor)
-                .addPathPatterns("/api/**");
+                .addPathPatterns("/api/**")
+                .excludePathPatterns("/ws/**");
 
         registry.addInterceptor(jwtAccountInterceptor)
                 .addPathPatterns("/api/**")
@@ -33,15 +34,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/account/register",
                         "/api/contact/login",
                         "/api/contact/mailbox",
-                        "/api/mailbox/**"
+                        "/api/mailbox/**",
+                        "/ws/**"
                 );
 
         registry.addInterceptor(jwtContactInterceptor)
                 .addPathPatterns(
                         "/api/mailbox/**",
                         "/api/contact/mailbox"
-                );
+                )
+                .excludePathPatterns("/ws/**");
 
-        log.info("Interceptors Init Successfully");
+        log.info("Interceptors Launch Successfully");
     }
 }

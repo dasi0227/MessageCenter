@@ -25,11 +25,9 @@ public class Failure {
     private String errorType;
     private String errorMessage;
     private String errorStack;
-
     private FailureStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime resolvedAt;
-
     @TableField(typeHandler = JacksonTypeHandler.class)
     private Dispatch payload;
 }

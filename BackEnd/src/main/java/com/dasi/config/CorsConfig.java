@@ -24,6 +24,7 @@ public class CorsConfig implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
+        log.info("Cors Launch Successfully");
         return new CorsFilter(source);
     }
 }

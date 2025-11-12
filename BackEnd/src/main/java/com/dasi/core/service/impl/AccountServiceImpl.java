@@ -47,7 +47,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Autowired
     private JwtProperties jwtProperties;
 
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     @AutoFill(FillType.INSERT)

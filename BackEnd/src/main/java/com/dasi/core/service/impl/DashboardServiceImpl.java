@@ -3,11 +3,12 @@ package com.dasi.core.service.impl;
 import cn.hutool.core.map.MapUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dasi.common.enumeration.MsgStatus;
-import com.dasi.core.mapper.*;
-import com.dasi.core.service.DashboardService;
+import com.dasi.core.service.*;
 import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.Message;
-import com.dasi.pojo.vo.*;
+import com.dasi.pojo.vo.StatDispatchVO;
+import com.dasi.pojo.vo.StatNumVO;
+import com.dasi.pojo.vo.StatTimelineVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,50 +23,57 @@ import java.util.stream.Collectors;
 public class DashboardServiceImpl implements DashboardService {
 
     @Autowired
-    private ContactMapper contactMapper;
+    private ContactService contactService;
 
     @Autowired
-    private DispatchMapper dispatchMapper;
+    private DispatchService dispatchService;
 
     @Autowired
-    private MessageMapper messageMapper;
+    private MessageService messageService;
 
     @Autowired
-    private AccountMapper accountMapper;
+    private AccountService accountService;
 
     @Autowired
-    private DepartmentMapper departmentMapper;
+    private DepartmentService departmentService;
 
     @Autowired
-    private SensitiveWordMapper sensitiveWordMapper;
+    private SensitiveWordService sensitiveWordService;
 
     @Autowired
-    private TemplateMapper templateMapper;
+    private TemplateService templateService;
 
     @Autowired
-    private RenderMapper renderMapper;
+    private RenderService renderService;
+
+    @Autowired
+    private FailureService failureService;
 
     @Override
     public StatNumVO getStatNum() {
-        // 消息与投递统计
-        long messageTotal = messageMapper.selectCount(null);
-        long dispatchTotal = dispatchMapper.selectCount(null);
-        long pending = dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getStatus, MsgStatus.PENDING));
-        long sending = dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getStatus, MsgStatus.SENDING));
-        long success = dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getStatus, MsgStatus.SUCCESS));
-        long fail = dispatchMapper.selectCount(new LambdaQueryWrapper<Dispatch>().eq(Dispatch::getStatus, MsgStatus.FAIL));
+        // ===== 消息与投递统计 =====
+        long messageTotal = messageService.count();
+        long dispatchTotal = dispatchService.count();
+        long pending = dispatchService.count(new LambdaQueryWrapper<Dispatch>()
+                .eq(Dispatch::getStatus, MsgStatus.PENDING));
+        long sending = dispatchService.count(new LambdaQueryWrapper<Dispatch>()
+                .eq(Dispatch::getStatus, MsgStatus.SENDING));
+        long success = dispatchService.count(new LambdaQueryWrapper<Dispatch>()
+                .eq(Dispatch::getStatus, MsgStatus.SUCCESS));
+        long fail = dispatchService.count(new LambdaQueryWrapper<Dispatch>()
+                .eq(Dispatch::getStatus, MsgStatus.FAIL));
 
-        // 人员与组织统计
-        long accountNum = accountMapper.selectCount(null);
-        long departmentNum = departmentMapper.selectCount(null);
-        long contactNum = contactMapper.selectCount(null);
+        // ===== 人员与组织统计 =====
+        long accountNum = accountService.count();
+        long departmentNum = departmentService.count();
+        long contactNum = contactService.count();
 
-        // 系统配置统计
-        long sensitiveWordNum = sensitiveWordMapper.selectCount(null);
-        long templateNum = templateMapper.selectCount(null);
-        long renderNum = renderMapper.selectCount(null);
+        // ===== 系统配置统计 =====
+        long sensitiveWordNum = sensitiveWordService.count();
+        long templateNum = templateService.count();
+        long renderNum = renderService.count();
 
-        // 封装结果
+        // ===== 封装结果 =====
         StatNumVO vo = StatNumVO.builder()
                 .messageTotal(messageTotal)
                 .dispatchTotal(dispatchTotal)
@@ -92,10 +100,11 @@ public class DashboardServiceImpl implements DashboardService {
         Map<String, Long> contactMap = new HashMap<>();
         Map<String, Long> channelMap = new HashMap<>();
 
-        Map<Long, Message> messageMap = messageMapper.selectList(null).stream()
+        // 一次性拉取所有消息并建立映射
+        Map<Long, Message> messageMap = messageService.list().stream()
                 .collect(Collectors.toMap(Message::getId, m -> m));
 
-        dispatchMapper.selectList(null).forEach(d -> {
+        dispatchService.list().forEach(d -> {
             Message m = messageMap.get(d.getMessageId());
             if (m == null) return;
 
@@ -130,8 +139,8 @@ public class DashboardServiceImpl implements DashboardService {
         YearMonth ym = YearMonth.of(year, month);
         int days = ym.lengthOfMonth();
 
-        // 查询一次即可
-        List<Dispatch> dispatchList = dispatchMapper.selectList(null);
+        // 查询所有 Dispatch
+        List<Dispatch> dispatchList = dispatchService.list();
 
         // ===== 年度统计 =====
         Map<Integer, Long> monthCount = dispatchList.stream()

@@ -123,9 +123,10 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                             processor.getMessageProperties().setDelayLong(delayMillis);
                             return processor;
                         });
+                        dispatchService.updateStatus(dispatch, MsgStatus.SENDING, null);
                     } catch (Exception e) {
                         String errorMsg = SendConstant.MQ_SEND_FAIL + e.getMessage();
-                        dispatchService.updateFinishStatus(dispatch, MsgStatus.FAIL, errorMsg);
+                        dispatchService.updateStatus(dispatch, MsgStatus.FAIL, errorMsg);
                         log.error("【Message Service】消息投递失败：dispatchId={}, error={}", dispatch.getId(), e.getMessage());
                     }
                 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class DepartmentUpdateDTO {
-    @NotNull
+    @NotNull(message = "id 不能为空")
     private Long id;
     @NotBlank
     private String name;

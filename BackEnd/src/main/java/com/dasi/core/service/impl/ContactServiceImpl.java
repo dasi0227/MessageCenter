@@ -21,8 +21,8 @@ import com.dasi.common.exception.SendException;
 import com.dasi.common.properties.JwtProperties;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.ContactMapper;
-import com.dasi.core.mapper.MailboxMapper;
 import com.dasi.core.service.ContactService;
+import com.dasi.core.service.MailboxService;
 import com.dasi.pojo.dto.*;
 import com.dasi.pojo.entity.Contact;
 import com.dasi.pojo.entity.Dispatch;
@@ -53,7 +53,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     private JwtUtil jwtUtil;
 
     @Autowired
-    private MailboxMapper mailboxMapper;
+    private MailboxService mailboxService;
 
     @Override
     public PageResult<Contact> getContactPage(ContactPageDTO dto) {
@@ -171,7 +171,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @Override
     public PageResult<Mailbox> getMailboxPage(MailboxPageDTO dto) {
         Long inbox = ContactContextHolder.get().getInbox();
-        Page<Mailbox> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+        Page<Mailbox> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 
         LambdaQueryWrapper<Mailbox> wrapper = new LambdaQueryWrapper<Mailbox>()
                 .eq(Mailbox::getInbox, inbox)
@@ -182,7 +182,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
                 .like(StrUtil.isNotBlank(dto.getContent()), Mailbox::getContent, dto.getContent())
                 .orderByDesc(Mailbox::getArrivedAt);
 
-        IPage<Mailbox> result = mailboxMapper.selectPage(page, wrapper);
+        IPage<Mailbox> result = mailboxService.page(param, wrapper);
 
         return PageResult.of(result);
     }

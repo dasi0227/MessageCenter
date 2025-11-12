@@ -3,7 +3,9 @@ package com.dasi.core.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dasi.common.constant.SendConstant;
 import com.dasi.common.enumeration.MsgStatus;
+import com.dasi.common.exception.SendException;
 import com.dasi.core.mapper.DispatchMapper;
 import com.dasi.core.service.DispatchService;
 import com.dasi.pojo.entity.Dispatch;
@@ -20,22 +22,18 @@ public class DispatchServiceImpl extends ServiceImpl<DispatchMapper, Dispatch> i
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateFinishStatus(Dispatch dispatch, MsgStatus status, String errorMsg) {
+    public void updateStatus(Dispatch dispatch, MsgStatus status, String errorMsg) {
+        if (status == null) {
+            throw new SendException(SendConstant.INVALID_STATUS);
+        }
+        dispatch.setStatus(status);
         update(new LambdaUpdateWrapper<Dispatch>()
             .eq(Dispatch::getId, dispatch.getId())
             .set(Dispatch::getStatus, status)
             .set(StrUtil.isNotBlank(errorMsg), Dispatch::getErrorMsg, errorMsg)
-            .set(Dispatch::getFinishedAt, LocalDateTime.now())
+            .set(status.equals(MsgStatus.SENDING), Dispatch::getSentAt, LocalDateTime.now())
+            .set(!status.equals(MsgStatus.SENDING), Dispatch::getFinishedAt, LocalDateTime.now())
         );
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateSendStatus(Dispatch dispatch) {
-        update(new LambdaUpdateWrapper<Dispatch>()
-                .eq(Dispatch::getId, dispatch.getId())
-                .set(Dispatch::getSentAt, LocalDateTime.now())
-                .set(Dispatch::getStatus, MsgStatus.SENDING)
-        );
-    }
 }

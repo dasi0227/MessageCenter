@@ -52,7 +52,8 @@
                             success: row.status === 'SUCCESS',
                             fail: row.status === 'FAIL',
                             sending: row.status === 'SENDING',
-                            pending: row.status === 'PENDING'
+                            pending: row.status === 'PENDING',
+                            error: row.status === 'ERROR',
                         }"
                     >
                         {{ row.status }}
@@ -98,7 +99,8 @@
                             success: detail.status === 'SUCCESS',
                             fail: detail.status === 'FAIL',
                             sending: detail.status === 'SENDING',
-                            pending: detail.status === 'PENDING'
+                            pending: detail.status === 'PENDING',
+                            error: detail.status === 'ERROR',
                         }"
                     >
                         {{ detail.status }}
@@ -277,6 +279,9 @@ onMounted(async () => {
 }
 .status-tag.fail {
     background-color: #f56c6c;
+}
+.status-tag.error {
+    background-color: #dc2626;
 }
 .status-tag.sending {
     background-color: #e6a23c;

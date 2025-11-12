@@ -63,7 +63,7 @@ public class RabbitMqConfig {
         list.add(dlqQueue);
         list.add(dlqBinding);
 
-        log.info("RabbitMQ Init Successfully");
+        log.info("RabbitMQ Launch Successfully");
         return new Declarables(list);
     }
 

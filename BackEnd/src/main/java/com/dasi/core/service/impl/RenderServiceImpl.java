@@ -23,7 +23,6 @@ import com.dasi.pojo.dto.RenderAddDTO;
 import com.dasi.pojo.dto.RenderUpdateDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +37,6 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> implements RenderService {
-
-    @Autowired
-    private RenderMapper renderMapper;
 
     @Override
     public List<Render> getRenderList() {
@@ -118,7 +114,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
 
     public synchronized void reload() {
         RENDER_MAP.clear();
-        renderMapper.selectList(null).stream()
+        list().stream()
                 .filter(r -> r.getName() != null && !r.getName().isEmpty())
                 .filter(r -> r.getValue() != null)
                 .forEach(r -> RENDER_MAP.put(r.getName(), r.getValue()));

@@ -2,9 +2,13 @@ import axios from 'axios'
 import { useAccountStore } from '../store/account'
 import { normalize } from '../utils/normalize'
 
+/** ===================== 基础地址 ===================== **/
+export const API_BASE_URL = 'http://localhost:8080/api'
+export const WEBSOCKET_BASE_URL = 'ws://localhost:8080'
+
 // 统一请求前缀
 const request = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: API_BASE_URL,
     timeout: 8000
 })
 

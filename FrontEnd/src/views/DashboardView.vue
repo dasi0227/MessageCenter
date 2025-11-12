@@ -127,7 +127,7 @@ onMounted(async () => {
         { label: '失败', value: n.dispatchFail },
         { label: '账户数', value: n.accountNum },
         { label: '部门数', value: n.departmentNum },
-        { label: '联系人', value: n.contactNum },
+        { label: '联系人数', value: n.contactNum },
         { label: '敏感词数', value: n.sensitiveWordNum },
         { label: '模板数', value: n.templateNum },
         { label: '占位符数', value: n.renderNum }

@@ -15,7 +15,9 @@ public class SendConstant {
     public static final String MQ_SEND_FAIL = "消息队列投递失败：";
     public static final String MAIL_UNAVAILABLE = "找不到当前部门对应的邮件发送器-";
 
+
     // ===== 定时发送 =====
     public static final String SCHEDULE_BEFORE_NOW = "定时发送错误：发送时间早于当前时间";
     public static final String SCHEDULE_AFTER_MONTH = "定时发送错误：发送时间间隔超过一个月";
+    public static final String INVALID_STATUS = "消息状态更新失败，不能为 null";
 }

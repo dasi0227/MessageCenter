@@ -56,6 +56,11 @@
             </div>
 
                 <div class="header-right">
+                    <el-button link class="notify-btn" @click="goFailurePage">
+                        <el-badge :value="unsolvedNum" :hidden="unsolvedNum === 0" type="danger">
+                            <el-icon size="22"><WarningFilled /></el-icon>
+                        </el-badge>
+                    </el-button>
                     <!-- 侧边栏展开 -->
                     <el-tooltip :content="isCollapsed ? '收起菜单' : '展开菜单'" placement="bottom">
                         <el-switch
@@ -152,12 +157,15 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+/** ===================== 引入依赖 ===================== */
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Sunny, Moon, User, FullScreen, Monitor, Fold, Expand, Refresh, Link, StarFilled } from '@element-plus/icons-vue'
+import { Sunny, Moon, User, FullScreen, Monitor, Fold, Expand, Refresh, Link, StarFilled, WarningFilled } from '@element-plus/icons-vue'
 import { useAccountStore } from '../store/account'
+import request, { WEBSOCKET_BASE_URL } from '../api/request'
 
+/** ===================== 基本状态与引用 ===================== */
 const router = useRouter()
 const account = useAccountStore()
 const route = useRoute()
@@ -170,39 +178,104 @@ const darkMode = ref(false)
 const isFullscreen = ref(false)
 const isCollapsed = ref(false)
 
-// 标题切换
-watch(
-    () => route.path,
-    () => {
-        pageTitle.value = route.meta.title || '控制台'
-    },
-    { immediate: true }
-)
+/** ===================== 定时器与数据状态 ===================== */
+const unsolvedNum = ref(0) // 未解决数量
+let ws = null              // WebSocket 实例
+let timer = null           // 错误数量刷新定时器
+let accountTimer = null    // 账号刷新定时器
 
-// 全屏切换逻辑
-const toggleFullscreen = (val) => {
-    if (val && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen()
-        ElMessage.info('已进入全屏模式')
-    } else if (!val && document.fullscreenElement) {
-        document.exitFullscreen()
-        ElMessage.info('已退出全屏模式')
+/** ===================== WebSocket 告警功能 ===================== */
+const connectWebSocket = () => {
+    ws = new WebSocket(`${WEBSOCKET_BASE_URL}/ws/notify`)
+
+    ws.onopen = () => console.log('✅ WebSocket 已连接')
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data)
+            ElMessage.error(data.message || '收到系统告警')
+        } catch {
+            ElMessage.error(event.data || '收到系统告警')
+        }
+    }
+    ws.onclose = () => {
+        console.warn('⚠️ WebSocket 断开，3 秒后重连...')
+        setTimeout(connectWebSocket, 3000)
+    }
+    ws.onerror = () => ws.close()
+}
+
+/** ===================== 获取错误数量 ===================== */
+const fetchFailureNum = async () => {
+    try {
+        const { data } = await request.get('/failure/num')
+        if (data.code === 200) unsolvedNum.value = data.data || 0
+    } catch {
+        ElMessage.error('获取错误数量失败')
     }
 }
 
-// 明暗切换逻辑
+/** ===================== 定时刷新账号信息 ===================== */
+const refreshAccount = async () => {
+    try {
+        const { data } = await request.post('/account/refresh')
+        if (data.code === 200 && data.data) {
+            const newToken = data.data
+            account.token = newToken
+            localStorage.setItem('account_state', JSON.stringify(account.$state))
+            request.defaults.headers['Authorization-Account'] = newToken
+            console.log('✅ Account token refreshed:', newToken)
+        } else {
+            console.warn('⚠️ 刷新 token 失败:', data.msg || data)
+        }
+    } catch (e) {
+        console.warn('❌ 刷新账号信息失败', e)
+    }
+}
+
+/** ===================== 导航行为 ===================== */
+const goFailurePage = () => router.push('/failure')
+
+/** ===================== 生命周期钩子 ===================== */
+onMounted(() => {
+    connectWebSocket()
+    fetchFailureNum()
+    timer = setInterval(fetchFailureNum, 30000)   // 每 30 秒刷新错误数量
+    accountTimer = setInterval(refreshAccount, 10000) // 每 10 秒刷新账号信息
+})
+
+onBeforeUnmount(() => {
+    if (ws) ws.close()
+    if (timer) clearInterval(timer)
+    if (accountTimer) clearInterval(accountTimer)
+})
+
+/** ===================== 标题与主题逻辑 ===================== */
+watch(() => route.path, () => {
+    pageTitle.value = route.meta.title || '控制台'
+}, { immediate: true })
+
+const toggleFullscreen = (val) => {
+    if (val && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen()
+        ElMessage.success('已进入全屏模式')
+    } else if (!val && document.fullscreenElement) {
+        document.exitFullscreen()
+        ElMessage.success('已退出全屏模式')
+    }
+}
+
 const toggleTheme = (val) => {
     const root = document.documentElement
     if (val) {
         root.classList.add('dark')
-        ElMessage.info('已切换为暗色模式')
+        ElMessage.success('已切换为暗色模式')
     } else {
         root.classList.remove('dark')
-        ElMessage.info('已切换为亮色模式')
+        ElMessage.success('已切换为亮色模式')
     }
 }
 
-// 登出逻辑
+/** ===================== 账号与页面操作 ===================== */
 const logout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('account')
@@ -210,21 +283,21 @@ const logout = () => {
     router.push('/login')
 }
 
-const refreshPage = () => {
+const refreshPage = async () => {
+    await refreshAccount()
     router.replace(route.fullPath)
 }
-
 </script>
 
 <style scoped>
-/* 根容器固定视口 */
+/** ===================== 根容器布局 ===================== */
 .layout-container {
     display: flex;
     height: 100vh;
     overflow: hidden;
 }
 
-/* 左侧菜单 */
+/** ===================== 左侧菜单栏 ===================== */
 .aside {
     background-color: #1e2b3a;
     color: #fff;
@@ -270,16 +343,16 @@ const refreshPage = () => {
     background-color: #273849 !important;
 }
 
-/* 右侧整体布局 */
+/** ===================== 主体容器布局 ===================== */
 .layout-container > .el-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden; /* 防止整体滚动 */
+    overflow: hidden;
 }
 
-/* 顶部栏 */
+/** ===================== 顶部导航栏 ===================== */
 .header {
     flex-shrink: 0;
     height: 60px;
@@ -304,7 +377,7 @@ const refreshPage = () => {
     align-items: center;
 }
 
-/* 主体部分——只在这里滚动 */
+/** ===================== 主内容区域 ===================== */
 .main {
     flex: 1;
     overflow-y: auto;
@@ -318,7 +391,7 @@ const refreshPage = () => {
     color: #eee;
 }
 
-/* 底部栏 */
+/** ===================== 底部信息栏 ===================== */
 .footer {
     flex-shrink: 0;
     height: 40px;
@@ -357,17 +430,27 @@ const refreshPage = () => {
     color: #fff;
 }
 
-/* 控件样式 */
+/** ===================== 控件与交互按钮 ===================== */
 .fullscreen-switch,
 .collapse-switch,
 .theme-switch {
-    margin-right: 30px;
     transform: scale(1.4);
+    margin-right: 30px;
     --el-switch-on-color: #2563eb;
     --el-switch-off-color: #9ca3af;
+} 
+.notify-btn {
+    transform: scale(1.1);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    cursor: pointer;
+    margin-right: 30px;
 }
-.theme-switch {
-    --el-switch-off-color: #d6ad08;
+.notify-btn .el-icon {
+    color: #ffa726;
 }
 .logout-btn {
     display: flex;

@@ -1,5 +1,6 @@
-package com.dasi.channel;
+package com.dasi.core.channel;
 
+import com.dasi.web.websocket.WebSocketServer;
 import com.dasi.core.service.DispatchService;
 import com.dasi.core.service.FailureService;
 import com.dasi.pojo.entity.Dispatch;
@@ -26,21 +27,18 @@ public class MessageListener {
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).MAILBOX.getQueue(@rabbitMqProperties)}")
     public void listenMailbox(Dispatch dispatch) {
         log.debug("【Listener】监听到站内信：{}", dispatch);
-        dispatchService.updateSendStatus(dispatch);
         messageSender.sendMailbox(dispatch);
     }
 
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).EMAIL.getQueue(@rabbitMqProperties)}")
     public void listenEmail(Dispatch dispatch) {
         log.debug("【Listener】监听到邮件：{}", dispatch);
-        dispatchService.updateSendStatus(dispatch);
         messageSender.sendEmail(dispatch);
     }
 
     @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).SMS.getQueue(@rabbitMqProperties)}")
     public void listenSms(Dispatch dispatch) {
         log.debug("【Listener】监听到短信：{}", dispatch);
-        dispatchService.updateSendStatus(dispatch);
         messageSender.sendSms(dispatch);
     }
 
@@ -48,5 +46,6 @@ public class MessageListener {
     public void listenDlx(Failure failure) {
         log.debug("【Listener】监听到死信：{}", failure);
         failureService.save(failure);
+        WebSocketServer.broadcast("出现严重的错误消息，请及时处理！");
     }
 }

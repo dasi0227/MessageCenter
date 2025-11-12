@@ -1,4 +1,4 @@
-package com.dasi.channel;
+package com.dasi.core.channel;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
 import com.dasi.common.constant.SendConstant;
@@ -77,11 +77,11 @@ public class MessageSender {
             }
 
             mailSender.send(mail);
-            dispatchService.updateFinishStatus(dispatch, MsgStatus.SUCCESS, null);
+            dispatchService.updateStatus(dispatch, MsgStatus.SUCCESS, null);
             log.debug("【EmailSender】邮件投递成功：{}", dispatch.getTarget());
         } catch (Exception exception) {
             String errorMsg = SendConstant.SEND_EMAIL_FAIL + exception.getMessage();
-            dispatchService.updateFinishStatus(dispatch, MsgStatus.ERROR, errorMsg);
+            dispatchService.updateStatus(dispatch, MsgStatus.ERROR, errorMsg);
             log.error("【EmailSender】邮件投递失败：{}", errorMsg);
             sendDlx(dispatch, exception);
         }
@@ -100,11 +100,11 @@ public class MessageSender {
                     .arrivedAt(LocalDateTime.now())
                     .build();
             mailboxService.save(mailbox);
-            dispatchService.updateFinishStatus(dispatch, MsgStatus.SUCCESS, null);
+            dispatchService.updateStatus(dispatch, MsgStatus.SUCCESS, null);
             log.debug("【MailboxSender】站内信投递成功：{}", mailbox);
         } catch (Exception exception) {
             String errorMsg = SendConstant.SEND_MAILBOX_FAIL + exception.getMessage();
-            dispatchService.updateFinishStatus(dispatch, MsgStatus.ERROR, errorMsg);
+            dispatchService.updateStatus(dispatch, MsgStatus.ERROR, errorMsg);
             log.error("【MailboxSender】站内信投递失败：{}", errorMsg);
             sendDlx(dispatch, exception);
         }
@@ -124,6 +124,8 @@ public class MessageSender {
         rabbitTemplate.convertAndSend(rabbitMqProperties.getDlxExchange(), rabbitMqProperties.getDlxRoute(), failure);
     }
 
+    // TODO：短信发送
     public void sendSms(Dispatch dispatch) {
+        System.out.println(dispatch);
     }
 }

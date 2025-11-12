@@ -17,6 +17,7 @@ import Render       from '../views/RenderView.vue'
 import Message      from '../views/MessageView.vue'
 import Dispatch     from '../views/DispatchView.vue'
 import Send         from '../views/SendView.vue'
+import Failure      from '../views/FailureView.vue'
 
 
 // 路由器配置
@@ -40,6 +41,7 @@ const router = createRouter({
                 { path: '/template', component: Template, meta: { title: '模板管理' } },
                 { path: '/sensitive', component: Sensitive, meta: { title: '敏感词管理' } },
                 { path: '/render', component: Render, meta: { title: '占位符管理' } },
+                { path: '/failure', component: Failure, meta: { title: '错误管理' } },
             ]
         }
     ]
