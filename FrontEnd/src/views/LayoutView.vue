@@ -186,7 +186,13 @@ let accountTimer = null    // 账号刷新定时器
 
 /** ===================== WebSocket 告警功能 ===================== */
 const connectWebSocket = () => {
-    ws = new WebSocket(`${WEBSOCKET_BASE_URL}/ws/notify`)
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+        console.log('⚠️ WebSocket 已存在，跳过重复连接')
+        return
+    }
+
+    const wsUrl = `${WEBSOCKET_BASE_URL}/ws/notify`
+    ws = new WebSocket(wsUrl)
 
     ws.onopen = () => console.log('✅ WebSocket 已连接')
     ws.onmessage = (event) => {
@@ -198,8 +204,9 @@ const connectWebSocket = () => {
         }
     }
     ws.onclose = () => {
-        console.warn('⚠️ WebSocket 断开，3 秒后重连...')
-        setTimeout(connectWebSocket, 3000)
+        console.warn('⚠️ WebSocket 断开，10 秒后重连...')
+        ws = null
+        setTimeout(connectWebSocket, 10000)
     }
     ws.onerror = () => ws.close()
 }
@@ -239,12 +246,11 @@ const goFailurePage = () => router.push('/failure')
 onMounted(() => {
     connectWebSocket()
     fetchFailureNum()
-    timer = setInterval(fetchFailureNum, 30000)   // 每 30 秒刷新错误数量
-    accountTimer = setInterval(refreshAccount, 10000) // 每 10 秒刷新账号信息
+    timer = setInterval(fetchFailureNum, 30000)         // 每 30 秒刷新错误数量
+    accountTimer = setInterval(refreshAccount, 30000)   // 每 30 秒刷新账号信息
 })
 
 onBeforeUnmount(() => {
-    if (ws) ws.close()
     if (timer) clearInterval(timer)
     if (accountTimer) clearInterval(accountTimer)
 })
@@ -275,16 +281,33 @@ const toggleTheme = (val) => {
     }
 }
 
-/** ===================== 账号与页面操作 ===================== */
+/** ===================== 账号退出操作 ===================== */
 const logout = () => {
+    if (ws) {
+        ws.close()
+        ws = null
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('account')
     ElMessage.success('已退出登录')
     router.push('/login')
 }
 
+/** ===================== 刷新缓存逻辑 ===================== */
+const flushCacheByRoute = async () => {
+    const entity = route.path.split('/')[1] || ''
+    try {
+        await request.post(`/system/flush/${entity}`)
+        ElMessage.success(`刷新成功`)
+    } catch (e) {
+        ElMessage.error('刷新失败')
+        console.error(e)
+    }
+}
+
+/** ===================== 页面刷新逻辑 ===================== */
 const refreshPage = async () => {
-    await refreshAccount()
+    await flushCacheByRoute()
     router.replace(route.fullPath)
 }
 </script>

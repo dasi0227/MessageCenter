@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.annotation.UniqueField;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.core.mapper.TemplateMapper;
 import com.dasi.core.service.TemplateService;
@@ -15,6 +16,8 @@ import com.dasi.pojo.dto.TemplateAddDTO;
 import com.dasi.pojo.dto.TemplateUpdateDTO;
 import com.dasi.pojo.entity.Template;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,7 @@ import java.util.List;
 public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> implements TemplateService {
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_TEMPLATE_PREFIX, key = "'list'")
     public List<Template> getTemplateList() {
         return list(new LambdaQueryWrapper<Template>().orderByDesc(Template::getCreatedAt));
     }
@@ -34,6 +38,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @UniqueField(fieldName = "name")
+    @CacheEvict(value = RedisConstant.CACHE_TEMPLATE_PREFIX, allEntries = true)
     public void addTemplate(TemplateAddDTO dto) {
         Template template = BeanUtil.copyProperties(dto, Template.class);
         boolean flag = save(template);
@@ -48,6 +53,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @UniqueField(fieldName = "name")
+    @CacheEvict(value = RedisConstant.CACHE_TEMPLATE_PREFIX, allEntries = true)
     public void updateTemplate(TemplateUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<Template>()
                 .eq(Template::getId, dto.getId())
@@ -64,6 +70,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
+    @CacheEvict(value = RedisConstant.CACHE_TEMPLATE_PREFIX, allEntries = true)
     public void removeTemplate(Long id) {
         boolean flag = removeById(id);
 

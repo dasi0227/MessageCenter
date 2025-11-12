@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.annotation.UniqueField;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.constant.SendConstant;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.exception.SendException;
@@ -18,6 +19,8 @@ import com.dasi.pojo.entity.Dispatch;
 import com.dasi.pojo.entity.SensitiveWord;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ import java.util.regex.Pattern;
 public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, SensitiveWord> implements SensitiveWordService {
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_SENSITIVE_WORD_PREFIX, key = "'list'")
     public List<SensitiveWord> getSensitiveWordList() {
         return list(new LambdaQueryWrapper<SensitiveWord>().orderByDesc(SensitiveWord::getCreatedAt));
     }
@@ -42,6 +46,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
     @AutoFill(FillType.INSERT)
+    @CacheEvict(value = RedisConstant.CACHE_SENSITIVE_WORD_PREFIX, allEntries = true)
     public void addSensitiveWords(SensitiveWordsAddDTO dto) {
         // 得到差集
         Set<String> keep = new HashSet<>(dto.getWords());
@@ -67,6 +72,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @UniqueField(fieldName = "word")
+    @CacheEvict(value = RedisConstant.CACHE_SENSITIVE_WORD_PREFIX, allEntries = true)
     public void updateSensitiveWord(SensitiveWordUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<SensitiveWord>()
                 .eq(SensitiveWord::getId, dto.getId())
@@ -83,6 +89,7 @@ public class SensitiveWordServiceImpl extends ServiceImpl<SensitiveWordMapper, S
     @Override
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
+    @CacheEvict(value = RedisConstant.CACHE_SENSITIVE_WORD_PREFIX, allEntries = true)
     public void removeSensitiveWord(Long id) {
         boolean flag = removeById(id);
         if (!flag) {

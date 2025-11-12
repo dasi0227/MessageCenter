@@ -2,10 +2,12 @@ package com.dasi.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.core.mapper.MailboxMapper;
 import com.dasi.core.service.MailboxService;
 import com.dasi.pojo.entity.Mailbox;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ public class MailboxServiceImpl extends ServiceImpl<MailboxMapper, Mailbox> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = RedisConstant.CACHE_MAILBOX_PREFIX, allEntries = true)
     public void readMailbox(Long id, Integer isRead) {
         boolean flag = update(new LambdaUpdateWrapper<Mailbox>()
                 .eq(Mailbox::getId, id)
@@ -31,6 +34,7 @@ public class MailboxServiceImpl extends ServiceImpl<MailboxMapper, Mailbox> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = RedisConstant.CACHE_MAILBOX_PREFIX, allEntries = true)
     public void deleteMailbox(Long id, Integer isDeleted) {
         boolean flag = update(new LambdaUpdateWrapper<Mailbox>()
                 .eq(Mailbox::getId, id)
@@ -43,6 +47,7 @@ public class MailboxServiceImpl extends ServiceImpl<MailboxMapper, Mailbox> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = RedisConstant.CACHE_MAILBOX_PREFIX, allEntries = true)
     public void removeMailbox(Long id) {
         boolean flag = removeById(id);
 

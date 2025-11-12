@@ -25,7 +25,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(pageViewInterceptor)
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/ws/**");
+                .excludePathPatterns(
+                        "/api/account/login",
+                        "/api/account/register",
+                        "/api/account/refresh",
+                        "/ws/**"
+                );
 
         registry.addInterceptor(jwtAccountInterceptor)
                 .addPathPatterns("/api/**")
@@ -45,6 +50,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 )
                 .excludePathPatterns("/ws/**");
 
-        log.info("Interceptors Launch Successfully");
+        log.info("Interceptors Initialized Successfully");
     }
 }

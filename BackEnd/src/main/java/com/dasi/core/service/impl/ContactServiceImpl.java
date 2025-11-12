@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.annotation.UniqueField;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.ContactContextHolder;
 import com.dasi.common.enumeration.FillType;
@@ -32,6 +33,8 @@ import com.dasi.util.InboxUtil;
 import com.dasi.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +59,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     private MailboxService mailboxService;
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_CONTACT_PREFIX, key = "'page'")
     public PageResult<Contact> getContactPage(ContactPageDTO dto) {
         Page<Contact> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 
@@ -72,6 +76,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     }
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_CONTACT_PREFIX, key = "'list'")
     public List<Contact> getContactList() {
         return list();
     }
@@ -81,6 +86,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
     @UniqueField(fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
+    @CacheEvict(value = RedisConstant.CACHE_CONTACT_PREFIX, allEntries = true)
     public void addContact(ContactAddDTO dto) {
         Contact contact = BeanUtil.copyProperties(dto, Contact.class);
         contact.setPassword(SecureUtil.md5(dto.getPassword()));
@@ -97,6 +103,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
     @UniqueField(fieldName = "name", resultInfo = ResultInfo.CONTACT_NAME_ALREADY_EXISTS)
+    @CacheEvict(value = RedisConstant.CACHE_CONTACT_PREFIX, allEntries = true)
     public void updateContact(ContactUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<Contact>()
                 .eq(Contact::getId, dto.getId())
@@ -116,6 +123,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = RedisConstant.CACHE_CONTACT_PREFIX, allEntries = true)
     public void updateStatus(ContactStatusDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<Contact>()
                 .eq(Contact::getId, dto.getId())
@@ -130,6 +138,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     @Override
     @AdminOnly
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = RedisConstant.CACHE_CONTACT_PREFIX, allEntries = true)
     public void removeContact(Long id) {
         boolean flag = removeById(id);
 
@@ -169,6 +178,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     }
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_MAILBOX_PREFIX, key = "'page'")
     public PageResult<Mailbox> getMailboxPage(MailboxPageDTO dto) {
         Long inbox = ContactContextHolder.get().getInbox();
         Page<Mailbox> param = new Page<>(dto.getPageNum(), dto.getPageSize());

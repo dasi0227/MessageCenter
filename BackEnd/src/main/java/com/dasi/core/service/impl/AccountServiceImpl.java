@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.annotation.UniqueField;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.AccountRole;
 import com.dasi.common.enumeration.FillType;
@@ -29,10 +30,11 @@ import com.dasi.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +53,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Transactional(rollbackFor = Exception.class)
     @AutoFill(FillType.INSERT)
     @UniqueField(fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    @CacheEvict(value = RedisConstant.CACHE_ACCOUNT_PREFIX, allEntries = true)
     public void register(AccountLoginDTO dto) {
         Account account = BeanUtil.copyProperties(dto, Account.class);
         account.setPassword(SecureUtil.md5(dto.getPassword()));
@@ -97,6 +100,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_ACCOUNT_PREFIX, key = "'page'")
     public PageResult<Account> getAccountPage(AccountPageDTO dto) {
         // 分页参数
         Page<Account> param = new Page<>(dto.getPageNum(), dto.getPageSize());
@@ -114,6 +118,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_ACCOUNT_PREFIX, key = "'list'")
     public List<Account> getAccountList() {
         return list();
     }
@@ -123,6 +128,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @UniqueField(fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    @CacheEvict(value = RedisConstant.CACHE_ACCOUNT_PREFIX, allEntries = true)
     public void addAccount(AccountAddDTO dto) {
         Account account = BeanUtil.copyProperties(dto, Account.class);
         account.setPassword(SecureUtil.md5(dto.getPassword()));
@@ -137,6 +143,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @UniqueField(fieldName = "name", resultInfo = ResultInfo.ACCOUNT_NAME_ALREADY_EXISTS)
+    @CacheEvict(value = RedisConstant.CACHE_ACCOUNT_PREFIX, allEntries = true)
     public void updateAccount(AccountUpdateDTO dto) {
         if (AccountContextHolder.get().getId().equals(dto.getId())) {
             log.warn("【Account Service】更新失败，无法修改当前登录账户：{}", dto);
@@ -164,6 +171,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
+    @CacheEvict(value = RedisConstant.CACHE_ACCOUNT_PREFIX, allEntries = true)
     public void removeAccount(Long id) {
         if (AccountContextHolder.get().getId().equals(id)) {
             log.warn("【Account Service】删除失败，无法删除当前登录账户：{}", id);
@@ -183,8 +191,4 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
     }
 
-    @Override
-    public List<String> getAccountRole() {
-        return Arrays.stream(AccountRole.values()).map(Enum::name).toList();
-    }
 }

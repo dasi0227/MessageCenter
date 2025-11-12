@@ -1,5 +1,6 @@
 package com.dasi.core.controller;
 
+import com.dasi.common.enumeration.AccountRole;
 import com.dasi.common.result.PageResult;
 import com.dasi.pojo.dto.AccountAddDTO;
 import com.dasi.pojo.dto.AccountUpdateDTO;
@@ -58,7 +59,7 @@ public class AccountController {
 
     @GetMapping("/role")
     public Result<List<String>> getAccountRole() {
-        List<String> list = accountService.getAccountRole();
+        List<String> list = AccountRole.getAccountRoleList();
         return Result.success(list);
     }
 

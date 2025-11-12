@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.annotation.UniqueField;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.result.PageResult;
 import com.dasi.core.mapper.DepartmentMapper;
@@ -18,6 +19,8 @@ import com.dasi.pojo.dto.DepartmentPageDTO;
 import com.dasi.pojo.dto.DepartmentUpdateDTO;
 import com.dasi.pojo.entity.Department;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ import java.util.List;
 public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_DEPARTMENT_PREFIX, key = "'page'")
     public PageResult<Department> getDepartmentPage(DepartmentPageDTO dto) {
         Page<Department> pageParam = new Page<>(dto.getPageNum(), dto.getPageSize());
 
@@ -44,10 +48,18 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_DEPARTMENT_PREFIX, key = "'list'")
+    public List<Department> getDepartmentList() {
+        return list();
+    }
+
+
+    @Override
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @Transactional(rollbackFor = Exception.class)
     @UniqueField(fieldName = "name")
+    @CacheEvict(value = RedisConstant.CACHE_DEPARTMENT_PREFIX, allEntries = true)
     public void addDepartment(DepartmentAddDTO dto) {
         Department department = BeanUtil.copyProperties(dto, Department.class);
         boolean flag = save(department);
@@ -63,6 +75,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @AutoFill(FillType.UPDATE)
     @Transactional(rollbackFor = Exception.class)
     @UniqueField(fieldName = "name")
+    @CacheEvict(value = RedisConstant.CACHE_DEPARTMENT_PREFIX, allEntries = true)
     public void updateDepartment(DepartmentUpdateDTO dto) {
         boolean flag = update(new LambdaUpdateWrapper<Department>()
                 .eq(Department::getId, dto.getId())
@@ -82,6 +95,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     @AdminOnly
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = RedisConstant.CACHE_DEPARTMENT_PREFIX, allEntries = true)
     public void removeDepartment(Long id) {
         boolean flag = removeById(id);
 
@@ -90,8 +104,4 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         }
     }
 
-    @Override
-    public List<Department> getDepartmentList() {
-        return list();
-    }
 }

@@ -14,6 +14,7 @@ public enum ResultInfo {
     SERVER_ERROR                    (500, "服务器内部错误"),
     DATABASE_ERROR                  (501, "数据库操作异常"),
     PARAM_VALIDATE_FAIL             (502, "参数校验失败"),
+    PATH_VALIDATE_FAIL              (503, "路径校验失败"),
 
     ACCOUNT_PERMISSION_DENIED       (10, "账户权限不足"),
     ACCOUNT_NOT_FOUND               (10, "账户不存在"),
@@ -26,14 +27,10 @@ public enum ResultInfo {
     CONTACT_NOT_FOUND               (10, "联系人不存在"),
     CONTACT_PASSWORD_ERROR          (10, "联系人密码错误"),
     CONTACT_NAME_ALREADY_EXISTS     (10, "联系人名称已存在"),
-    CONTACT_STATUS_OFF              (10, "联系人不可用"),
     RENDER_UPDATE_FAIL              (10, "系统预设字段不可修改"),
     RENDER_REMOVE_FAIL              (10, "系统预设字段不可删除"),
     UNIQUE_FIELD_CONFLICT           (10, "名字已存在"),
-    SEND_MAILBOX_FAIL               (8001, "站内信发送失败"),
-    SEND_SMS_FAIL                   (8002, "短信发送失败"),
-    SEND_EMAIL_FAIL                 (8003, "邮件发送失败"),
-    UNKNOWN_ERROR                   (9999, "未知错误"),;
+    UNKNOWN_ERROR                   (9999, "未知错误");
 
     private final int code;
     private final String message;

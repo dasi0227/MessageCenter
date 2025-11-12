@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AdminOnly;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.annotation.UniqueField;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
@@ -23,6 +24,8 @@ import com.dasi.pojo.dto.RenderAddDTO;
 import com.dasi.pojo.dto.RenderUpdateDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,7 @@ import java.util.regex.Pattern;
 public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> implements RenderService {
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_RENDER_PREFIX, key = "'list'")
     public List<Render> getRenderList() {
         return list(new LambdaQueryWrapper<Render>().orderByAsc(Render::getCreatedAt));
     }
@@ -48,6 +52,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @AdminOnly
     @AutoFill(FillType.INSERT)
     @UniqueField(fieldName = "name")
+    @CacheEvict(value = RedisConstant.CACHE_RENDER_PREFIX, allEntries = true)
     public void addRender(RenderAddDTO dto) {
         Render render = BeanUtil.copyProperties(dto, Render.class);
         boolean flag = save(render);
@@ -65,6 +70,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @AdminOnly
     @AutoFill(FillType.UPDATE)
     @UniqueField(fieldName = "name")
+    @CacheEvict(value = RedisConstant.CACHE_RENDER_PREFIX, allEntries = true)
     public void updateRender(RenderUpdateDTO dto) {
         if (SYS_KEYS_ID.contains(dto.getId())) {
             log.warn("【Render Service】更新失败，系统预设字段不可修改：{}", dto);
@@ -88,6 +94,7 @@ public class RenderServiceImpl extends ServiceImpl<RenderMapper, Render> impleme
     @Override
     @Transactional(rollbackFor = Exception.class)
     @AdminOnly
+    @CacheEvict(value = RedisConstant.CACHE_RENDER_PREFIX, allEntries = true)
     public void removeRender(Long id) {
         if (SYS_KEYS_ID.contains(id)) {
             log.warn("【Render Service】删除失败，系统预设字段不可删除：{}", id);

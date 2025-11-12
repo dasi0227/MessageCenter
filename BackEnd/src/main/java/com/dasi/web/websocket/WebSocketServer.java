@@ -19,24 +19,18 @@ public class WebSocketServer {
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
-        log.debug("【WebSocket】建立连接：{}", session.getId());
     }
 
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
-        log.debug("【WebSocket】关闭连接：{}", session.getId());
     }
 
     @OnError
-    public void onError(Session session, Throwable throwable) {
-        log.error("【WebSocket】错误连接：{}", session.getId(), throwable);
-    }
+    public void onError(Session session, Throwable throwable) {}
 
     @OnMessage
-    public void onMessage(String message, Session session) {
-        log.info("【WebSocket】收到 {} 的消息：{}", session.getId(), message);
-    }
+    public void onMessage(String message, Session session) {}
 
     private void send(Session session, String message) {
         try {

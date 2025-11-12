@@ -2,6 +2,7 @@ package com.dasi.core.service.impl;
 
 import cn.hutool.core.map.MapUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.core.service.*;
 import com.dasi.pojo.entity.Dispatch;
@@ -11,6 +12,7 @@ import com.dasi.pojo.vo.StatNumVO;
 import com.dasi.pojo.vo.StatTimelineVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -46,10 +48,8 @@ public class DashboardServiceImpl implements DashboardService {
     @Autowired
     private RenderService renderService;
 
-    @Autowired
-    private FailureService failureService;
-
     @Override
+    @Cacheable(value = RedisConstant.CACHE_DASHBOARD_PREFIX, key = "'num'")
     public StatNumVO getStatNum() {
         // ===== 消息与投递统计 =====
         long messageTotal = messageService.count();
@@ -94,6 +94,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_DASHBOARD_PREFIX, key = "'dispatch'")
     public StatDispatchVO getStatDispatch() {
         Map<String, Long> accountMap = new HashMap<>();
         Map<String, Long> departmentMap = new HashMap<>();
@@ -132,6 +133,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    @Cacheable(value = RedisConstant.CACHE_DASHBOARD_PREFIX, key = "'timeline'")
     public StatTimelineVO getStatTimeline() {
         LocalDate now = LocalDate.now();
         int year = now.getYear();
