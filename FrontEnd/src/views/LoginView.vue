@@ -20,10 +20,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import { login } from '../api/account'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '../store/account'
+import request from '../api/request'
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -38,7 +38,7 @@ const rules = {
 const handleLogin = () => {
     formRef.value.validate(async (valid) => {
         if (!valid) return
-        const { data } = await login(form.value)
+        const { data } = await request.post('/account/login', data)
         if (data.code === 200) {
             const vo = data.data
             accountStore.setAccount(vo)

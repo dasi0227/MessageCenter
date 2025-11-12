@@ -20,8 +20,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { register } from '../api/account'
 import { ElMessage } from 'element-plus'
+import request from '../api/request'
 
 const form = ref({ name: '', password: '' })
 const formRef = ref()
@@ -33,7 +33,7 @@ const rules = {
 const handleRegister = () => {
     formRef.value.validate(async (valid) => {
         if (!valid) return
-        const { data } = await register(form.value)
+        const { data } = await request.post('/account/register', data)
         if (data.code === 200) {
             ElMessage.success('注册成功，2 秒后跳转回登录')
             setTimeout(() => { location.href = '/login' }, 2000)
