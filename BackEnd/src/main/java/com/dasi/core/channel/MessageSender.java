@@ -1,23 +1,18 @@
 package com.dasi.core.channel;
 
-import cn.hutool.core.exceptions.ExceptionUtil;
 import com.dasi.common.constant.SendConstant;
 import com.dasi.common.constant.SystemConstant;
-import com.dasi.common.enumeration.FailureStatus;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.exception.SendException;
-import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.core.service.DepartmentService;
 import com.dasi.core.service.DispatchService;
 import com.dasi.core.service.MailboxService;
 import com.dasi.pojo.entity.Department;
 import com.dasi.pojo.entity.Dispatch;
-import com.dasi.pojo.entity.Failure;
 import com.dasi.pojo.entity.Mailbox;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -47,10 +42,7 @@ public class MessageSender {
     private MailboxService mailboxService;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
-
-    @Autowired
-    private RabbitMqProperties rabbitMqProperties;
+    private DlxSender dlxSender;
 
     public void sendEmail(Dispatch dispatch) {
         try {
@@ -82,8 +74,7 @@ public class MessageSender {
         } catch (Exception exception) {
             String errorMsg = SendConstant.SEND_EMAIL_FAIL + exception.getMessage();
             dispatchService.updateStatus(dispatch, MsgStatus.ERROR, errorMsg);
-            log.error("【EmailSender】邮件投递失败：{}", errorMsg);
-            sendDlx(dispatch, exception);
+            dlxSender.sendDlx(dispatch, exception);
         }
     }
 
@@ -105,23 +96,8 @@ public class MessageSender {
         } catch (Exception exception) {
             String errorMsg = SendConstant.SEND_MAILBOX_FAIL + exception.getMessage();
             dispatchService.updateStatus(dispatch, MsgStatus.ERROR, errorMsg);
-            log.error("【MailboxSender】站内信投递失败：{}", errorMsg);
-            sendDlx(dispatch, exception);
+            dlxSender.sendDlx(dispatch, exception);
         }
-    }
-
-    public void sendDlx(Dispatch dispatch, Exception exception) {
-        Failure failure = Failure.builder()
-                .dispatchId(String.valueOf(dispatch.getId()))
-                .errorType(exception.getClass().getName())
-                .errorMessage(exception.getMessage())
-                .errorStack(ExceptionUtil.stacktraceToString(exception))
-                .status(FailureStatus.UNHANDLED)
-                .createdAt(LocalDateTime.now())
-                .payload(dispatch)
-                .build();
-        log.debug("【DlxSender】消息发送失败，发送到死信队列：{}", failure);
-        rabbitTemplate.convertAndSend(rabbitMqProperties.getDlxExchange(), rabbitMqProperties.getDlxRoute(), failure);
     }
 
     // TODO：短信发送

@@ -2,8 +2,9 @@ package com.dasi.common.constant;
 
 public class RedisConstant {
     public static final String INBOX_KEY = "inbox:counter";
-    public static final String PV_KEY = "stat:pv:total";
-    public static final String DPV_KEY = "stat:pv:";
+    public static final String PV_KEY_PATH = "stat:pv:path:";
+    public static final String PV_KEY_TIME = "stat:pv:time:";
+
 
     public static final String CACHE_ACCOUNT_PREFIX = "cache:account";
     public static final String CACHE_DEPARTMENT_PREFIX = "cache:department";
@@ -18,4 +19,19 @@ public class RedisConstant {
 
     public static final String CACHE_DASHBOARD_PREFIX = "cache:dashboard";
 
+    public static final String RATE_LIMIT_PREFIX = "rateLimit:";
+    public static final String RATE_LIMIT_SCRIPT_TEXT =
+            "local key = KEYS[1] " +
+            "local limit = tonumber(ARGV[1]) " +
+            "local ttl = tonumber(ARGV[2]) " +
+            "local current = redis.call('incr', key) " +
+            "if current == 1 then " +
+            "   redis.call('expire', key, ttl) " +
+            "end " +
+            "if current > limit then " +
+            "   return 0 " +
+            "else " +
+            "   return 1 " +
+            "end"
+    ;
 }

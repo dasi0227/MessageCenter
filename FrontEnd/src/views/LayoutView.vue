@@ -246,7 +246,7 @@ const goFailurePage = () => router.push('/failure')
 onMounted(() => {
     connectWebSocket()
     fetchFailureNum()
-    timer = setInterval(fetchFailureNum, 30000)         // 每 30 秒刷新错误数量
+    timer = setInterval(fetchFailureNum, 10000)         // 每 10 秒刷新错误数量
     accountTimer = setInterval(refreshAccount, 30000)   // 每 30 秒刷新账号信息
 })
 

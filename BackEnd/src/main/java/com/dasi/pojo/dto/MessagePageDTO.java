@@ -32,4 +32,7 @@ public class MessagePageDTO {
     // 时间查询
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    @NotNull
+    private Boolean pure;
 }

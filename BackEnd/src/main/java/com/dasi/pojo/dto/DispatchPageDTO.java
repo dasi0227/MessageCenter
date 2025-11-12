@@ -27,4 +27,7 @@ public class DispatchPageDTO {
     private MsgStatus status;
     private Long contactId;
     private String contactName;
+
+    @NotNull
+    private Boolean pure;
 }

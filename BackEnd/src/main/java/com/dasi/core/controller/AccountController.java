@@ -1,5 +1,6 @@
 package com.dasi.core.controller;
 
+import com.dasi.common.annotation.RateLimit;
 import com.dasi.common.enumeration.AccountRole;
 import com.dasi.common.result.PageResult;
 import com.dasi.pojo.dto.AccountAddDTO;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
+@SuppressWarnings("unused")
 @Validated
 @RestController
 @RequestMapping("/api/account")
@@ -28,12 +30,24 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/register")
-    public Result<Void> register(@Valid @RequestBody AccountLoginDTO dto) {
+    @RateLimit(
+            key = "T(com.dasi.util.IpUtil).getClientIP(#request)",
+            limit = 3,
+            ttl = 3600,
+            message = "同一IP一小时内不允许注册超过 3 次，请过一会儿后重新尝试！"
+    )
+    public Result<Void> register(@Valid @RequestBody AccountLoginDTO dto, HttpServletRequest request) {
         accountService.register(dto);
         return Result.success();
     }
 
     @PostMapping("/login")
+    @RateLimit(
+            key = "#dto.name",
+            limit = 5,
+            ttl = 60,
+            message = "同一用户一分钟内不允许登陆超过 5 次，请过一会儿后重新尝试！"
+    )
     public Result<AccountLoginVO> login(@Valid @RequestBody AccountLoginDTO dto) {
         AccountLoginVO vo = accountService.login(dto);
         return Result.success(vo);

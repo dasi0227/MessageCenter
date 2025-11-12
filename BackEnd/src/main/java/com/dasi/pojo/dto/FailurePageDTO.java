@@ -28,4 +28,7 @@ public class FailurePageDTO {
     // 时间查询
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    @NotNull
+    private Boolean pure;
 }

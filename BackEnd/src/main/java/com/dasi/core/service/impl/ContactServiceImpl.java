@@ -59,7 +59,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     private MailboxService mailboxService;
 
     @Override
-    @Cacheable(value = RedisConstant.CACHE_CONTACT_PREFIX, key = "'page'")
+    @Cacheable(value = RedisConstant.CACHE_CONTACT_PREFIX, key = "'page:' + #dto.hashCode()")
     public PageResult<Contact> getContactPage(ContactPageDTO dto) {
         Page<Contact> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 
@@ -178,7 +178,11 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
     }
 
     @Override
-    @Cacheable(value = RedisConstant.CACHE_MAILBOX_PREFIX, key = "'page'")
+    @Cacheable(
+            value = RedisConstant.CACHE_MAILBOX_PREFIX,
+            key = "'page:' + #dto.pageNum",
+            condition = "#dto.pure"
+    )
     public PageResult<Mailbox> getMailboxPage(MailboxPageDTO dto) {
         Long inbox = ContactContextHolder.get().getInbox();
         Page<Mailbox> param = new Page<>(dto.getPageNum(), dto.getPageSize());

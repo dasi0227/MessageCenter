@@ -22,4 +22,6 @@ public class ContactPageDTO {
     // 精确查询
     private Integer status;
 
+    @NotNull
+    private Boolean pure;
 }

@@ -20,4 +20,7 @@ public class AccountPageDTO {
 
     // 精确查询
     private AccountRole role;
+
+    @NotNull
+    private Boolean pure;
 }

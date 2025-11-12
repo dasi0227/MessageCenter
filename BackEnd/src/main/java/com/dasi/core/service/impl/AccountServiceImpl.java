@@ -94,13 +94,16 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public String refresh(HttpServletRequest request) {
         String oldToken = request.getHeader(jwtProperties.getAccountTokenName());
         String newToken = jwtUtil.refreshToken(oldToken);
-
         log.debug("【Account Service】刷新 Token ：{}", newToken);
         return newToken;
     }
 
     @Override
-    @Cacheable(value = RedisConstant.CACHE_ACCOUNT_PREFIX, key = "'page'")
+    @Cacheable(
+            value = RedisConstant.CACHE_ACCOUNT_PREFIX,
+            key = "'page:' + #dto.pageNum",
+            condition = "#dto.pure"
+    )
     public PageResult<Account> getAccountPage(AccountPageDTO dto) {
         // 分页参数
         Page<Account> param = new Page<>(dto.getPageNum(), dto.getPageSize());

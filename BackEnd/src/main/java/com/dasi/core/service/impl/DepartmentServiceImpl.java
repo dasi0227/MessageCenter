@@ -31,7 +31,11 @@ import java.util.List;
 public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
 
     @Override
-    @Cacheable(value = RedisConstant.CACHE_DEPARTMENT_PREFIX, key = "'page'")
+    @Cacheable(
+            value = RedisConstant.CACHE_DEPARTMENT_PREFIX,
+            key = "'page:' + #dto.pageNum",
+            condition = "#dto.pure"
+    )
     public PageResult<Department> getDepartmentPage(DepartmentPageDTO dto) {
         Page<Department> pageParam = new Page<>(dto.getPageNum(), dto.getPageSize());
 

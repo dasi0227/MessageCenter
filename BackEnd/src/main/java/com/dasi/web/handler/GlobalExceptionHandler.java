@@ -2,9 +2,11 @@ package com.dasi.web.handler;
 
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.MessageCenterException;
+import com.dasi.common.exception.RateLimitException;
 import com.dasi.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,6 +26,23 @@ public class GlobalExceptionHandler {
         ResultInfo resultInfo = ResultInfo.PARAM_VALIDATE_FAIL;
         String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.error("【参数校验错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
+        return Result.fail(resultInfo, message);
+    }
+
+    @ExceptionHandler
+    public Result<Void> exceptionHandler(RateLimitException exception) {
+        ResultInfo resultInfo = ResultInfo.RATE_LIMIT_ERROR;
+        String message = exception.getMessage();
+        log.error("【限流错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
+        return Result.fail(resultInfo, message);
+    }
+
+    @ExceptionHandler(RedisSystemException.class)
+    public Result<Void> handleRedisSystemException(RedisSystemException exception) {
+        ResultInfo resultInfo = ResultInfo.REDIS_ERROR;
+        String message = exception.getMostSpecificCause().getMessage();
+        log.error("【Redis执行异常】Code={}, Message={}", resultInfo.getCode(), message);
+        exception.printStackTrace();
         return Result.fail(resultInfo, message);
     }
 

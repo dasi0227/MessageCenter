@@ -1,5 +1,6 @@
 package com.dasi.web.interceptor;
 
+import cn.hutool.core.lang.UUID;
 import com.dasi.common.constant.RedisConstant;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,11 +26,16 @@ public class PageViewInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        log.debug("=========== 请求路径：{} ===========", request.getRequestURI().substring(4));
+        String path = request.getRequestURI().substring(4);
 
-        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        redisTemplate.opsForValue().increment(RedisConstant.PV_KEY);
-        redisTemplate.opsForValue().increment(RedisConstant.DPV_KEY + today);
+        log.debug("=========== 请求路径：{} ===========", path);
+
+        String value = UUID.randomUUID().toString(true) + System.currentTimeMillis();
+
+        String keyPath = RedisConstant.PV_KEY_PATH + path;
+        redisTemplate.opsForHyperLogLog().add(keyPath, value);
+        String keyTime = RedisConstant.PV_KEY_TIME + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        redisTemplate.opsForHyperLogLog().add(keyTime, value);
 
         return true;
     }

@@ -108,12 +108,16 @@ const addForm = ref({ name: '', password: '', role: '' })
 // 分页查询
 const getPage = async () => {
     try {
+        const hasFilter = !!(name.value || selectedRole.value)
+
         const { data } = await request.post('/account/page', {
             pageNum: pageNum.value,
             pageSize: pageSize.value,
             name: name.value,
-            role: selectedRole.value
+            role: selectedRole.value,
+            pure: !hasFilter
         })
+        
         if (data.code === 200) {
             tableData.value = data.data.records
             total.value = data.data.total

@@ -27,4 +27,7 @@ public class MailboxPageDTO {
     @Min(value = 0, message = "删除状态只能是 0 或 1")
     @Max(value = 1, message = "删除状态只能是 0 或 1")
     private Integer is_deleted;
+
+    @NotNull
+    private Boolean pure;
 }

@@ -1,5 +1,6 @@
 package com.dasi.core.controller;
 
+import com.dasi.common.annotation.RateLimit;
 import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.result.PageResult;
@@ -23,6 +24,12 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    @RateLimit(
+            key = "#dto.departmentName",
+            limit = 5,
+            ttl = 10,
+            message = "同一部门十秒内不允许发送超过 5 次，请过一会儿后重新尝试！"
+    )
     @PostMapping("/send")
     public Result<Void> sendMessage(@Valid @RequestBody MessageSendDTO dto) {
         messageService.sendMessage(dto);

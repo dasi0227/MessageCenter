@@ -38,7 +38,7 @@ const rules = {
 const handleLogin = () => {
     formRef.value.validate(async (valid) => {
         if (!valid) return
-        const { data } = await request.post('/account/login', data)
+        const { data } = await request.post('/account/login', form.value)
         if (data.code === 200) {
             const vo = data.data
             accountStore.setAccount(vo)

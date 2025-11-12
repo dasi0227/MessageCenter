@@ -140,14 +140,22 @@ const addForm = ref({ name: '', password: '', phone: '', email: '', status: 1 })
 // 分页查询
 const getPage = async () => {
     try {
+        const hasFilter =
+            (name.value && name.value.trim() !== '') ||
+            (phone.value && phone.value.trim() !== '') ||
+            (email.value && email.value.trim() !== '') ||
+            status.value !== null && status.value !== undefined
+
         const { data } = await request.post('/contact/page', {
             pageNum: pageNum.value,
             pageSize: pageSize.value,
             name: name.value,
             phone: phone.value,
             email: email.value,
-            status: status.value
+            status: status.value,
+            pure: !hasFilter
         })
+        
         if (data.code === 200) {
             tableData.value = data.data.records
             total.value = data.data.total

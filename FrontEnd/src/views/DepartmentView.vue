@@ -140,12 +140,14 @@ const addForm = ref({ name: '', address: '', description: '', phone: '', email: 
 // 分页查询
 const getPage = async () => {
     try {
+        const hasFilter = !!(name.value || address.value || description.value)
         const { data } = await request.post('/department/page', {
             pageNum: pageNum.value,
             pageSize: pageSize.value,
             name: name.value,
             address: address.value,
-            description: description.value
+            description: description.value,
+            pure: !hasFilter
         })
         if (data.code === 200) {
             tableData.value = data.data.records

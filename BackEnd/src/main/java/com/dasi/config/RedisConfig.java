@@ -48,7 +48,7 @@ public class RedisConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-        log.info("RedisCacheManager Initialized successfully");
+        log.info("RedisCacheManager Initialized Successfully");
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
@@ -57,20 +57,15 @@ public class RedisConfig {
 
     @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-        );
-
         StringRedisTemplate template = new StringRedisTemplate(factory);
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(mapper));
-        template.afterPropertiesSet();
 
-        log.info("StringRedisTemplate Initialized successfully");
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(new StringRedisSerializer());
+
+        template.afterPropertiesSet();
+        log.info("StringRedisTemplate Initialized Successfully");
         return template;
     }
 }

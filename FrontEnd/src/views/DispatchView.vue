@@ -174,12 +174,14 @@ const initOptions = async () => {
 // 查询派送详情
 const getPage = async () => {
     try {
+        const hasFilter = !!(selectedStatus.value || selectedContact.value)
         const { data } = await request.post('/message/detail', {
             messageId,
             pageNum: pageNum.value,
             pageSize: pageSize.value,
             status: selectedStatus.value,
             contactId: selectedContact.value,
+            pure: !hasFilter
         })
         if (data.code === 200) {
             tableData.value = data.data.records
@@ -247,7 +249,8 @@ onMounted(async () => {
 }
 .truncate-content span {
     display: -webkit-box;
-    -webkit-line-clamp: 3;       /* 限制显示 3 行 */
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -14,6 +14,7 @@ import com.dasi.common.enumeration.MsgStatus;
 import com.dasi.common.exception.SendException;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
+import com.dasi.core.channel.DlxSender;
 import com.dasi.core.mapper.MessageMapper;
 import com.dasi.core.service.*;
 import com.dasi.pojo.dto.DispatchPageDTO;
@@ -59,6 +60,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Autowired
     private SensitiveWordService sensitiveWordService;
+
+    @Autowired
+    private DlxSender dlxSender;
 
     @Override
     @AutoFill(FillType.INSERT)
@@ -132,10 +136,10 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                             return processor;
                         });
                         dispatchService.updateStatus(dispatch, MsgStatus.SENDING, null);
-                    } catch (Exception e) {
-                        String errorMsg = SendConstant.MQ_SEND_FAIL + e.getMessage();
-                        dispatchService.updateStatus(dispatch, MsgStatus.FAIL, errorMsg);
-                        log.error("【Message Service】消息投递失败：dispatchId={}, error={}", dispatch.getId(), e.getMessage());
+                    } catch (Exception exception) {
+                        String errorMsg = SendConstant.SEND_MAILBOX_FAIL + exception.getMessage();
+                        dispatchService.updateStatus(dispatch, MsgStatus.ERROR, errorMsg);
+                        dlxSender.sendDlx(dispatch, exception);
                     }
                 }
             }
@@ -155,7 +159,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
-    @Cacheable(value = RedisConstant.CACHE_MESSAGE_PREFIX, key = "'page'")
+    @Cacheable(
+            value = RedisConstant.CACHE_MESSAGE_PREFIX,
+            key = "'page:' + #dto.pageNum",
+            condition = "#dto.pure"
+    )
     public PageResult<Message> getMessagePage(MessagePageDTO dto) {
         Page<Message> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 
@@ -180,7 +188,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
-    @Cacheable(value = RedisConstant.CACHE_DISPATCH_PREFIX, key = "'page:' + #dto.messageId")
+    @Cacheable(
+            value = RedisConstant.CACHE_DISPATCH_PREFIX,
+            key = "#dto.messageId + ':page:' + #dto.pageNum",
+            condition = "#dto.pure"
+    )
     public PageResult<Dispatch> getMessageDetail(DispatchPageDTO dto) {
         Page<Dispatch> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 

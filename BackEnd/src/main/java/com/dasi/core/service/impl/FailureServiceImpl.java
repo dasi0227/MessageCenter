@@ -25,7 +25,11 @@ import java.time.LocalDateTime;
 public class FailureServiceImpl extends ServiceImpl<FailureMapper, Failure> implements FailureService {
 
     @Override
-    @Cacheable(value = RedisConstant.CACHE_FAILURE_PREFIX, key = "'page'")
+    @Cacheable(
+            value = RedisConstant.CACHE_FAILURE_PREFIX,
+            key = "'page:' + #dto.pageNum",
+            condition = "#dto.pure"
+    )
     public PageResult<Failure> getFailurePage(FailurePageDTO dto) {
         Page<Failure> param = new Page<>(dto.getPageNum(), dto.getPageSize());
 

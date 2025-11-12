@@ -17,4 +17,7 @@ public class DepartmentPageDTO {
     private String name;
     private String description;
     private String address;
+
+    @NotNull
+    private Boolean pure;
 }

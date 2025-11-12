@@ -130,6 +130,13 @@ const initOptions = async () => {
 // 获取分页数据
 const getPage = async () => {
     try {
+        const hasFilter = !!(
+            query.value.errorType ||
+            query.value.errorMessage ||
+            query.value.status ||
+            (query.value.timeRange && query.value.timeRange.length > 0)
+        )
+
         const { data } = await request.post('/failure/page', {
             pageNum: pageNum.value,
             pageSize: pageSize.value,
@@ -137,7 +144,8 @@ const getPage = async () => {
             errorMessage: query.value.errorMessage || null,
             status: query.value.status || null,
             startTime: query.value.timeRange?.[0] || null,
-            endTime: query.value.timeRange?.[1] || null
+            endTime: query.value.timeRange?.[1] || null,
+            pure: !hasFilter
         })
         if (data.code === 200) {
             tableData.value = data.data.records

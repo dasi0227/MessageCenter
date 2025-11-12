@@ -33,10 +33,9 @@ const rules = {
 const handleRegister = () => {
     formRef.value.validate(async (valid) => {
         if (!valid) return
-        const { data } = await request.post('/account/register', data)
+        const { data } = await request.post('/account/register', form.value)
         if (data.code === 200) {
-            ElMessage.success('注册成功，2 秒后跳转回登录')
-            setTimeout(() => { location.href = '/login' }, 2000)
+            ElMessage.success('注册成功，请前往登陆')
         } else {
             ElMessage.error(data.msg || '操作失败')
         }

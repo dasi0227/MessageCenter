@@ -174,6 +174,14 @@ const initOptions = async () => {
 const getPage = async () => {
     try {
         const [startTime, endTime] = timeRange.value || []
+        const hasFilter = !!(
+            subject.value ||
+            selectedAccount.value ||
+            selectedDepartment.value ||
+            selectedChannel.value ||
+            startTime ||
+            endTime
+        )
         const { data } = await request.post('/message/page', {
             pageNum: pageNum.value,
             pageSize: pageSize.value,
@@ -183,6 +191,7 @@ const getPage = async () => {
             channel: selectedChannel.value,
             startTime,
             endTime,
+            pure: !hasFilter
         })
         if (data.code === 200) {
             tableData.value = data.data.records.map((m) => {
