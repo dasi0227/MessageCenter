@@ -162,7 +162,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         boolean flag = update(new LambdaUpdateWrapper<Account>()
                 .eq(Account::getId, dto.getId())
                 .set(StrUtil.isNotBlank(dto.getName()), Account::getName, dto.getName())
-                .set(dto.getPassword() != null, Account::getPassword, SecureUtil.md5(dto.getPassword()))
+                .set(StrUtil.isNotBlank(dto.getPassword()), Account::getPassword, SecureUtil.md5(dto.getPassword()))
                 .set(Account::getRole, dto.getRole())
                 .set(Account::getUpdatedAt, dto.getUpdatedAt()));
 

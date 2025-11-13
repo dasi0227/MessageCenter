@@ -18,7 +18,7 @@ public class AccountUpdateDTO {
     @NotBlank(message = "账户名不能为空")
     private String name;
 
-    @Pattern(regexp = "^[A-Za-z0-9]{6,}$", message = "密码必须至少6位字母或数字")
+    @Pattern(regexp = "^$|^[A-Za-z0-9]{6,}$", message = "密码必须为 6 位字母或数字")
     private String password;
 
     @EnumValid(enumClass = AccountRole.class)

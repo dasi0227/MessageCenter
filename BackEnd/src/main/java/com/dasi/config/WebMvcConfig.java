@@ -35,18 +35,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/account/login",
                         "/api/account/register",
-                        "/api/contact/login",
-                        "/api/contact/mailbox",
                         "/api/mailbox/**",
                         "/ws/**"
                 );
 
         registry.addInterceptor(jwtContactInterceptor)
-                .addPathPatterns(
-                        "/api/mailbox/**",
-                        "/api/contact/mailbox"
-                )
-                .excludePathPatterns("/ws/**");
+                .addPathPatterns("/api/mailbox/**")
+                .excludePathPatterns(
+                        "/api/mailbox/login",
+                        "/ws/**"
+                );
 
         log.info("Interceptors Initialized Successfully");
     }

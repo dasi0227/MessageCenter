@@ -108,21 +108,6 @@ CREATE TABLE IF NOT EXISTS dispatch (
     finished_at       DATETIME        DEFAULT NULL                COMMENT '完成时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息派发表';
 
--- 信箱
-DROP TABLE IF EXISTS mailbox;
-CREATE TABLE IF NOT EXISTS mailbox (
-    id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    inbox       BIGINT          NOT NULL                    COMMENT '信箱号',
-    department_name VARCHAR(32) NOT NULL                    COMMENT '发件人名',
-    subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
-    content     TEXT            NOT NULL                    COMMENT '消息内容',
-    attachments JSON                                        COMMENT '消息附件',
-    is_read     TINYINT         DEFAULT 0                   COMMENT '是否已读：0=未读，1=已读',
-    is_deleted  TINYINT         DEFAULT 0                   COMMENT '是否删除：0=正常，1=删除',
-    arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间',
-    read_at     DATETIME        DEFAULT NULL                COMMENT '阅读时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE failure (
     id              BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
     dispatch_id     VARCHAR(64)     NOT NULL                    COMMENT '分发 id',
@@ -133,4 +118,18 @@ CREATE TABLE failure (
     created_at      DATETIME        NOT NULL                    COMMENT '创建时间',
     resolved_at     DATETIME        DEFAULT NULL                COMMENT '解决时间',
     payload         JSON            NOT NULL                    COMMENT '原始 Dispatch'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 信箱
+DROP TABLE IF EXISTS mailbox;
+CREATE TABLE IF NOT EXISTS mailbox (
+    id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
+    inbox       BIGINT          NOT NULL                    COMMENT '信箱号',
+    department_name VARCHAR(32) NOT NULL                    COMMENT '发件人名',
+    subject     VARCHAR(128)    NOT NULL                    COMMENT '消息标题',
+    content     TEXT            NOT NULL                    COMMENT '消息内容',
+    attachments JSON                                        COMMENT '消息附件',
+    is_read     TINYINT         DEFAULT 0                   COMMENT '是否已读：0=未读，1=已读',
+    is_deleted  TINYINT         DEFAULT 0                   COMMENT '是否删除：0=正常，1=删除',
+    arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

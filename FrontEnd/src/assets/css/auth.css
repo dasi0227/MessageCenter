@@ -1,0 +1,94 @@
+/* ========= 页面布局 ========= */
+.auth-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    background: #eef2f7;
+}
+
+.auth-card {
+    width: 70%;
+    max-width: 420px;
+    z-index: 10;
+    text-align: center;
+    padding: 10px 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background: white;
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 50px;
+    font-size: 40px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-actions {
+    margin-top: 35px;
+}
+
+.big-form {
+    font-size: 18px !important;
+}
+
+.big-form .el-form-item__label-wrap {
+    display: flex;
+    align-items: flex-start !important;
+}
+
+.big-form .el-form-item__label {
+    font-size: 18px !important;
+    line-height: 46px !important;
+}
+
+.big-form .el-input__wrapper {
+    font-size: 18px !important;
+    height: 46px !important;
+    padding: 1px 12px !important;
+}
+
+.big-form .el-input__wrapper input {
+    font-size: 18px !important;
+}
+
+.big-form .el-button {
+    font-size: 17px !important;
+    height: 42px !important;
+}
+
+/* ========= 炫酷弹幕背景 ========= */
+.danmu-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.danmu-item {
+    position: absolute;
+    left: -300px;
+
+    font-weight: 700;
+    white-space: nowrap;
+    filter: blur(0.5px);
+    opacity: 0.12;
+
+    background: linear-gradient(90deg, #5dade2, #a569bd, #48c9b0, #f4d03f);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+
+    animation-name: danmu-move;
+    animation-timing-function: linear;
+}
+
+@keyframes danmu-move {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(160vw); }
+}

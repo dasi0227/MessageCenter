@@ -1,0 +1,44 @@
+.page-box {
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.filter {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.link {
+    cursor: pointer;
+    color: #409eff;
+}
+
+.content-box {
+    background: #f5f7fa;
+    padding: 10px;
+    white-space: pre-wrap;
+    border-radius: 5px;
+}
+
+.el-table__body .el-table__row.row-unread {
+    background: #fff5f5 !important;
+}
+
+.el-table__body .el-table__row.row-read {
+    background: #f6fff6 !important;
+}
+
+.refresh-time {
+    display: inline-block;
+    margin-left: 4px;
+    margin-bottom: 15px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #0b3d2e;
+    background: #c8f3da; 
+    border-radius: 4px;
+}

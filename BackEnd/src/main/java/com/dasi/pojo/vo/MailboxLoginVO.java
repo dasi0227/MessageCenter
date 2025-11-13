@@ -3,7 +3,7 @@ package com.dasi.pojo.vo;
 import lombok.Data;
 
 @Data
-public class ContactLoginVO {
+public class MailboxLoginVO {
     private String name;
     private Long inbox;
     private String phone;

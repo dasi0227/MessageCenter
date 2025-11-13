@@ -14,10 +14,10 @@ public class DepartmentAddDTO {
     private String address;
     @NotBlank(message = "部门描述不能为空")
     private String description;
-    @NotBlank
+    @NotBlank(message = "手机号不能为空")
     @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式错误")
     private String phone;
-    @NotBlank
+    @NotBlank(message = "邮箱不能为空")
     @Pattern(regexp = "^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,6}$", message = "邮箱格式错误")
     private String email;
     private LocalDateTime createdAt;

@@ -89,7 +89,7 @@
 import { ref, onMounted } from 'vue'
 import request from '../api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { formatDate } from '../utils/format'
+import { formatDate } from '../util/format'
 
 const name = ref('')
 const selectedRole = ref('')

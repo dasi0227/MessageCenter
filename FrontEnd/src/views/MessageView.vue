@@ -122,7 +122,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '../api/request'
 import { ElMessage } from 'element-plus'
-import { formatDate } from '../utils/format'
+import { formatDate } from '../util/format'
 
 const router = useRouter()
 

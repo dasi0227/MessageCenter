@@ -5,27 +5,19 @@ export const useAccountStore = defineStore('account', {
         id: null,
         name: '',
         role: '',
-        createdAt: '',
         token: ''
     }),
     getters: {
-        isLoggedIn: (s) => !!s.token
+        isLoggedIn: s => !!s.token
     },
     actions: {
         setAccount(vo) {
-            this.id = vo.id
-            this.name = vo.name
-            this.role = vo.role
-            this.createdAt = vo.createdAt
-            this.token = vo.token
+            this.$patch(vo)
             localStorage.setItem('account_state', JSON.stringify(this.$state))
         },
         loadAccount() {
             const raw = localStorage.getItem('account_state')
-            if (raw) {
-                const saved = JSON.parse(raw)
-                this.$patch(saved)
-            }
+            if (raw) this.$patch(JSON.parse(raw))
         },
         clearAccount() {
             this.$reset()

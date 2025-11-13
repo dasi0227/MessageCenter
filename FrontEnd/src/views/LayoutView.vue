@@ -3,7 +3,7 @@
         <!-- 左侧菜单栏 -->
         <el-aside :width="isCollapsed ? '32px' : '220px'" class="aside">
             <div class="aside-header" v-if="!isCollapsed">
-                <img class="avatar" src="https://dasi-blog.oss-cn-guangzhou.aliyuncs.com/Hexo/avatar.webp" alt="avatar" />
+                <img class="avatar" src="../assets/images/logo.png" alt="avatar" />
                 <div class="account-info">
                     <div class="name">{{ name }}</div>
                     <div class="role" :class="{ admin: role === 'ADMIN', user: role !== 'ADMIN' }">
@@ -52,7 +52,7 @@
             <!-- 顶部导航栏 -->
             <el-header class="header" :class="{ dark: darkMode }">
             <div class="header-left">
-                <span class="brand">MessageCenter {{ pageTitle }}</span>
+                <span class="brand">📮 Dasi MessageCenter {{ pageTitle }}</span>
             </div>
 
                 <div class="header-right">
@@ -138,7 +138,7 @@
             <!-- 底部信息栏 -->
             <el-footer class="footer" :class="{ dark: darkMode }">
                 <div class="footer-content">
-                    <span>© 2025 Dasi · MessageCenter · V2.0</span>
+                    <span>© 2025 Dasi · MessageCenter · V3.0</span>
                     <div class="links">
                         <a href="https://dasi.plus" target="_blank">
                             <el-icon><Link /></el-icon>
@@ -392,7 +392,7 @@ const refreshPage = async () => {
     color: #f0f0f0;
 }
 .header-left .brand {
-    font-size: 30px;
+    font-size: 35px;
     font-weight: bold;
 }
 .header-right {

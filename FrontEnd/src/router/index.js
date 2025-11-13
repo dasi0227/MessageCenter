@@ -1,10 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAccountStore } from '../store/account'
+import { useContactStore } from '../store/contact'
 
 // 基础视图
 import Login        from '../views/LoginView.vue'
 import Register     from '../views/RegisterView.vue'
 import Layout       from '../views/LayoutView.vue'
+
+// 站内信视图
+import MailboxLogin  from '../views/mailbox/MailboxLoginView.vue'
+import MailboxLayout from '../views/mailbox/MailboxLayoutView.vue'
+import Reserve       from '../views/mailbox/ReservePageView.vue'
+import Recycle       from '../views/mailbox/RecyclePageView.vue'
 
 // 功能模块视图
 import Dashboard    from '../views/DashboardView.vue'
@@ -24,6 +31,23 @@ import Failure      from '../views/FailureView.vue'
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        // ======================
+        // C 端：联系人系统
+        // ======================
+        { path: '/mailbox/login', component: MailboxLogin, meta: { title: '联系人登录', mailbox: true } },
+        {
+            path: '/mailbox',
+            component: MailboxLayout,
+            meta: { mailbox: true },
+            children: [
+                { path: 'reserve', component: Reserve, meta: { title: '收件箱', mailbox: true } },
+                { path: 'recycle', component: Recycle, meta: { title: '回收站', mailbox: true } }
+            ]
+        },
+
+        // ======================
+        // B 端：后台系统
+        // ======================
         { path: '/', redirect: '/login' },
         { path: '/login', component: Login, meta: { title: '登录' } },
         { path: '/register', component: Register, meta: { title: '注册' } },
@@ -49,16 +73,30 @@ const router = createRouter({
 
 // 全局前置守卫
 router.beforeEach((to) => {
-    const publicPages = ['/login', '/register']
     const account = useAccountStore()
-    account.loadAccount()
+    const contact = useContactStore()
 
-    // 未登录访问私有页 → 跳登录
+    account.loadAccount()
+    contact.loadContact()
+
+    // ======================
+    // C 端：联系人系统
+    // ======================
+    if (to.meta.mailbox) {
+        if (!contact.isLoggedIn && to.path !== '/mailbox/login') {
+            return '/mailbox/login'
+        }
+        document.title = `Mailbox ${to.meta.title || ''}`
+        return
+    }
+
+    // ======================
+    // B 端：后台系统
+    // ======================
+    const publicPages = ['/login', '/register']
     if (!publicPages.includes(to.path) && !account.isLoggedIn) {
         return '/login'
     }
-
-    // 动态修改标题
     document.title = to.meta.title
         ? `MessageCenter ${to.meta.title}`
         : 'MessageCenter 控制台'

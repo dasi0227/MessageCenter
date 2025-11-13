@@ -1,5 +1,6 @@
 package com.dasi.core.channel;
 
+import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.constant.SendConstant;
 import com.dasi.common.constant.SystemConstant;
 import com.dasi.common.enumeration.MsgStatus;
@@ -15,6 +16,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -78,6 +80,7 @@ public class MessageSender {
         }
     }
 
+    @CacheEvict(value = RedisConstant.CACHE_MAILBOX_PREFIX, allEntries = true)
     public void sendMailbox(Dispatch dispatch) {
         try {
             Mailbox mailbox = Mailbox.builder()
