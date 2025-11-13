@@ -1,8 +1,0 @@
-现在是这样的，我要实现站内信箱的查看页面，但不再是一个管理界面风格，而是提供给Contact使用的，一样使用element-plus，设计要求如下
-- 只需要有个登陆界面，不需要有注册，
-- 顶部有个导航栏，只提供了收件箱和回收站两个方法，分页展示
-- 如果是收件箱，就只查询 isDeleted=0 的，而 isRead可以为1，0，null；如果是回收站，就查询 isDeleted=1 的，而 isRead 固定为 null
-- 数据表格上面有个筛选，可以根据 content、subject、departmentName 进行过滤
-- 数据表格只展示 departmentName、subject、content（十几个字即可，后面,,,，点击一样触发查看详情）、操作（查看详情、已读未读滑块、删除）
-- 在收件箱删除调用 delete，在回收站删除调用 remove
-- 点击右上角可以查看当前 Contact 的信息

@@ -3,10 +3,12 @@ package com.dasi.core.controller;
 import com.dasi.common.annotation.RateLimit;
 import com.dasi.common.enumeration.MsgChannel;
 import com.dasi.common.enumeration.MsgStatus;
+import com.dasi.common.properties.ModelProperties;
 import com.dasi.common.result.PageResult;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.MessageService;
 import com.dasi.pojo.dto.DispatchPageDTO;
+import com.dasi.pojo.dto.PromptDTO;
 import com.dasi.pojo.dto.MessagePageDTO;
 import com.dasi.pojo.dto.MessageSendDTO;
 import com.dasi.pojo.entity.Dispatch;
@@ -23,6 +25,9 @@ public class MessageController {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private ModelProperties modelProperties;
 
     @RateLimit(
             key = "#dto.departmentName",
@@ -57,6 +62,18 @@ public class MessageController {
     @PostMapping("/detail")
     public Result<PageResult<Dispatch>> getMessageDetail(@Valid @RequestBody DispatchPageDTO dto) {
         PageResult<Dispatch> result = messageService.getMessageDetail(dto);
+        return Result.success(result);
+    }
+
+    @PostMapping("/call")
+    public Result<String> getLlmMessage(@Valid @RequestBody PromptDTO dto) {
+        String result = messageService.getLlmMessage(dto);
+        return Result.success(result);
+    }
+
+    @GetMapping("/model/list")
+    public Result<List<String>> getModelList() {
+        List<String> result = modelProperties.getModelList();
         return Result.success(result);
     }
 }

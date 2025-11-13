@@ -103,17 +103,33 @@
             </div>
 
             <!-- 内容 -->
-            <div class="form-row">
+            <div class="form-row content-row">
                 <span class="label">内容：</span>
-                <el-input
-                    type="textarea"
-                    v-model="content"
-                    :rows="8"
-                    placeholder="请输入消息内容"
-                    style="width:600px"
-                />
+
+                <div class="content-wrapper">
+                    <el-input
+                        type="textarea"
+                        v-model="content"
+                        :rows="8"
+                        placeholder="请输入消息内容"
+                        style="width:600px"
+                    />
+
+                    <!-- 悬浮 AI 按钮 -->
+                    <div class="ai-float-btn" @click="openAIDialog" v-if="!aiLoading">
+                        <el-icon><MagicStick /></el-icon>
+                        AI 帮写
+                    </div>
+
+                    <!-- Loading 状态 -->
+                    <div class="ai-float-loading" v-if="aiLoading">
+                        <el-icon class="is-loading"><Loading /></el-icon>
+                        正在生成...
+                    </div>
+                </div>
             </div>
 
+            <!-- 按钮 -->
             <div class="form-row" style="margin-top:20px">
                 <el-button type="primary" @click="handleSend">发送</el-button>
                 <el-button @click="resetForm">重置</el-button>
@@ -213,6 +229,33 @@
                 <el-button type="primary" @click="confirmSchedule">确定</el-button>
             </template>
         </el-dialog>
+
+        <!-- AI Prompt 输入弹窗 -->
+        <el-dialog v-model="aiDialogVisible" title="🪄 AI 帮写" width="450px">
+            <!-- 模型选择 -->
+            <el-form-item label="模型">
+                <el-select v-model="selectedModel" placeholder="选择模型" style="width: 100%">
+                    <el-option
+                        v-for="m in modelList"
+                        :key="m"
+                        :label="m"
+                        :value="m"
+                    />
+                </el-select>
+            </el-form-item>
+
+            <!-- Prompt 输入 -->
+            <el-input
+                type="textarea"
+                v-model="aiPrompt"
+                placeholder="想让 AI 写什么..."
+                :rows="4"
+            />
+            <template #footer>
+                <el-button @click="aiDialogVisible=false">取消</el-button>
+                <el-button type="primary" @click="callAI">生成</el-button>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -221,6 +264,7 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import request from '../api/request'
 import { ElMessage } from 'element-plus'
+import { Loading, MagicStick } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -252,6 +296,10 @@ const departmentSearch = ref('')
 const contactSearch = ref('')
 const templateSearch = ref('')
 
+// ---------- AI ----------
+const modelList = ref([])
+const selectedModel = ref('')
+
 // ---------- 过滤（缺失这三处会导致整页白屏） ----------
 const filteredDepartments = computed(() =>
     departmentList.value.filter(d =>
@@ -271,7 +319,8 @@ const filteredTemplates = computed(() =>
 
 // ---------- 初始化 ----------
 onMounted(async () => {
-    const [depRes, contactRes, tempRes, channelRes] = await Promise.all([
+    const [modelRes, depRes, contactRes, tempRes, channelRes] = await Promise.all([
+        request.get('/message/model/list'),
         request.get('/department/list'),
         request.get('/contact/list'),
         request.get('/template/list'),
@@ -281,9 +330,10 @@ onMounted(async () => {
     if (contactRes.data.code === 200) contactList.value = contactRes.data.data
     if (tempRes.data.code === 200) templateList.value = tempRes.data.data
     if (channelRes.data.code === 200) channelList.value = channelRes.data.data
+    if (modelRes.data.code === 200) { modelList.value = modelRes.data.data, selectedModel.value = modelList.value[0] || '' }
 
     await nextTick()
-
+    
     if (route.query.fromResend === '1') {
         const {
             departmentId,
@@ -473,6 +523,44 @@ const resetForm = () => {
         router.replace({ path: '/send' })
     }
 }
+
+// ---------- AI ----------
+const aiDialogVisible = ref(false)
+const aiPrompt = ref('')
+const aiLoading = ref(false)
+
+const openAIDialog = () => {
+    aiPrompt.value = ''
+    aiDialogVisible.value = true
+}
+
+const callAI = async () => {
+    if (!aiPrompt.value.trim()) {
+        ElMessage.warning("请输入 Prompt")
+        return
+    }
+
+    aiDialogVisible.value = false
+    aiLoading.value = true
+
+    try {
+        const { data } = await request.post('/message/call', {
+            model: selectedModel.value,
+            prompt: aiPrompt.value
+        })
+
+        if (data.code === 200) {
+            content.value = data.data || ''
+            ElMessage.success("生成完成")
+        } else {
+            ElMessage.error(data.msg || "AI 生成失败")
+        }
+    } catch {
+        ElMessage.error("网络异常，生成失败")
+    } finally {
+        aiLoading.value = false
+    }
+}
 </script>
 
 <style scoped>
@@ -488,4 +576,45 @@ const resetForm = () => {
 .dialog-buttons{display:flex;gap:8px;}
 .dialog-table-wrapper{height:360px;overflow-y:auto;}
 .selected-row{background-color:#d9ecff!important;}
+.content-row {
+    position: relative;
+}
+.content-wrapper {
+    position: relative;
+    width: 600px;
+}
+.ai-float-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    background: linear-gradient(135deg, rgba(93,133,255,0.9), rgba(147,97,255,0.9));
+    border: 1px solid #409eff;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 13px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.2s;
+}
+.ai-float-btn:hover {
+    box-shadow: 0 0 8px rgba(138, 92, 255, 0.55);
+    transform: translateY(-1px);
+}
+.ai-float-loading {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid #e6a23c;
+    color: #e6a23c;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
 </style>

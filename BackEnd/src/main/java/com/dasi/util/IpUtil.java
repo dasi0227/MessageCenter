@@ -2,6 +2,7 @@ package com.dasi.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+@SuppressWarnings("unused")
 public class IpUtil {
 
     /**
