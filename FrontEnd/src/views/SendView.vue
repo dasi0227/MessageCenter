@@ -49,7 +49,7 @@
                     <div class="file-list">
                         <el-tag
                             v-for="(f, i) in attachments"
-                            :key="f.name+i"
+                            :key="f.url"
                             closable
                             type="success"
                             @close="removeFile(i)"
@@ -320,7 +320,7 @@ const filteredTemplates = computed(() =>
 // ---------- 初始化 ----------
 onMounted(async () => {
     const [modelRes, depRes, contactRes, tempRes, channelRes] = await Promise.all([
-        request.get('/message/model/list'),
+        request.get('/system/models'),
         request.get('/department/list'),
         request.get('/contact/list'),
         request.get('/template/list'),
@@ -453,10 +453,30 @@ const formatSchedule = (time) => (time ? time : '')
 // ---------- 附件 ----------
 const fileInputRef = ref(null)
 const triggerFileSelect = () => fileInputRef.value?.click()
-const handleFileChange = (e) => {
+const handleFileChange = async (e) => {
     const files = Array.from(e.target.files || [])
-    attachments.value = attachments.value.concat(files.map(f => ({ name: f.name })))
     e.target.value = ''
+
+    for (const file of files) {
+        const form = new FormData()
+        form.append("file", file)
+
+        try {
+            const { data } = await request.post('/oss/upload', form)
+
+            if (data.code === 200) {
+                attachments.value.push({
+                    name: file.name,
+                    url: data.data
+                })
+            } else {
+                ElMessage.error(data.msg || '文件上传失败')
+            }
+
+        } catch {
+            ElMessage.error('网络异常，上传失败')
+        }
+    }
 }
 const removeFile = (i) => attachments.value.splice(i, 1)
 
@@ -489,7 +509,7 @@ const handleSend = async () => {
             channel: selectedChannel.value,
             subject: sanitize(subject.value),
             content: sanitize(content.value),
-            attachments: attachments.value.map(f => f.name),
+            attachments: attachments.value.map(f => f.url),
             departmentId: selectedDepartment.value.id,
             departmentName: selectedDepartment.value.name,
             contactIds: selectedContacts.value.map(c => c.id),
@@ -544,7 +564,7 @@ const callAI = async () => {
     aiLoading.value = true
 
     try {
-        const { data } = await request.post('/message/call', {
+        const { data } = await request.post('/system/llm', {
             model: selectedModel.value,
             prompt: aiPrompt.value
         })

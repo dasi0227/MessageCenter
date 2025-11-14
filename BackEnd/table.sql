@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS template (
     subject     VARCHAR(128)    DEFAULT NULL                COMMENT '标题',
     content     TEXT            NOT NULL                    COMMENT '正文',
     created_at  DATETIME        NOT NULL                    COMMENT '创建时间',
-updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
+    updated_at  DATETIME        NOT NULL                    COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS sensitive_word;
@@ -133,3 +133,15 @@ CREATE TABLE IF NOT EXISTS mailbox (
     is_deleted  TINYINT         DEFAULT 0                   COMMENT '是否删除：0=正常，1=删除',
     arrived_at  DATETIME        NOT NULL                    COMMENT '到达时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS oss_file;
+CREATE TABLE oss_file (
+    id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
+    message_id  BIGINT          DEFAULT NULL                COMMENT '消息 id',
+    name        VARCHAR(64)     NOT NULL                    COMMENT '文件原始名字',
+    url         VARCHAR(512)    NOT NULL UNIQUE             COMMENT '云存储路径',
+    used        TINYINT         NOT NULL DEFAULT 0          COMMENT '是否使用',
+    uploaded_by BIGINT          NOT NULL                    COMMENT '上传账号',
+    uploaded_at DATETIME        NOT NULL                    COMMENT '上传时间',
+    sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间'
+);

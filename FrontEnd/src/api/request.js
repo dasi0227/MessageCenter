@@ -13,7 +13,9 @@ const request = axios.create({
 
 // 序列化
 request.interceptors.request.use((config) => {
-    if (config.data) config.data = normalize(config.data)
+    if (config.data && !(config.data instanceof FormData)) {
+        config.data = normalize(config.data)
+    }
 
     const isMailbox = config.url.startsWith('/mailbox')
 

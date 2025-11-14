@@ -40,7 +40,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> fail(ResultInfo resultInfo, String message) {
         Result<T> result = new Result<>();
         result.setCode(resultInfo.getCode());
-        result.setMsg((resultInfo.getMessage() + ": " + message));
+        result.setMsg((resultInfo.getMessage() + "：" + message));
         return result;
     }
 }

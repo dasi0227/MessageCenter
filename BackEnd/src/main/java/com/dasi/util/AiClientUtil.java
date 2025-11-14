@@ -1,8 +1,6 @@
 package com.dasi.util;
 
 import cn.hutool.json.JSONUtil;
-import com.dasi.common.enumeration.ResultInfo;
-import com.dasi.common.exception.MessageCenterException;
 import com.dasi.common.properties.ModelProperties;
 import com.dasi.common.properties.ModelProperties.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -37,21 +35,16 @@ public class AiClientUtil {
                 "temperature", 0.6
         );
 
-        try {
-            String response = webClient.post()
-                    .uri(apiParam.getUrl())
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiParam.getKey())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-            String result = JSONUtil.parseObj(response).getByPath("choices[0].message.content", String.class);
-            log.debug("AI 调用 {} 成功：{}", model, result);
-            return result;
-        } catch (Exception exception) {
-            log.error("AI 调用 {} 失败：{}", model, exception.getMessage());
-            throw new MessageCenterException(ResultInfo.CALL_LLM_ERROR);
-        }
+        String response = webClient.post()
+                .uri(apiParam.getUrl())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiParam.getKey())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        String result = JSONUtil.parseObj(response).getByPath("choices[0].message.content", String.class);
+        log.debug("【{} 调用】获取响应：{}", model, result);
+        return result;
     }
 }

@@ -5,19 +5,22 @@ import lombok.Getter;
 @Getter
 public enum ResultInfo {
 
-    // ====== 系统层 ======
     REQUEST_SUCCESS                 (200, "操作成功"),
     REQUEST_FAIL                    (400, "请求失败"),
     TOKEN_MISSING                   (401, "缺少认证令牌"),
     TOKEN_INVALID                   (402, "无效的令牌"),
     TOKEN_EXPIRED                   (403, "令牌已过期"),
-    SERVER_ERROR                    (500, "服务器内部错误"),
-    DATABASE_ERROR                  (501, "MySQL 错误"),
-    REDIS_ERROR                     (502, "Redis 错误"),
-    RATE_LIMIT_ERROR                (503, "限流错误"),
-    PARAM_VALIDATE_FAIL             (504, "参数校验失败"),
-    PATH_VALIDATE_FAIL              (505, "路径校验失败"),
-    CALL_LLM_ERROR                  (506, "调用大模型错误"),
+    PATH_VALIDATE_FAIL              (500, "路径校验失败"),
+    FILE_UPLOAD_FAIL                (501, "文件上传失败"),
+
+    JVM_ERROR                       (600, "JVM 错误"),
+    MYSQL_ERROR                     (601, "MySQL 错误"),
+    REDIS_ERROR                     (602, "Redis 错误"),
+    LLM_ERROR                       (603, "AI 模型调用错误"),
+    OSS_ERROR                       (604, "云存储错误"),
+    MQ_ERROR                        (605, "消息队列错误"),
+    RATE_ERROR                      (606, "限流错误"),
+    PARAM_ERROR                     (607, "传参错误"),
 
     ACCOUNT_PERMISSION_DENIED       (1001, "账户权限不足"),
     ACCOUNT_NOT_FOUND               (1002, "账户不存在"),
@@ -34,7 +37,7 @@ public enum ResultInfo {
     RENDER_REMOVE_FAIL              (1013, "系统预设字段不可删除"),
     UNIQUE_FIELD_CONFLICT           (1014, "名称已存在"),
     MESSAGE_NOT_FOUND               (1015, "消息不存在"),
-    UNKNOWN_ERROR                   (1999, "未知错误");
+    FILE_TOO_LARGE                  (1016, "上传文件过大，不允许超过 1 MB");
 
     private final int code;
     private final String message;

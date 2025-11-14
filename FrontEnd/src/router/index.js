@@ -10,8 +10,7 @@ import Layout       from '../views/LayoutView.vue'
 // 站内信视图
 import MailboxLogin  from '../views/mailbox/MailboxLoginView.vue'
 import MailboxLayout from '../views/mailbox/MailboxLayoutView.vue'
-import Reserve       from '../views/mailbox/ReservePageView.vue'
-import Recycle       from '../views/mailbox/RecyclePageView.vue'
+import MailboxPage   from '../views/mailbox/MailboxPageView.vue'
 
 // 功能模块视图
 import Dashboard    from '../views/DashboardView.vue'
@@ -40,8 +39,8 @@ const router = createRouter({
             component: MailboxLayout,
             meta: { mailbox: true },
             children: [
-                { path: 'reserve', component: Reserve, meta: { title: '收件箱', mailbox: true } },
-                { path: 'recycle', component: Recycle, meta: { title: '回收站', mailbox: true } }
+                { path: 'reserve', component: MailboxPage, meta: { title: '收件箱', mailbox: true, isRecycle: false } },
+                { path: 'recycle', component: MailboxPage, meta: { title: '回收站', mailbox: true, isRecycle: true } }
             ]
         },
 

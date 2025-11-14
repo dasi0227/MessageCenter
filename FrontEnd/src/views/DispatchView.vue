@@ -6,10 +6,23 @@
             <el-card class="message-info" shadow="never">
                 <div class="info-item"><strong>账户：</strong>{{ messageInfo.accountName || '—' }}</div>
                 <div class="info-item"><strong>部门：</strong>{{ messageInfo.departmentName || '—' }}</div>
+                <div class="info-item">
+                    <strong>附件：</strong>
+                    <span v-if="attachmentNames.length">
+                        <span
+                            v-for="(name, idx) in attachmentNames"
+                            :key="idx"
+                            class="attachment-link"
+                            @click="downloadAttachment(idx)"
+                        >
+                            {{ name }}<span v-if="idx < attachmentNames.length - 1">、</span>
+                        </span>
+                    </span>
+                    <span v-else>无</span>
+                </div>
                 <div class="info-item"><strong>原始标题：</strong>{{ messageInfo.subject || '—' }}</div>
-                <div class="info-item truncate-content">
-                    <strong>原始内容：</strong>
-                    <span>{{ messageInfo.content || '—' }}</span>
+                <div class="info-item truncate-content"><strong>原始内容：</strong>
+                    <div class="content-box">{{ messageInfo.content || '—' }}</div>
                 </div>
             </el-card>
         </div>
@@ -127,7 +140,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import request from '../api/request'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { formatDate } from '../util/format'
 
 const router = useRouter()
@@ -145,6 +158,7 @@ const selectedContact = ref(null)
 const selectedStatus = ref(null)
 const contactList = ref([])
 const statusList = ref([])
+const attachmentNames = ref([])
 
 // 详情弹窗
 const detailVisible = ref(false)
@@ -152,6 +166,23 @@ const detail = ref({})
 
 // 顶部消息信息
 const messageInfo = ref({})
+
+// 附件弹窗下载
+const downloadAttachment = (idx) => {
+    const url = messageInfo.value.attachments[idx]
+    const name = attachmentNames.value[idx]
+
+    ElMessageBox.confirm(
+        `是否下载附件：${name}？`,
+        '提示',
+        { confirmButtonText: '下载', cancelButtonText: '取消', type: 'info' }
+    ).then(() => {
+        const a = document.createElement('a')
+        a.href = url
+        a.download = name
+        a.click()
+    })
+}
 
 // 初始化选项
 const initOptions = async () => {
@@ -164,6 +195,15 @@ const initOptions = async () => {
         if (contactRes.data.code === 200)   contactList.value = contactRes.data.data
         if (statusRes.data.code === 200)    statusList.value = statusRes.data.data
         if (msgRes.data.code === 200)       messageInfo.value = msgRes.data.data
+
+        if (messageInfo.value.attachments?.length) {
+            const { data } = await request.post('/oss/name', {
+                urls: messageInfo.value.attachments
+            })
+            if (data.code === 200) {
+                attachmentNames.value = data.data
+            }
+        }
     } catch {
         ElMessage.error('初始化数据失败')
     }
@@ -245,6 +285,13 @@ onMounted(async () => {
     flex-direction: column;
     gap: 6px;
 }
+.content-box {
+    margin-top: 10px;
+    background: #f5f7fa;
+    padding: 10px;
+    white-space: pre-wrap;
+    border-radius: 5px;
+}
 .truncate-content span {
     display: -webkit-box;
     line-clamp: 3;
@@ -289,6 +336,14 @@ onMounted(async () => {
 }
 .status-tag.pending {
     background-color: #909399;
+}
+.attachment-link {
+    color: #409eff;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.attachment-link:hover {
+    text-decoration: underline;
 }
 :deep(.el-descriptions__label) {
     width: 120px !important; /* 固定标签宽度 */

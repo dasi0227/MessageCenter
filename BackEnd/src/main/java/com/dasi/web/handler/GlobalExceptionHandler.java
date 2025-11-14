@@ -1,10 +1,13 @@
 package com.dasi.web.handler;
 
+import com.aliyun.oss.ClientException;
+import com.aliyun.oss.OSSException;
 import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.MessageCenterException;
 import com.dasi.common.exception.RateLimitException;
 import com.dasi.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,53 +17,64 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
     @ExceptionHandler
     public Result<Void> exceptionHandler(MessageCenterException exception) {
         ResultInfo resultInfo = exception.getResultInfo();
-        log.error("【消息中心错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage());
+        log.error("【消息中心业务错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage());
+        exception.printStackTrace(System.err);
         return Result.fail(resultInfo);
     }
 
     @ExceptionHandler
     public Result<Void> exceptionHandler(MethodArgumentNotValidException exception) {
-        ResultInfo resultInfo = ResultInfo.PARAM_VALIDATE_FAIL;
+        ResultInfo resultInfo = ResultInfo.PARAM_ERROR;
         String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.error("【参数校验错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
-        return Result.fail(resultInfo, message);
+        exception.printStackTrace(System.err);
+        return solveException(ResultInfo.PARAM_ERROR, exception);
     }
 
     @ExceptionHandler
     public Result<Void> exceptionHandler(RateLimitException exception) {
-        ResultInfo resultInfo = ResultInfo.RATE_LIMIT_ERROR;
-        String message = exception.getMessage();
-        log.error("【限流错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
-        return Result.fail(resultInfo, message);
+        return solveException(ResultInfo.RATE_ERROR, exception);
     }
 
-    @ExceptionHandler(RedisSystemException.class)
+    @ExceptionHandler
     public Result<Void> handleRedisSystemException(RedisSystemException exception) {
-        ResultInfo resultInfo = ResultInfo.REDIS_ERROR;
-        String message = exception.getMostSpecificCause().getMessage();
-        log.error("【Redis执行异常】Code={}, Message={}", resultInfo.getCode(), message);
-        exception.printStackTrace();
-        return Result.fail(resultInfo, message);
+        return solveException(ResultInfo.REDIS_ERROR, exception);
     }
 
     @ExceptionHandler
     public Result<Void> exceptionHandler(DataAccessException exception) {
-        ResultInfo resultInfo = ResultInfo.DATABASE_ERROR;
-        String message = exception.getMessage();
-        log.error("【数据库错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
-        exception.printStackTrace();
-        return Result.fail(resultInfo, message);
+        return solveException(ResultInfo.MYSQL_ERROR, exception);
     }
 
     @ExceptionHandler
+    public Result<Void> exceptionHandler(AmqpException exception) {
+        return solveException(ResultInfo.MQ_ERROR, exception);
+    }
+
+    @ExceptionHandler
+    public Result<Void> exceptionHandler(OSSException exception) {
+        return solveException(ResultInfo.OSS_ERROR, exception);
+    }
+
+    @ExceptionHandler
+    public Result<Void> exceptionHandler(ClientException exception) {
+        return solveException(ResultInfo.OSS_ERROR, exception);
+    }
+
+
+    @ExceptionHandler
     public Result<Void> exceptionHandler(Exception exception) {
-        ResultInfo resultInfo = ResultInfo.SERVER_ERROR;
+        return solveException(ResultInfo.JVM_ERROR, exception);
+    }
+
+    private Result<Void> solveException(ResultInfo info, Exception exception) {
         String message = exception.getMessage();
-        log.error("【服务器错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
-        exception.printStackTrace();
-        return Result.fail(resultInfo, message);
+        log.error("【{}】Code={}, Message={}", info.getMessage(), info.getCode(), message);
+        exception.printStackTrace(System.err);
+        return Result.fail(info, message);
     }
 }

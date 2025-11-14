@@ -3,23 +3,20 @@
 
         <!-- 顶部导航 -->
         <el-header class="header">
-            <div class="left">
-                <strong>📮 Dasi Mailbox</strong>
-            </div>
-
-            <div class="nav">
-                <el-button link @click="$router.push('/mailbox/reserve')" :type="active === 'reserve' ? 'primary' : 'default'">
-                    收件箱
-                </el-button>
-                <el-button link @click="$router.push('/mailbox/recycle')" :type="active === 'recycle' ? 'primary' : 'default'">
-                    回收站
-                </el-button>
+            <div class="left-group">
+                <div class="left">
+                    <strong>📮 Dasi Mailbox</strong>
+                </div>
+                <div class="nav">
+                    <el-button link @click="$router.push('/mailbox/reserve')" :type="active === 'reserve' ? 'primary' : 'default'">✉️ 收件箱</el-button>
+                    <el-button link @click="$router.push('/mailbox/recycle')" :type="active === 'recycle' ? 'primary' : 'default'">🗑️ 回收站</el-button>
+                </div>
             </div>
 
             <div class="right">
                 <el-dropdown>
                     <span class="contact-info">
-                        {{ store.name }}（{{ store.inbox }}）
+                        🙎 {{ store.name }}（{{ store.inbox }}）
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -169,43 +166,48 @@ const submitEdit = async () => {
     font-weight: 700;
 }
 
-.header .left {
-    font-size: 40px !important;
+/* left + nav 放在同一个 flex 容器 */
+.left-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-.header .el-button,
-.header .el-dropdown,
+.left {
+    font-size: 40px !important;
+    font-weight: 700;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    margin-top: 7px;
+}
+
+/* 字体大小统一调大 */
+.header .el-button  {
+    font-size: 30px !important;
+    font-weight: 700;
+}
 .header .contact-info {
     font-size: 20px !important;
 }
 
-.left, .right {
+.right {
     display: flex;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.nav {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    gap: 25px;
     align-items: center;
 }
 
+/* 右侧 dropdown */
 .contact-info {
     cursor: pointer;
     color: #409eff;
-    outline: none !important;
-    -webkit-tap-highlight-color: transparent;
-}
-:deep(.el-dropdown) {
-    outline: none !important;
 }
 :deep(.el-dropdown *:focus) {
     outline: none !important;
     box-shadow: none !important;
 }
+
 /* 主体区域 */
 .main {
     flex: 1;
@@ -221,7 +223,6 @@ const submitEdit = async () => {
     align-items: center;
     justify-content: center;
 }
-
 .footer-content {
     display: flex;
     justify-content: space-between;
@@ -230,18 +231,16 @@ const submitEdit = async () => {
     font-size: 14px;
     color: #666;
 }
-
 .links {
     display: flex;
     align-items: center;
     gap: 12px;
 }
-
 .links a {
+    color: #409eff;
+    text-decoration: none;
     display: flex;
     align-items: center;
     gap: 3px;
-    color: #409eff;
-    text-decoration: none;
 }
 </style>
