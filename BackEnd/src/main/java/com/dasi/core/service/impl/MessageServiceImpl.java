@@ -11,6 +11,8 @@ import com.dasi.common.constant.SendConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgStatus;
+import com.dasi.common.enumeration.ResultInfo;
+import com.dasi.common.exception.MessageCenterException;
 import com.dasi.common.exception.SendException;
 import com.dasi.common.properties.RabbitMqProperties;
 import com.dasi.common.result.PageResult;
@@ -252,6 +254,18 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             """.formatted(dto.getPrompt());
 
         return aiClientUtil.call(dto.getModel(), systemPrompt, userPrompt);
+    }
+
+    @Override
+    @Cacheable(value = RedisConstant.CACHE_MESSAGE_PREFIX, key = "'entity:' + '#id'")
+    public Message getMessage(Long id) {
+        Message message = getById(id);
+
+        if (message == null) {
+            throw new MessageCenterException(ResultInfo.MESSAGE_NOT_FOUND);
+        }
+
+        return message;
     }
 
 }

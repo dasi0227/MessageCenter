@@ -53,6 +53,12 @@ public class MessageController {
         return Result.success(result);
     }
 
+    @GetMapping("/{id}")
+    public Result<Message> getMessage(@PathVariable Long id) {
+        Message message = messageService.getMessage(id);
+        return Result.success(message);
+    }
+
     @PostMapping("/page")
     public Result<PageResult<Message>> getMessagePage(@Valid @RequestBody MessagePageDTO dto) {
         PageResult<Message> pageResult = messageService.getMessagePage(dto);
@@ -65,6 +71,11 @@ public class MessageController {
         return Result.success(result);
     }
 
+    @RateLimit(
+            limit = 10,
+            ttl = 10,
+            message = "繁忙中，请稍后重试！"
+    )
     @PostMapping("/call")
     public Result<String> getLlmMessage(@Valid @RequestBody PromptDTO dto) {
         String result = messageService.getLlmMessage(dto);

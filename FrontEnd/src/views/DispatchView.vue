@@ -156,16 +156,14 @@ const messageInfo = ref({})
 // 初始化选项
 const initOptions = async () => {
     try {
-        const [contactRes, statusRes, msgInfoRes] = await Promise.all([
+        const [contactRes, statusRes, msgRes] = await Promise.all([
             request.get('/contact/list'),
             request.get('/message/status/list'),
-            request.post('/message/page', { pageNum: 1, pageSize: 1, messageId })
+            request.get(`/message/${messageId}`)
         ])
-        if (contactRes.data.code === 200) contactList.value = contactRes.data.data
-        if (statusRes.data.code === 200) statusList.value = statusRes.data.data
-        if (msgInfoRes.data.code === 200 && msgInfoRes.data.data.records.length > 0) {
-            messageInfo.value = msgInfoRes.data.data.records[0]
-        }
+        if (contactRes.data.code === 200)   contactList.value = contactRes.data.data
+        if (statusRes.data.code === 200)    statusList.value = statusRes.data.data
+        if (msgRes.data.code === 200)       messageInfo.value = msgRes.data.data
     } catch {
         ElMessage.error('初始化数据失败')
     }
@@ -203,8 +201,8 @@ const resend = (row) => {
             departmentId: messageInfo.value.departmentId,
             departmentName: messageInfo.value.departmentName,
             channel: messageInfo.value.channel,
-            subject: row.subject || messageInfo.value.subject,
-            content: row.content || messageInfo.value.content,
+            subject: messageInfo.value.subject,
+            content: messageInfo.value.content,
             contactIds: JSON.stringify([row.contactId]),
         },
     })

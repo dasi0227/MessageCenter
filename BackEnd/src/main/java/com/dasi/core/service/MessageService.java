@@ -18,4 +18,6 @@ public interface MessageService extends IService<Message> {
     PageResult<Dispatch> getMessageDetail(DispatchPageDTO dto);
 
     String getLlmMessage(@Valid PromptDTO dto);
+
+    Message getMessage(Long id);
 }

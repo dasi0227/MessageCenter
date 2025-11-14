@@ -230,7 +230,6 @@ const refreshAccount = async () => {
             account.token = newToken
             localStorage.setItem('account_state', JSON.stringify(account.$state))
             request.defaults.headers['Authorization-Account'] = newToken
-            console.log('✅ Account token refreshed:', newToken)
         } else {
             console.warn('⚠️ 刷新 token 失败:', data.msg || data)
         }

@@ -33,6 +33,7 @@ public enum ResultInfo {
     RENDER_UPDATE_FAIL              (1012, "系统预设字段不可修改"),
     RENDER_REMOVE_FAIL              (1013, "系统预设字段不可删除"),
     UNIQUE_FIELD_CONFLICT           (1014, "名称已存在"),
+    MESSAGE_NOT_FOUND               (1015, "消息不存在"),
     UNKNOWN_ERROR                   (1999, "未知错误");
 
     private final int code;
