@@ -1,0 +1,47 @@
+# MAKE
+/target/
+/out/
+/build/
+
+# PID
+*.pid
+hs_err_pid*
+replay_pid*
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+
+# MACOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# LOG
+*.log
+logs/
+log/
+
+# ENV
+.env
+.env.*
+
+# TEMP
+*.tmp
+*.bak
+*.backup
+*.old
+Thumbs.db
+
+# CACHE
+*.class
+*.war
+*.ear
+*.orig
+*.patched
+*.rej
