@@ -1,0 +1,106 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: message-center-test
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/message_center?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+  jackson:
+    time-zone: Asia/Shanghai
+    deserialization:
+      ACCEPT_EMPTY_STRING_AS_NULL_OBJECT: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD}
+      database: 0
+
+  cache:
+    type: redis
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: /message_center
+
+mybatis-plus:
+  global-config:
+    banner: false
+  type-handlers-package: com.baomidou.mybatisplus.extension.handlers
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+logging:
+  level:
+    root: warn
+    com.dasi: debug
+    com.zaxxer: error
+    com.baomidou.mybatisplus: error
+    org.mybatis: error
+  pattern:
+    console: "%d{MM-dd HH:mm:ss} %-5level %-40logger{1} - %msg%n"
+
+dasi:
+  mail:
+    port: 465
+    auth-codes:
+      "[${MAIL_QQ_EMAIL}@qq.com]":
+        password: ${MAIL_QQ_PASSWORD}
+        host: smtp.qq.com
+      "[${MAIL_163_EMAIL}@163.com]":
+        password: ${MAIL_163_PASSWORD}
+        host: smtp.163.com
+
+  jwt:
+    secret-key: ${JWT_SECRET}
+    signature-algorithm: ${JWT_ALGORITHM}
+    ttl: 720000000
+
+    account-token-name: Authorization-Account
+    account-id-claim-key: AccountId
+    account-role-claim-key: AccountRoleClaimKey
+    account-name-claim-key: AccountNameClaimKey
+
+    contact-token-name: Authorization-Contact
+    contact-id-claim-key: contactId
+    contact-inbox-claim-key: contactInbox
+
+  rabbitmq:
+    exchange: message_center_exchange
+    queue:
+      mailbox: mailbox_queue
+      email: email_queue
+      sms: sms_queue
+    route:
+      mailbox: mailbox_route
+      email: email_route
+      sms: sms_route
+    dlx-exchange: dlx_exchange
+    dlx-queue: dlq_queue
+    dlx-route: dlq_route
+
+  llm:
+    models:
+      deepseek-chat:
+        url: https://api.deepseek.com/chat/completions
+        key: ${DEEPSEEK_KEY}
+      kimi-k2-turbo-preview:
+        url: https://api.moonshot.cn/v1/chat/completions
+        key: ${KIMI_KEY}
+
+  oss:
+    endpoint: ${OSS_ENDPOINT}
+    access-key-id: ${OSS_ACCESS_KEY_ID}
+    access-key-secret: ${OSS_ACCESS_KEY_SECRET}
+    bucket: ${OSS_BUCKET}
