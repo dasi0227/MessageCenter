@@ -42,3 +42,10 @@
     background: #c8f3da; 
     border-radius: 4px;
 }
+.attachment-item-inline {
+    color: #409eff;
+    cursor: pointer;
+}
+.attachment-item-inline:hover {
+    text-decoration: underline;
+}
