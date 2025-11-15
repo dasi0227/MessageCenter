@@ -24,22 +24,26 @@ public class OssFile {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long messageId;
     private String url;
-    private String name;
+    private String fileName;
+    private String objectName;
     private Integer used;
     private Long uploadedBy;
     private LocalDateTime uploadedAt;
     private LocalDateTime sentAt;
+    private LocalDateTime clearAt;
 }
 
 /*
 CREATE TABLE oss_file (
     id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
     message_id  BIGINT          DEFAULT NULL                COMMENT '消息 id',
-    name        VARCHAR(64)     NOT NULL                    COMMENT '文件原始名字',
+    file_name   VARCHAR(64)     NOT NULL                    COMMENT '文件原始名字',
+    object_name VARCHAR(128)    NOT NULL                    COMMENT '存储对象名字',
     url         VARCHAR(512)    NOT NULL UNIQUE             COMMENT '云存储路径',
     used        TINYINT         NOT NULL DEFAULT 0          COMMENT '是否使用',
     uploaded_by BIGINT          NOT NULL                    COMMENT '上传账号',
     uploaded_at DATETIME        NOT NULL                    COMMENT '上传时间',
-    sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间'
+    sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间',
+    clear_at    DATETIME        DEFAULT NULL                COMMENT '清理时间'
 );
  */

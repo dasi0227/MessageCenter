@@ -24,7 +24,7 @@ public class DlxSender {
 
     public void sendDlx(Dispatch dispatch, Exception exception) {
         Failure failure = Failure.builder()
-                .dispatchId(String.valueOf(dispatch.getId()))
+                .dispatchId(dispatch.getId())
                 .errorType(exception.getClass().getName())
                 .errorMessage(exception.getMessage())
                 .errorStack(ExceptionUtil.stacktraceToString(exception))

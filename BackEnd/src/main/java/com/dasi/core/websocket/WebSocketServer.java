@@ -1,4 +1,4 @@
-package com.dasi.web.websocket;
+package com.dasi.core.websocket;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;

@@ -2,7 +2,7 @@ package com.dasi.core.channel;
 
 import com.dasi.core.service.FailureService;
 import com.dasi.pojo.entity.Failure;
-import com.dasi.web.websocket.WebSocketServer;
+import com.dasi.core.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;

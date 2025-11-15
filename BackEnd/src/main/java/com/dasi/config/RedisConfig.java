@@ -48,7 +48,7 @@ public class RedisConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-        log.info("RedisCacheManager Initialized Successfully");
+        log.info("【Config】Initialized Successfully：RedisCacheManager");
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
@@ -65,7 +65,7 @@ public class RedisConfig {
         template.setHashValueSerializer(new StringRedisSerializer());
 
         template.afterPropertiesSet();
-        log.info("StringRedisTemplate Initialized Successfully");
+        log.info("【Config】Initialized Successfully：StringRedisTemplate");
         return template;
     }
 }

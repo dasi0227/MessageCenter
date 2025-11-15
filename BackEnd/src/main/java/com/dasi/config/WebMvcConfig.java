@@ -46,6 +46,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/ws/**"
                 );
 
-        log.info("Interceptors Initialized Successfully");
+        log.info("【Config】Initialized Successfully：Interceptors");
     }
 }

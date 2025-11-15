@@ -56,11 +56,22 @@
             </div>
 
                 <div class="header-right">
-                    <el-button link class="notify-btn" @click="goFailurePage">
-                        <el-badge :value="unsolvedNum" :hidden="unsolvedNum === 0" type="danger">
-                            <el-icon size="22"><WarningFilled /></el-icon>
-                        </el-badge>
-                    </el-button>
+                    <div class="header-icons">
+                    <!-- 打开站内信 -->
+                        <el-tooltip content="打开站内信" placement="bottom">
+                            <el-button link class="icon-btn" @click="openMailbox">
+                                <el-icon size="22"><MessageBox /></el-icon>
+                            </el-button>
+                        </el-tooltip>
+                        <!-- 查看错误消息 -->
+                        <el-tooltip content="查看错误消息" placement="bottom">
+                            <el-button link class="icon-btn" @click="goFailurePage">
+                                <el-badge :value="unsolvedNum" :hidden="unsolvedNum === 0" type="danger">
+                                    <el-icon size="22"><WarningFilled /></el-icon>
+                                </el-badge>
+                            </el-button>
+                        </el-tooltip>
+                    </div>
                     <!-- 侧边栏展开 -->
                     <el-tooltip :content="isCollapsed ? '收起菜单' : '展开菜单'" placement="bottom">
                         <el-switch
@@ -161,7 +172,7 @@
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Sunny, Moon, User, FullScreen, Monitor, Fold, Expand, Refresh, Link, StarFilled, WarningFilled } from '@element-plus/icons-vue'
+import { Sunny, Moon, User, FullScreen, Monitor, Fold, Expand, Refresh, Link, StarFilled, WarningFilled, MessageBox } from '@element-plus/icons-vue'
 import { useAccountStore } from '../store/account'
 import request, { WEBSOCKET_BASE_URL } from '../api/request'
 
@@ -240,6 +251,9 @@ const refreshAccount = async () => {
 
 /** ===================== 导航行为 ===================== */
 const goFailurePage = () => router.push('/failure')
+const openMailbox = () => {
+    window.open('/mailbox/login', '_blank')
+}
 
 /** ===================== 生命周期钩子 ===================== */
 onMounted(() => {
@@ -445,11 +459,13 @@ const refreshPage = async () => {
     gap: 5px;
     color: #ffd04b;
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color 0.2s, transform 0.2s ease;
     font-weight: 500;
 }
+
 .footer-content .links a:hover {
     color: #fff;
+    transform: scale(1.12);
 }
 
 /** ===================== 控件与交互按钮 ===================== */
@@ -461,18 +477,28 @@ const refreshPage = async () => {
     --el-switch-on-color: #2563eb;
     --el-switch-off-color: #9ca3af;
 } 
-.notify-btn {
-    transform: scale(1.1);
-    height: 32px;
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 25px;
+    margin-top: 2.5px;
+}
+.icon-btn {
+    transform: scale(1.3);
+    height: 32px !important;
+    width: 32px !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 6px;
     cursor: pointer;
-    margin-right: 30px;
 }
-.notify-btn .el-icon {
-    color: #ffa726;
+.icon-btn .el-icon {
+    color: #fff;
+}
+.icon-btn:hover .el-icon {
+    transform: scale(1.15);
+    transition: all 0.2s ease;
 }
 .logout-btn {
     display: flex;

@@ -7,6 +7,7 @@ CREATE DATABASE IF NOT EXISTS message_center
 USE message_center;
 
 -- 账户
+DROP TABLE IF EXISTS account;
 CREATE TABLE IF NOT EXISTS account (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
     name        VARCHAR(32)     NOT NULL UNIQUE             COMMENT '账户名',
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS account (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 部门
+DROP TABLE IF EXISTS department;
 CREATE TABLE department (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '部门ID',
     name        VARCHAR(32)     NOT NULL UNIQUE             COMMENT '部门名称',
@@ -29,6 +31,7 @@ CREATE TABLE department (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 联系人
+DROP TABLE IF EXISTS contact;
 CREATE TABLE IF NOT EXISTS contact (
     id          BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
     name        VARCHAR(32)     NOT NULL UNIQUE             COMMENT '联系人名',
@@ -86,7 +89,7 @@ CREATE TABLE IF NOT EXISTS message (
     contact_ids      JSON            NOT NULL                    COMMENT '收件人 id 列表',
     created_at       DATETIME        NOT NULL                    COMMENT '创建时间',
     schedule_at      DATETIME        DEFAULT NULL                COMMENT '定时时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息主体表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 发送
 DROP TABLE IF EXISTS dispatch;
@@ -96,21 +99,24 @@ CREATE TABLE IF NOT EXISTS dispatch (
     subject           VARCHAR(255)    NOT NULL                    COMMENT '消息标题（渲染后）',
     content           TEXT            DEFAULT NULL                COMMENT '消息正文内容（渲染后）',
     attachments       JSON            DEFAULT NULL                COMMENT '附件 URL 列表',
+    schedule_at       DATETIME        DEFAULT NULL                COMMENT '定时时间',
     department_id     BIGINT          NOT NULL                    COMMENT '发件人 id',
     department_name   VARCHAR(64)     NOT NULL                    COMMENT '发件人姓名',
-    created_at        DATETIME        NOT NULL                    COMMENT '创建时间',
     contact_id        BIGINT          NOT NULL                    COMMENT '收件人 id',
     contact_name      VARCHAR(64)     NOT NULL                    COMMENT '收件人姓名',
     target            VARCHAR(255)    DEFAULT NULL                COMMENT '收件目标',
     status            VARCHAR(32)     NOT NULL                    COMMENT '消息状态',
     error_msg         VARCHAR(512)    DEFAULT NULL                COMMENT '错误信息',
+    created_at        DATETIME        NOT NULL                    COMMENT '创建时间',
     sent_at           DATETIME        DEFAULT NULL                COMMENT '发送时间',
+    process_at        DATETIME        DEFAULT NULL                COMMENT '处理时间',
     finished_at       DATETIME        DEFAULT NULL                COMMENT '完成时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息派发表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS failure;
 CREATE TABLE failure (
-    id              BIGINT          PRIMARY KEY AUTO_INCREMENT  COMMENT '自增 id',
-    dispatch_id     VARCHAR(64)     NOT NULL                    COMMENT '分发 id',
+    id              BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
+    dispatch_id     BIGINT          NOT NULL                    COMMENT '分发 id',
     error_type      VARCHAR(255)    DEFAULT NULL                COMMENT '异常类型',
     error_message   VARCHAR(1024)   DEFAULT NULL                COMMENT '异常信息',
     error_stack     LONGTEXT        DEFAULT NULL                COMMENT '调用栈',
@@ -138,10 +144,12 @@ DROP TABLE IF EXISTS oss_file;
 CREATE TABLE oss_file (
     id          BIGINT          PRIMARY KEY                 COMMENT '雪花 id',
     message_id  BIGINT          DEFAULT NULL                COMMENT '消息 id',
-    name        VARCHAR(64)     NOT NULL                    COMMENT '文件原始名字',
+    file_name   VARCHAR(64)     NOT NULL                    COMMENT '文件原始名字',
+    object_name VARCHAR(128)    NOT NULL                    COMMENT '存储对象名字',
     url         VARCHAR(512)    NOT NULL UNIQUE             COMMENT '云存储路径',
     used        TINYINT         NOT NULL DEFAULT 0          COMMENT '是否使用',
     uploaded_by BIGINT          NOT NULL                    COMMENT '上传账号',
     uploaded_at DATETIME        NOT NULL                    COMMENT '上传时间',
-    sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间'
+    sent_at     DATETIME        DEFAULT NULL                COMMENT '发送时间',
+    clear_at    DATETIME        DEFAULT NULL                COMMENT '清理时间'
 );

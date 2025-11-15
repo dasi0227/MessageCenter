@@ -237,10 +237,17 @@ const submitEdit = async () => {
     gap: 12px;
 }
 .links a {
-    color: #409eff;
-    text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 5px;
+    color: #3311e0;
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s ease;
+    font-weight: 500;
+}
+
+.links a:hover {
+    color: #000;
+    transform: scale(1.12);
 }
 </style>

@@ -42,7 +42,7 @@ public class MailSenderConfig {
             map.put(email, sender);
         });
 
-        log.info("JavaMailSender Initialized Successfully");
+        log.info("【Config】Initialized Successfully：JavaMailSender");
         return map;
     }
 

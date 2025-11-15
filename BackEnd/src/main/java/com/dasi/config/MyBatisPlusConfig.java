@@ -20,7 +20,7 @@ public class MyBatisPlusConfig {
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
-        log.info("MyBatisPlus Initialized Successfully");
+        log.info("【Config】Initialized Successfully：MyBatisPlus");
         return interceptor;
     }
 

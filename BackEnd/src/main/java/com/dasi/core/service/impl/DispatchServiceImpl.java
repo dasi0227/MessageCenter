@@ -39,7 +39,8 @@ public class DispatchServiceImpl extends ServiceImpl<DispatchMapper, Dispatch> i
             .set(Dispatch::getStatus, status)
             .set(StrUtil.isNotBlank(errorMsg), Dispatch::getErrorMsg, errorMsg)
             .set(status.equals(MsgStatus.SENDING), Dispatch::getSentAt, LocalDateTime.now())
-            .set(!status.equals(MsgStatus.SENDING), Dispatch::getFinishedAt, LocalDateTime.now())
+            .set(status.equals(MsgStatus.PROCESSING), Dispatch::getProcessAt, LocalDateTime.now())
+            .set(MsgStatus.isFinalStatus(status), Dispatch::getFinishedAt, LocalDateTime.now())
         );
     }
 

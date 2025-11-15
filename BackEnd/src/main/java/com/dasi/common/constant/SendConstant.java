@@ -12,9 +12,9 @@ public class SendConstant {
     // ===== 投递相关 =====
     public static final String SEND_MAILBOX_FAIL = "投递站内信失败：";
     public static final String SEND_EMAIL_FAIL = "投递邮件失败：";
-    public static final String MQ_SEND_FAIL = "消息队列投递失败：";
     public static final String MAIL_UNAVAILABLE = "找不到当前部门对应的邮件发送器-";
-
+    public static final String SEND_STUCK = "任务卡死超过1小时，请检查后端服务";
+    public static final String ERROR_UNSOLVED = "任务错误但未处理，请检查后端服务";
 
     // ===== 定时发送 =====
     public static final String SCHEDULE_BEFORE_NOW = "定时发送错误：发送时间早于当前时间";

@@ -11,7 +11,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 public class WebSocketConfig {
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {
-        log.info("WebSocket Initialized Successfully");
+        log.info("【Config】Initialized Successfully：WebSocket");
         return new ServerEndpointExporter();
     }
 }

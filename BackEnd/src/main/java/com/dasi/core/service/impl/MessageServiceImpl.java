@@ -89,20 +89,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         message.setAccountName(accountName);
         save(message);
 
-        // 修改附件为使用
-        if (CollUtil.isNotEmpty(dto.getAttachments())) {
-            dto.getAttachments().forEach(url -> {
-                LambdaUpdateWrapper<OssFile> wrapper = new LambdaUpdateWrapper<OssFile>()
-                        .eq(OssFile::getUrl, url)
-                        .eq(OssFile::getUsed, 0)
-                        .eq(OssFile::getUploadedBy, accountId)
-                        .set(OssFile::getMessageId, message.getId())
-                        .set(OssFile::getUsed, 1)
-                        .set(OssFile::getSentAt, LocalDateTime.now());
-                ossFileMapper.update(wrapper);
-            });
-        }
-
         // 查询收件人信息
         List<Contact> contactList = contactService.listByIds(dto.getContactIds());
 
@@ -122,6 +108,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                     .status(MsgStatus.PENDING)
                     .errorMsg(null)
                     .createdAt(LocalDateTime.now())
+                    .scheduleAt(dto.getScheduleAt())
                     .build();
 
             try {
@@ -166,6 +153,19 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 }
             }
         });
+
+        // 修改附件为使用
+        if (CollUtil.isNotEmpty(dto.getAttachments())) {
+            dto.getAttachments().forEach(url -> {
+                LambdaUpdateWrapper<OssFile> wrapper = new LambdaUpdateWrapper<OssFile>()
+                        .eq(OssFile::getUrl, url)
+                        .set(OssFile::getUploadedBy, accountId)
+                        .set(OssFile::getMessageId, message.getId())
+                        .set(OssFile::getUsed, 1)
+                        .set(OssFile::getSentAt, LocalDateTime.now());
+                ossFileMapper.update(wrapper);
+            });
+        }
     }
 
     private void checkScheduleAt(LocalDateTime scheduleAt) {
