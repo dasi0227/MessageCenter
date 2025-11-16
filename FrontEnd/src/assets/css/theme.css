@@ -1,0 +1,19 @@
+/* 明亮模式 */
+:root {
+    --app-bg: var(--el-bg-color);          /* #ffffff */
+    --app-bg-soft: var(--el-bg-color-page); /* #f5f7fa */
+    --app-card-bg: var(--el-bg-color-overlay); /* #ffffff */
+    --app-text-main: var(--el-text-color-primary); /* #303133 */
+    --app-text-soft: var(--el-text-color-regular); /* #606266 */
+    --app-border: var(--el-border-color); /* #dcdfe6 */
+}
+
+/* 暗黑模式 */
+.dark {
+    --app-bg: var(--el-bg-color);              /* #141414 */
+    --app-bg-soft: var(--el-bg-color-page);    /* #0a0a0a */
+    --app-card-bg: var(--el-bg-color-overlay); /* #1d1e1f */
+    --app-text-main: var(--el-text-color-primary); /* #e5eaf3 */
+    --app-text-soft: var(--el-text-color-regular); /* #cfd3dc */
+    --app-border: var(--el-border-color);      /* #4c4d4f */
+}

@@ -1,11 +1,11 @@
 INSERT INTO account (name, password, role, created_at, updated_at)
-VALUES ('测试管理员', '90c0bd850970a1dc69cd4a297de3c300', 'ADMIN', NOW(), NOW());
+VALUES ('测试管理员', 'e10adc3949ba59abbe56e057f20f883e', 'ADMIN', NOW(), NOW());
 
 INSERT INTO department (name, address, description, email, phone, created_at, updated_at) VALUES
-('测试部门', '测试地址', '测试描述', '1740929297@qq.com', '13570095585', NOW(), NOW());
+('测试部门', '测试地址', '测试描述', 'test-email@example.com', 'test-phone', NOW(), NOW());
 
 INSERT INTO contact (name, password, inbox, phone, email, status, created_at, updated_at) VALUES
-('测试联系人', 'e10adc3949ba59abbe56e057f20f883e', 10000, '13416222182', 'wanyw0227@gmail.com', 1, NOW(), NOW());
+('测试联系人', 'e10adc3949ba59abbe56e057f20f883e', 10000, 'test-phone', 'testemail@example.com', 1, NOW(), NOW());
 
 INSERT INTO account (name, password, role, created_at, updated_at) VALUES
 ('李老师',  'e10adc3949ba59abbe56e057f20f883e', 'USER', NOW(), NOW()),

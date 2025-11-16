@@ -179,19 +179,17 @@ onMounted(() => getList())
     transform: translateY(-3px);
 }
 .tpl-name {
-    font-weight: 600;
+    font-weight: 800;
     font-size: 18px;
-    color: #333;
     margin-bottom: 4px;
 }
 .tpl-subject {
+    font-weight: 500;
     font-size: 14px;
-    color: #666;
     margin-bottom: 6px;
 }
 .tpl-content {
     font-size: 13px;
-    color: #999;
     line-height: 1.6;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -205,11 +203,7 @@ onMounted(() => getList())
     top: 8px;
     right: 10px;
     font-size: 16px;
-    color: #bbb;
     transition: 0.2s;
-}
-.delete-btn:hover {
-    color: #f56c6c;
 }
 .dialog-footer {
     text-align: right;

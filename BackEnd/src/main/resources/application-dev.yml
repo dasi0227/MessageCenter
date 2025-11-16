@@ -1,37 +1,37 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
-    name: message-center-test
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/message_center?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+    name: message-center
 
   jackson:
     time-zone: Asia/Shanghai
     deserialization:
       ACCEPT_EMPTY_STRING_AS_NULL_OBJECT: true
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: ${REDIS_PASSWORD}
-      database: 0
-
-  cache:
-    type: redis
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
 
   rabbitmq:
-    host: localhost
-    port: 5672
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     virtual-host: /message_center
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE:0}
+
+  cache:
+    type: redis
 
 mybatis-plus:
   global-config:
@@ -56,8 +56,9 @@ dasi:
     corp-id: ${WECOM_CORP_ID}
     agent-id: ${WECOM_AGENT_ID}
     secret: ${WECOM_SECRET}
+
   mail:
-    port: 465
+    port: ${MAIL_PORT:465}
     auth-codes:
       "[${MAIL_QQ_EMAIL}@qq.com]":
         password: ${MAIL_QQ_PASSWORD}
@@ -69,7 +70,7 @@ dasi:
   jwt:
     secret-key: ${JWT_SECRET}
     signature-algorithm: ${JWT_ALGORITHM}
-    ttl: 720000000
+    ttl: 100000
 
     account-token-name: Authorization-Account
     account-id-claim-key: AccountId

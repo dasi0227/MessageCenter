@@ -48,10 +48,10 @@
         <!-- 新增弹窗 -->
         <el-dialog v-model="addVisible" title="新增变量" width="500px" align-center>
             <el-form :model="addForm" label-width="80px">
-                <el-form-item label="名称 (name)">
+                <el-form-item label="名称">
                     <el-input v-model="addForm.name" placeholder="请输入变量名，例如 greeting" />
                 </el-form-item>
-                <el-form-item label="值 (value)">
+                <el-form-item label="值">
                     <el-input v-model="addForm.value" placeholder="请输入变量值" />
                 </el-form-item>
                 <el-form-item label="备注">
@@ -74,13 +74,13 @@
         <!-- 编辑弹窗 -->
         <el-dialog v-model="editVisible" title="查看变量" width="500px" align-center>
             <el-form :model="editForm" label-width="80px">
-                <el-form-item label="名称 (name)">
+                <el-form-item label="名称">
                     <el-input
                         v-model="editForm.name"
                         :disabled="isSystemName(editForm.name)"
                     />
                 </el-form-item>
-                <el-form-item label="值 (value)">
+                <el-form-item label="值">
                     <el-input
                         v-model="editForm.value"
                         :disabled="isSystemName(editForm.name)"
@@ -198,10 +198,9 @@ onMounted(() => getList())
     padding: 20px;
 }
 .guide-card {
-    background-color: #f9fafc;
     border-left: 4px solid #409eff;
     margin-bottom: 20px;
-    padding: 12px 18px;
+    padding: 5px;
 }
 .guide-card li {
     margin-bottom: 10px;
@@ -229,19 +228,16 @@ onMounted(() => getList())
     transform: translateY(-3px);
 }
 .render-card.system {
-    background-color: #fafafa;
-    border: 1px solid #e0e0e0;
+    border: 2px solid maroon;
     cursor: default;
 }
 .render-key {
     font-weight: 600;
     font-size: 18px;
-    color: #2c3e50;
     margin-bottom: 4px;
 }
 .render-value {
     font-size: 17px;
-    color: #444;
     word-break: break-all;
 }
 .render-remark {
@@ -255,7 +251,6 @@ onMounted(() => getList())
     top: 8px;
     right: 10px;
     font-size: 16px;
-    color: #bbb;
     transition: 0.2s;
 }
 .delete-btn:hover {

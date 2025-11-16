@@ -3,7 +3,7 @@
         <!-- 左侧菜单栏 -->
         <el-aside :width="isCollapsed ? '32px' : '220px'" class="aside">
             <div class="aside-header" v-if="!isCollapsed">
-                <img class="avatar" src="../assets/images/logo.png" alt="avatar" />
+                <img class="avatar" src="../assets/images/logo.webp" alt="avatar" />
                 <div class="account-info">
                     <div class="name">{{ name }}</div>
                     <div class="role" :class="{ admin: role === 'ADMIN', user: role !== 'ADMIN' }">

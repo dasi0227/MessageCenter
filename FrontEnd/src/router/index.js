@@ -85,7 +85,7 @@ router.beforeEach((to) => {
         if (!contact.isLoggedIn && to.path !== '/mailbox/login') {
             return '/mailbox/login'
         }
-        document.title = `Mailbox ${to.meta.title || ''}`
+        document.title = 'Dasi 消息中心：Mailbox'
         return
     }
 
@@ -96,9 +96,7 @@ router.beforeEach((to) => {
     if (!publicPages.includes(to.path) && !account.isLoggedIn) {
         return '/login'
     }
-    document.title = to.meta.title
-        ? `MessageCenter ${to.meta.title}`
-        : 'MessageCenter 控制台'
+    document.title = 'Dasi 消息中心：MessageCenter'
 })
 
 export default router

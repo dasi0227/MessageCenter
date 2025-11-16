@@ -1,56 +1,97 @@
+# ======================
 # macOS
+# ======================
 .DS_Store
 .AppleDouble
-.idea
-.vscode
-*.swp
+.LSOverride
 
-# Node.js / Vue
+# ======================
+# IDE / Editors
+# ======================
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+
+# ======================
+# Node.js / Vue FrontEnd
+# ======================
 node_modules/
 dist/
 build/
 coverage/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
+pnpm-debug.log*
 
-# FrontEnd build
-/public/static/
-*/.eslintcache
-*/.cache
+.eslintcache
+.cache/
 *.local
-*.log
 
-# Java / Maven
+# Vite / Vue specific
+vite.config.ts.timestamp*
+*.tsbuildinfo
+
+# ======================
+# Java / Maven BackEnd
+# ======================
+target/
 *.class
 *.jar
 *.war
 *.ear
-target/
+
+# allow Maven wrapper jar
 !.mvn/wrapper/maven-wrapper.jar
 dependency-reduced-pom.xml
 
-# IDE
-*.iml
-*.ipr
-*.iws
-/.settings/
-/.project
-/.classpath
-
-# System / temp
-*.tmp
-*.bak
-*.orig
-*.out
+# ======================
+# Logs
+# ======================
 logs/
+log/
 *.log
 
-# Database / SQL backup
+# ======================
+# Environment Files
+# ======================
+.env
+.env.*
+!.env.example
+
+# ======================
+# System / Temporary Files
+# ======================
+*.tmp
+*.bak
+*.old
+*.backup
+*.orig
+*.patched
+*.rej
+*.out
+Thumbs.db
+
+# ======================
+# Docker / local configs
+# ======================
+docker/*.env
+docker/tmp/
+
+# ======================
+# Database files
+# ======================
 *.db
 *.sqlite
 
-# Docker / build cache
-docker/*.env
-docker/tmp/
+# ======================
+# Java Crash Logs
+# ======================
+*.pid
+hs_err_pid*
+replay_pid*

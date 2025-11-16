@@ -194,13 +194,11 @@ onMounted(() => getList())
     transform: translateY(-3px);
 }
 .word-card.editing {
-    background-color: #fff8e1;
-    border: 2px solid #f5c542;
+    border: 2px solid maroon;
 }
 .word-text {
     font-size: 18px;
     font-weight: 500;
-    color: #333;
     min-height: 32px;
     outline: none;
 }
@@ -209,14 +207,9 @@ onMounted(() => getList())
     top: 6px;
     right: 8px;
     font-size: 16px;
-    color: #999;
     cursor: pointer;
     transition: 0.2s;
 }
-.delete-btn:hover {
-    color: #f56c6c;
-}
-
 /* 弹窗样式 */
 .add-dialog {
     display: flex;
