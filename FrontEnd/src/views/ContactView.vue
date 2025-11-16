@@ -2,14 +2,15 @@
     <div class="contact-page">
         <!-- 顶部操作栏 -->
         <div class="toolbar">
-            <el-input v-model="name" placeholder="输入姓名筛选" clearable style="width: 150px; margin-right: 10px" />
-            <el-input v-model="phone" placeholder="输入手机号筛选" clearable style="width: 150px; margin-right: 10px" />
-            <el-input v-model="email" placeholder="输入邮箱筛选" clearable style="width: 200px; margin-right: 10px" />
+            <el-input v-model="name" placeholder="姓名筛选" clearable style="width: 150px; margin-right: 10px" />
+            <el-input v-model="phone" placeholder="手机号筛选" clearable style="width: 180px; margin-right: 10px" />
+            <el-input v-model="email" placeholder="邮箱筛选" clearable style="width: 200px; margin-right: 10px" />
             <el-select v-model="status" placeholder="状态筛选" clearable style="width: 120px; margin-right: 10px">
                 <el-option label="活跃" :value="1" />
                 <el-option label="禁用" :value="0" />
             </el-select>
             <el-button type="primary" @click="handleSearch">搜索</el-button>
+            <el-button type="primary" @click="handleSearch">重置</el-button>
             <el-button type="success" @click="handleAdd">新增联系人</el-button>
         </div>
 
@@ -138,6 +139,15 @@ const editForm = ref({ id: null, name: '', password: '', phone: '', email: '', s
 const addForm = ref({ name: '', password: '', phone: '', email: '', status: 1 })
 
 // 分页查询
+const resetFilters = () => {
+    name.value = ''
+    phone.value = ''
+    email.value = ''
+    status.value = null
+    pageNum.value = 1
+    getPage()
+}
+
 const getPage = async () => {
     try {
         const hasFilter =

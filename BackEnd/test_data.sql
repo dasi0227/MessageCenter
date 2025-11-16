@@ -115,7 +115,7 @@ INSERT INTO template (name, subject, content, created_at, updated_at) VALUES
 ('毕业典礼模板', '毕业典礼邀请函', '亲爱的同学，诚邀您参加 2025 届毕业典礼，共赴青春盛宴！', NOW(), NOW());
 
 INSERT INTO render (name, value, remark, created_at, updated_at) VALUES
-('account', NULL, '系统内置变量 account', NOW(), NOW()),
+('#account', NULL, '系统内置变量 account', NOW(), NOW()),
 ('#contact', NULL, '系统内置变量 contact', NOW(), NOW()),
 ('#department', NULL, '系统内置变量 department', NOW(), NOW()),
 ('#date', NULL, '系统内置变量 date', NOW(), NOW()),

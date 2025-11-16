@@ -17,7 +17,7 @@
                 router
                 background-color="#1e2b3a"
                 text-color="#bfcbd9"
-                active-text-color="#409EFF"
+                active-text-color="#ffd04b"
                 :collapse="isCollapsed"
             >
                 <!-- 系统模块 -->
@@ -50,7 +50,7 @@
         <!-- 右侧主区域 -->
         <el-container>
             <!-- 顶部导航栏 -->
-            <el-header class="header" :class="{ dark: darkMode }">
+            <el-header class="layout-header" :class="{ dark: darkMode }">
             <div class="header-left">
                 <span class="brand">📮 Dasi MessageCenter {{ pageTitle }}</span>
             </div>
@@ -147,7 +147,7 @@
             </el-main>
 
             <!-- 底部信息栏 -->
-            <el-footer class="footer" :class="{ dark: darkMode }">
+            <el-footer class="layout-footer" :class="{ dark: darkMode }">
                 <div class="footer-content">
                     <span>© 2025 Dasi · MessageCenter · V3.0</span>
                     <div class="links">
@@ -292,6 +292,7 @@ const toggleTheme = (val) => {
         root.classList.remove('dark')
         ElMessage.success('已切换为亮色模式')
     }
+    window.dispatchEvent(new Event('app-theme-change'))
 }
 
 /** ===================== 账号退出操作 ===================== */
@@ -332,11 +333,8 @@ const refreshPage = async () => {
     height: 100vh;
     overflow: hidden;
 }
-
 /** ===================== 左侧菜单栏 ===================== */
 .aside {
-    background-color: #1e2b3a;
-    color: #fff;
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
@@ -346,13 +344,12 @@ const refreshPage = async () => {
     display: flex;
     align-items: center;
     padding: 16px;
-    border-bottom: 1px solid #2c3e50;
 }
 .avatar {
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 15px;
 }
 .account-info .name {
     font-size: 18px;
@@ -374,10 +371,6 @@ const refreshPage = async () => {
     border-right: none;
     transition: all 0.3s ease;
 }
-.el-sub-menu__title:hover,
-.el-menu-item:hover {
-    background-color: #273849 !important;
-}
 
 /** ===================== 主体容器布局 ===================== */
 .layout-container > .el-container {
@@ -389,22 +382,16 @@ const refreshPage = async () => {
 }
 
 /** ===================== 顶部导航栏 ===================== */
-.header {
+.layout-header {
     flex-shrink: 0;
     height: 60px;
-    background-color: #409eff;
-    color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    transition: background-color 0.3s;
-}
-.header.dark {
-    background-color: #1e293b;
-    color: #f0f0f0;
 }
 .header-left .brand {
+    color: #ffd04b;
     font-size: 35px;
     font-weight: bold;
 }
@@ -417,30 +404,18 @@ const refreshPage = async () => {
 .main {
     flex: 1;
     overflow-y: auto;
-    background-color: #f4f6f9;
     padding: 20px;
     box-sizing: border-box;
     transition: background-color 0.3s;
 }
-.main.dark {
-    background-color: #1f1f1f;
-    color: #eee;
-}
 
 /** ===================== 底部信息栏 ===================== */
-.footer {
+.layout-footer {
     flex-shrink: 0;
     height: 40px;
-    background-color: #409eff;
-    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color 0.3s;
-}
-.footer.dark {
-    background-color: #1e293b;
-    color: #f0f0f0;
 }
 .footer-content {
     display: flex;
@@ -512,5 +487,25 @@ const refreshPage = async () => {
     background-color: #0d05e6;
     border-color: black;
     color: #fff;
+}
+/* 背景颜色 */
+.aside {
+    background-color: #1e2b3a;
+    color: #fff;
+}
+.el-sub-menu__title:hover,
+.el-menu-item:hover {
+    background-color: #0a74de !important;
+}
+:deep(.layout-header), :deep(.layout-footer) {
+    background-color: #409eff !important;
+    color: white !important;
+    transition: background-color 0.3s;
+}
+
+:deep(.layout-header.dark), :deep(.layout-footer.dark) {
+    background-color: #0e203a !important;
+    color: #f0f0f0 !important;
+    transition: background-color 0.3s;
 }
 </style>

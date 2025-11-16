@@ -55,7 +55,7 @@
             <!-- 标题 -->
             <el-input
                 v-model="subject"
-                placeholder="请输入标题"
+                placeholder="标题筛选"
                 clearable
                 style="width: 200px; margin-right: 10px"
             />
@@ -72,7 +72,7 @@
             />
 
             <el-button type="primary" @click="handleSearch">搜索</el-button>
-            <el-button @click="resetFilters">重置</el-button>
+            <el-button type="primary" @click="resetFilters">重置</el-button>
         </div>
 
         <!-- 消息表格 -->

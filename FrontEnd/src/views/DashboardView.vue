@@ -12,29 +12,42 @@
 
         <!-- 分发维度统计 -->
         <el-row :gutter="20" class="charts">
-            <el-col :span="12"><el-card><div ref="accountChart" class="chart"></div></el-card></el-col>
-            <el-col :span="12"><el-card><div ref="channelChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12">
+                <el-card><div ref="accountChart" class="chart"></div></el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card><div ref="channelChart" class="chart"></div></el-card>
+            </el-col>
         </el-row>
 
         <el-row :gutter="20" class="charts">
-            <el-col :span="12"><el-card><div ref="departmentChart" class="chart"></div></el-card></el-col>
-            <el-col :span="12"><el-card><div ref="contactChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12">
+                <el-card><div ref="departmentChart" class="chart"></div></el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card><div ref="contactChart" class="chart"></div></el-card>
+            </el-col>
         </el-row>
 
         <!-- 年度 & 月度趋势 -->
         <el-row :gutter="20" class="charts">
-            <el-col :span="12"><el-card><div ref="yearChart" class="chart"></div></el-card></el-col>
-            <el-col :span="12"><el-card><div ref="monthChart" class="chart"></div></el-card></el-col>
+            <el-col :span="12">
+                <el-card><div ref="yearChart" class="chart"></div></el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card><div ref="monthChart" class="chart"></div></el-card>
+            </el-col>
         </el-row>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import * as echarts from 'echarts'
+import 'echarts/theme/dark'          // 关键：引入 dark 主题
 import request from '../api/request'
 
-/* refs */
+/* dom refs */
 const accountChart = ref()
 const departmentChart = ref()
 const contactChart = ref()
@@ -45,68 +58,116 @@ const monthChart = ref()
 /* 顶部统计卡片 */
 const statList = ref([])
 
-/* 绘制函数 */
+/* 持久保存数据，方便主题切换时重绘 */
+const dispatchData = ref(null)
+const timelineData = ref(null)
+
+/* 保存所有图表实例 */
+let chartInstances = []
+
+/* 判断是否暗色模式（看 html 上有没有 .dark） */
+const isDark = () => document.documentElement.classList.contains('dark')
+
+/* 创建图表 */
+const createChart = (dom, option) => {
+    if (!dom) return null
+    const theme = isDark() ? 'dark' : null
+    const chart = echarts.init(dom, theme)
+    chart.setOption(option)
+    chartInstances.push(chart)
+    return chart
+}
+
+/* 销毁所有图表 */
+const disposeCharts = () => {
+    chartInstances.forEach(c => c && !c.isDisposed() && c.dispose())
+    chartInstances = []
+}
+
+/* 统一绘制所有图表 */
 const drawCharts = (dispatch, timeline) => {
-    const baseOpt = { tooltip: { trigger: 'axis' }, xAxis: {}, yAxis: {} }
+    if (!dispatch || !timeline) return
 
-    const ac = echarts.init(accountChart.value)
-    ac.setOption({
-        ...baseOpt,
-        title: { text: '账户处理量' },
-        xAxis: { type: 'category', data: dispatch.accountNames },
-        series: [{ type: 'bar', data: dispatch.accountCounts, color: '#409EFF' }]
-    })
+    disposeCharts()
 
-    const dc = echarts.init(departmentChart.value)
-    dc.setOption({
-        ...baseOpt,
-        title: { text: '部门发送量' },
-        xAxis: { type: 'category', data: dispatch.departmentNames },
-        series: [{ type: 'bar', data: dispatch.departmentCounts, color: '#67C23A' }]
-    })
+    const style = getComputedStyle(document.documentElement)
+    const color = style.getPropertyValue('--el-text-color-primary').trim()
 
-    const cc = echarts.init(contactChart.value)
-    cc.setOption({
-        ...baseOpt,
-        title: { text: '联系人接收量' },
-        xAxis: { type: 'category', data: dispatch.contactNames },
-        series: [{ type: 'bar', data: dispatch.contactCounts, color: '#E6A23C' }]
-    })
-
-    const ch = echarts.init(channelChart.value)
-    ch.setOption({
-        ...baseOpt,
-        title: { text: '渠道发送量' },
-        xAxis: { type: 'category', data: dispatch.channelNames },
-        series: [{ type: 'bar', data: dispatch.channelCounts, color: '#F56C6C' }]
-    })
-
-    const yc = echarts.init(yearChart.value)
-    yc.setOption({
-        title: { text: '年度发送趋势' },
+    const baseOpt = {
+        backgroundColor: 'transparent',
+        textStyle: { color: color },
         tooltip: { trigger: 'axis' },
-        xAxis: { data: timeline.months },
-        yAxis: {},
-        series: [{ type: 'line', smooth: true, data: timeline.monthCounts, color: '#C39DA9' }]
+        xAxis: {
+            type: 'category',
+            axisLine: { lineStyle: { color: color } },
+            axisLabel: { color: color }
+        },
+        yAxis: {
+            type: 'value',
+            axisLine: { lineStyle: { color: color } },
+            axisLabel: { color: color },
+            splitLine: { lineStyle: { color: color, opacity: 0.5 } }
+        }
+    }
+
+    createChart(accountChart.value, {
+        ...baseOpt,
+        title: { text: '账户处理量', textStyle: { color: color } },
+        xAxis: { ...baseOpt.xAxis, data: dispatch.accountNames },
+        series: [{ type: 'bar', data: dispatch.accountCounts, itemStyle: { color: '#409EFF' } }]
     })
 
-    const mc = echarts.init(monthChart.value)
-    mc.setOption({
-        title: { text: '本月发送趋势' },
-        tooltip: { trigger: 'axis' },
-        xAxis: { data: timeline.days },
-        yAxis: {},
-        series: [{ type: 'line', smooth: true, data: timeline.dayCounts, color: '#A15EFF' }]
+    createChart(departmentChart.value, {
+        ...baseOpt,
+        title: { text: '部门发送量', textStyle: { color: color } },
+        xAxis: { ...baseOpt.xAxis, data: dispatch.departmentNames },
+        series: [{ type: 'bar', data: dispatch.departmentCounts, itemStyle: { color: '#67C23A' } }]
     })
 
-    window.addEventListener('resize', () => {
-        ac.resize()
-        dc.resize()
-        cc.resize()
-        ch.resize()
-        yc.resize()
-        mc.resize()
+    createChart(contactChart.value, {
+        ...baseOpt,
+        title: { text: '联系人接收量', textStyle: { color: color } },
+        xAxis: { ...baseOpt.xAxis, data: dispatch.contactNames },
+        series: [{ type: 'bar', data: dispatch.contactCounts, itemStyle: { color: '#E6A23C' } }]
     })
+
+    createChart(channelChart.value, {
+        ...baseOpt,
+        title: { text: '渠道发送量', textStyle: { color: color } },
+        xAxis: { ...baseOpt.xAxis, data: dispatch.channelNames },
+        series: [{ type: 'bar', data: dispatch.channelCounts, itemStyle: { color: '#F56C6C' } }]
+    })
+
+    createChart(yearChart.value, {
+        ...baseOpt,
+        title: { text: '年度发送趋势', textStyle: { color: color } },
+        xAxis: { ...baseOpt.xAxis, data: timeline.months },
+        series: [{
+            type: 'line',
+            smooth: true,
+            data: timeline.monthCounts,
+            lineStyle: { color: '#C39DA9' },
+            itemStyle: { color: '#C39DA9' }
+        }]
+    })
+
+    createChart(monthChart.value, {
+        ...baseOpt,
+        title: { text: '本月发送趋势', textStyle: { color: color } },
+        xAxis: { ...baseOpt.xAxis, data: timeline.days },
+        series: [{
+            type: 'line',
+            smooth: true,
+            data: timeline.dayCounts,
+            lineStyle: { color: '#A15EFF' },
+            itemStyle: { color: '#A15EFF' }
+        }]
+    })
+}
+
+/* 窗口缩放时自适应 */
+const handleResize = () => {
+    chartInstances.forEach(c => c && !c.isDisposed() && c.resize())
 }
 
 /* 初始化加载 */
@@ -133,8 +194,23 @@ onMounted(async () => {
         { label: '占位符数', value: n.renderNum }
     ]
 
+    dispatchData.value = dispatchRes.data.data
+    timelineData.value = timelineRes.data.data
+
     await nextTick()
-    drawCharts(dispatchRes.data.data, timelineRes.data.data)
+    drawCharts(dispatchData.value, timelineData.value)
+
+    window.addEventListener('resize', handleResize)
+    // 监听全局主题切换事件（在 Layout 的 toggleTheme 里触发）
+    window.addEventListener('app-theme-change', async () => {
+        await nextTick()
+        drawCharts(dispatchData.value, timelineData.value)
+    })
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize)
+    disposeCharts()
 })
 </script>
 
@@ -149,7 +225,6 @@ onMounted(async () => {
 }
 .stat-card {
     text-align: center;
-    background-color: #fff;
     border-radius: 8px;
     transition: all 0.2s;
 }
@@ -159,7 +234,6 @@ onMounted(async () => {
 }
 .label {
     font-size: 14px;
-    color: #888;
 }
 .value {
     font-size: 22px;

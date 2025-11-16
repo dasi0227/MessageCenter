@@ -4,14 +4,15 @@
         <div class="toolbar">
             <el-input
                 v-model="name"
-                placeholder="输入账户名筛选"
-                style="width: 240px; margin-right: 10px"
+                placeholder="账户名筛选"
+                style="width: 150px; margin-right: 10px"
                 clearable
             />
             <el-select v-model="selectedRole" placeholder="角色筛选" clearable style="width: 160px; margin-right: 10px">
                 <el-option v-for="r in roleList" :key="r" :label="r" :value="r" />
             </el-select>
             <el-button type="primary" @click="handleSearch">搜索</el-button>
+            <el-button type="primary" @click="resetFilters">重置</el-button>
             <el-button type="success" @click="handleAdd">新增账户</el-button>
         </div>
 
@@ -106,6 +107,13 @@ const editForm = ref({ id: null, name: '', password: '' })
 const addForm = ref({ name: '', password: '', role: '' })
 
 // 分页查询
+const resetFilters = () => {
+    name.value = ''
+    selectedRole.value = ''
+    pageNum.value = 1
+    getPage()
+}
+
 const getPage = async () => {
     try {
         const hasFilter = !!(name.value || selectedRole.value)

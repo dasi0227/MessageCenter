@@ -50,7 +50,7 @@
             </el-select>
 
             <el-button type="primary" @click="handleSearch">搜索</el-button>
-            <el-button @click="resetFilters">重置</el-button>
+            <el-button type="primary" @click="resetFilters">重置</el-button>
         </div>
 
         <!-- 数据表格 -->
@@ -287,10 +287,12 @@ onMounted(async () => {
 }
 .content-box {
     margin-top: 10px;
-    background: #f5f7fa;
     padding: 10px;
     white-space: pre-wrap;
+    border: 1px solid var(--app-border);
     border-radius: 5px;
+    background: var(--app-card-bg);
+    color: var(--app-text-main);
 }
 .truncate-content span {
     display: -webkit-box;
@@ -303,7 +305,7 @@ onMounted(async () => {
     word-break: break-all;
 }
 .info-item {
-    line-height: 1.6;
+    line-height: 1.9;
 }
 .toolbar {
     display: flex;

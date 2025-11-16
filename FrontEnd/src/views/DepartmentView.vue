@@ -21,6 +21,7 @@
                 clearable
             />
             <el-button type="primary" @click="handleSearch">搜索</el-button>
+            <el-button type="primary" @click="resetFilters">重置</el-button>
             <el-button type="success" @click="handleAdd">新增部门</el-button>
         </div>
 
@@ -138,6 +139,14 @@ const editForm = ref({ id: null, name: '', address: '', description: '', phone: 
 const addForm = ref({ name: '', address: '', description: '', phone: '', email: '' })
 
 // 分页查询
+const resetFilters = () => {
+    name.value = ''
+    address.value = ''
+    description.value = ''
+    pageNum.value = 1
+    getPage()
+}
+
 const getPage = async () => {
     try {
         const hasFilter = !!(name.value || address.value || description.value)

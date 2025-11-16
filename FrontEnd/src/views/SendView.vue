@@ -110,7 +110,7 @@
                     <el-input
                         type="textarea"
                         v-model="content"
-                        :rows="8"
+                        :rows="3"
                         placeholder="请输入消息内容"
                         style="width:600px"
                     />
