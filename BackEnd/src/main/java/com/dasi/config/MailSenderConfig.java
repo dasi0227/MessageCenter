@@ -1,6 +1,6 @@
 package com.dasi.config;
 
-import com.dasi.common.properties.MailSenderProperties;
+import com.dasi.common.properties.MailProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,16 +17,16 @@ import java.util.Properties;
 @Configuration
 public class MailSenderConfig {
     @Autowired
-    private MailSenderProperties mailSenderProperties;
+    private MailProperties mailProperties;
 
     @Bean("departmentMailMap")
     public Map<String, JavaMailSender> mailSenderMap() {
         Map<String, JavaMailSender> map = new HashMap<>();
 
-        mailSenderProperties.getAuthCodes().forEach((email, auth) -> {
+        mailProperties.getAuthCodes().forEach((email, auth) -> {
             JavaMailSenderImpl sender = new JavaMailSenderImpl();
             sender.setHost(auth.getHost());
-            sender.setPort(mailSenderProperties.getPort());
+            sender.setPort(mailProperties.getPort());
             sender.setUsername(email);
             sender.setPassword(auth.getPassword());
             sender.setDefaultEncoding(StandardCharsets.UTF_8.name());

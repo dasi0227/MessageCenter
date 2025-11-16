@@ -1,11 +1,10 @@
 package com.dasi.util;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.lang.UUID;
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.OSSObject;
 import com.dasi.common.properties.AliOssProperties;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,30 +20,8 @@ public class AliOssUtil {
     @Autowired
     private AliOssProperties aliOssProperties;
 
+    @Autowired
     private OSS ossClient;
-
-    @PostConstruct
-    public void init() {
-        ossClient = new OSSClientBuilder().build(
-                aliOssProperties.getEndpoint(),
-                aliOssProperties.getAccessKeyId(),
-                aliOssProperties.getAccessKeySecret()
-        );
-    }
-
-    @PreDestroy
-    public void destroy() {
-        if (ossClient != null) {
-            ossClient.shutdown();
-        }
-    }
-
-    public String putObject(byte[] bytes, String objectName) {
-        ossClient.putObject(aliOssProperties.getBucket(), objectName, new ByteArrayInputStream(bytes));
-        String url = "https://" + aliOssProperties.getBucket() + "." + aliOssProperties.getEndpoint() + "/" + objectName;
-        log.debug("文件上传到：{}", url);
-        return url;
-    }
 
     public String createObjectName(String fileName) {
         String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -57,9 +34,21 @@ public class AliOssUtil {
         return "test/"  + datePath + "/" + timePrefix + "-" + uuid + ext;
     }
 
+    public String putObject(byte[] bytes, String objectName) {
+        ossClient.putObject(aliOssProperties.getBucket(), objectName, new ByteArrayInputStream(bytes));
+        String url = "https://" + aliOssProperties.getBucket() + "." + aliOssProperties.getEndpoint() + "/" + objectName;
+        log.debug("文件上传到：{}", url);
+        return url;
+    }
+
     public void deleteObject(String objectName) {
         ossClient.deleteObject(aliOssProperties.getBucket(), objectName);
         log.debug("删除文件：{}", objectName);
+    }
+
+    public byte[] getObject(String objectName) {
+        OSSObject ossObject = ossClient.getObject(aliOssProperties.getBucket(), objectName);
+        return IoUtil.readBytes(ossObject.getObjectContent());
     }
 
 }

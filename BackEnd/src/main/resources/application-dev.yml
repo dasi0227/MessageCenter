@@ -52,6 +52,10 @@ logging:
     console: "%d{MM-dd HH:mm:ss} %-5level %-40logger{1} - %msg%n"
 
 dasi:
+  wecom:
+    corp-id: ${WECOM_CORP_ID}
+    agent-id: ${WECOM_AGENT_ID}
+    secret: ${WECOM_SECRET}
   mail:
     port: 465
     auth-codes:
@@ -81,11 +85,11 @@ dasi:
     queue:
       mailbox: mailbox_queue
       email: email_queue
-      sms: sms_queue
+      wecom: wecom_queue
     route:
       mailbox: mailbox_route
       email: email_route
-      sms: sms_route
+      wecom: wecom_route
     dlx-exchange: dlx_exchange
     dlx-queue: dlq_queue
     dlx-route: dlq_route

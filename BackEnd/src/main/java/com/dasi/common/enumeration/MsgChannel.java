@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public enum MsgChannel {
     MAILBOX,
     EMAIL,
-    SMS;
+    WECOM;
 
     public String getRoute(RabbitMqProperties props) {
         return props.getRoute().get(name().toLowerCase());

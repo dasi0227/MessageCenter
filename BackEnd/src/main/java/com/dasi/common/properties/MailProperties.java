@@ -9,7 +9,7 @@ import java.util.Map;
 @Data
 @Component
 @ConfigurationProperties(prefix = "dasi.mail")
-public class MailSenderProperties {
+public class MailProperties {
     private Integer port;
     private Map<String, AuthCode> authCodes;
 

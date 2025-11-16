@@ -137,7 +137,7 @@ public class ContactServiceImpl extends ServiceImpl<ContactMapper, Contact> impl
 
         String target = switch (channel) {
             case EMAIL -> contact.getEmail();
-            case SMS -> contact.getPhone();
+            case WECOM -> contact.getPhone();
             case MAILBOX -> String.valueOf(contact.getInbox());
         };
 

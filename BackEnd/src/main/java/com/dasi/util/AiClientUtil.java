@@ -20,7 +20,8 @@ public class AiClientUtil {
     @Autowired
     private ModelProperties modelProperties;
 
-    private final WebClient webClient = WebClient.builder().build();
+    @Autowired
+    private WebClient webClient;
 
     public String call(String model, String systemPrompt, String userPrompt) {
         ApiParam apiParam = modelProperties.getModels().get(model);

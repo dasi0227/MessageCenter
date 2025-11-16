@@ -34,4 +34,6 @@ public class RedisConstant {
             "   return 1 " +
             "end"
     ;
+
+    public static final String WECOME_ACCESS_TOKEN_KEY = "wecom:access-token";
 }

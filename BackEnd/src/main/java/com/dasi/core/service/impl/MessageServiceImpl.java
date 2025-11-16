@@ -3,6 +3,7 @@ package com.dasi.core.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.emoji.EmojiUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -10,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dasi.common.annotation.AutoFill;
 import com.dasi.common.constant.RedisConstant;
 import com.dasi.common.constant.SendConstant;
+import com.dasi.common.constant.SystemConstant;
 import com.dasi.common.context.AccountContextHolder;
 import com.dasi.common.enumeration.FillType;
 import com.dasi.common.enumeration.MsgStatus;
@@ -112,6 +114,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                     .build();
 
             try {
+                checkText(dto.getContent() + dto.getSubject());
                 checkScheduleAt(dto.getScheduleAt());
                 dispatch.setTarget(contactService.resolveTarget(contact.getId(), dto.getChannel()));
                 contactService.check(dispatch);
@@ -177,6 +180,23 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         }
         if (ChronoUnit.DAYS.between(LocalDateTime.now(), scheduleAt) > 31) {
             throw new SendException(SendConstant.SCHEDULE_AFTER_MONTH);
+        }
+    }
+
+    private void checkText(String text) {
+        if (StrUtil.isBlank(text)) {
+            throw new SendException(SendConstant.TEXT_BLANK);
+        }
+        for (char c : text.toCharArray()) {
+            if (Character.isISOControl(c) && c != '\n' && c != '\t') {
+                throw new SendException(SendConstant.TEXT_ILLEGAL_CHAR);
+            }
+            if (Character.isSurrogate(c)) {
+                throw new SendException(SendConstant.TEXT_ILLEGAL_CHAR);
+            }
+        }
+        if (text.length() > SystemConstant.MAX_TEXT_LENGTH) {
+            throw new SendException(SendConstant.TEXT_TOO_LONG);
         }
     }
 

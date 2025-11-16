@@ -33,11 +33,11 @@ public class MessageListener {
         messageSender.sendEmail(dispatch);
     }
 
-    @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).SMS.getQueue(@rabbitMqProperties)}")
-    public void listenSms(Dispatch dispatch) {
+    @RabbitListener(queues = "#{T(com.dasi.common.enumeration.MsgChannel).WECOM.getQueue(@rabbitMqProperties)}")
+    public void listenWeCom(Dispatch dispatch) {
         dispatchService.updateStatus(dispatch, MsgStatus.PROCESSING, null);
         log.debug("【Listener】监听到短信：{}", dispatch);
-        messageSender.sendSms(dispatch);
+        messageSender.sendWeCom(dispatch);
     }
 
 }

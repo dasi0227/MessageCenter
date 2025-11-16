@@ -32,7 +32,7 @@ public class DlxSender {
                 .createdAt(LocalDateTime.now())
                 .payload(dispatch)
                 .build();
-        log.debug("【DlxSender】消息发送失败，转发到死信队列：{}", failure);
+        log.debug("【DlxSender】消息发送失败，转发到死信队列：{}", dispatch);
         rabbitTemplate.convertAndSend(rabbitMqProperties.getDlxExchange(), rabbitMqProperties.getDlxRoute(), failure);
     }
 
