@@ -15,9 +15,9 @@ Dasi Message Center 同时面向管理端与用户端提供完整的消息服务
 
 ### **技术栈**
 
-后端：Java 17，Spring Boot 3，MySQL，MyBatis-Plus，Redis，RabbitMQ，WebSocket，JWT，OSS，Maven
+后端：**Java 17，Spring Boot 3，MySQL，MyBatis-Plus，Redis，RabbitMQ，WebSocket，JWT，OSS，Maven**
 
-前端：Vite、Vue 3、Element-Plus、Pinia、Axios、Echarts
+前端：**Vite、Vue 3、Element-Plus、Pinia、Axios、Echarts**
 
 
 
