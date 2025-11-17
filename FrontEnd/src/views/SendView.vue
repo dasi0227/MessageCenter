@@ -461,20 +461,13 @@ const handleFileChange = async (e) => {
         const form = new FormData()
         form.append("file", file)
 
-        try {
-            const { data } = await request.post('/oss/upload', form)
+        const { data } = await request.post('/oss/upload', form)
 
-            if (data.code === 200) {
-                attachments.value.push({
-                    name: file.name,
-                    url: data.data
-                })
-            } else {
-                ElMessage.error(data.msg || '文件上传失败')
-            }
-
-        } catch {
-            ElMessage.error('网络异常，上传失败')
+        if (data.code === 200) {
+            attachments.value.push({
+                name: file.name,
+                url: data.data
+            })
         }
     }
 }
@@ -502,28 +495,23 @@ const handleSend = async () => {
         ElMessage.warning(`请填写以下必填项：${missing.join('、')}`)
         return
     }
-    try {
-        const sanitize = (str) => (str ? str.replace(/\\\$/g, '$') : str)
-        const payload = {
-            templateId: selectedTemplate.value?.id || null,
-            channel: selectedChannel.value,
-            subject: sanitize(subject.value),
-            content: sanitize(content.value),
-            attachments: attachments.value.map(f => f.url),
-            departmentId: selectedDepartment.value.id,
-            departmentName: selectedDepartment.value.name,
-            contactIds: selectedContacts.value.map(c => c.id),
-            scheduleAt: scheduleTime.value || null
-        }
-        const { data } = await request.post('/message/send', payload)
-        if (data.code === 200) {
-            ElMessage.success('发送成功')
-            resetForm()
-        } else {
-            ElMessage.error(data.msg || '发送失败')
-        }
-    } catch {
-        ElMessage.error('请求失败')
+
+    const sanitize = (str) => (str ? str.replace(/\\\$/g, '$') : str)
+    const payload = {
+        templateId: selectedTemplate.value?.id || null,
+        channel: selectedChannel.value,
+        subject: sanitize(subject.value),
+        content: sanitize(content.value),
+        attachments: attachments.value.map(f => f.url),
+        departmentId: selectedDepartment.value.id,
+        departmentName: selectedDepartment.value.name,
+        contactIds: selectedContacts.value.map(c => c.id),
+        scheduleAt: scheduleTime.value || null
+    }
+    const { data } = await request.post('/message/send', payload)
+    if (data.code === 200) {
+        ElMessage.success('发送成功')
+        resetForm()
     }
 }
 
@@ -572,11 +560,7 @@ const callAI = async () => {
         if (data.code === 200) {
             content.value = data.data || ''
             ElMessage.success("生成完成")
-        } else {
-            ElMessage.error(data.msg || "AI 生成失败")
         }
-    } catch {
-        ElMessage.error("网络异常，生成失败")
     } finally {
         aiLoading.value = false
     }

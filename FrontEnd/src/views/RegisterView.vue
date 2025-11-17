@@ -48,8 +48,6 @@ const handleRegister = () => {
 
         if (data.code === 200) {
             ElMessage.success('注册成功，请前往登陆')
-        } else {
-            ElMessage.error(data.msg || '操作失败')
         }
     })
 }

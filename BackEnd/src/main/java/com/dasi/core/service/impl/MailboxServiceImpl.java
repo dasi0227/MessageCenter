@@ -25,6 +25,7 @@ import com.dasi.pojo.entity.Contact;
 import com.dasi.pojo.entity.Mailbox;
 import com.dasi.pojo.vo.MailboxLoginVO;
 import com.dasi.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -157,6 +158,14 @@ public class MailboxServiceImpl extends ServiceImpl<MailboxMapper, Mailbox> impl
         if (!flag) {
             log.warn("【Mailbox Service】更新失败，没有记录或值无变化：{}", dto);
         }
+    }
+
+    @Override
+    public String refresh(HttpServletRequest request) {
+        String oldToken = request.getHeader(jwtProperties.getContactTokenName());
+        String newToken = jwtUtil.refreshToken(oldToken);
+        log.debug("【Account Service】刷新 Token ：{}", newToken);
+        return newToken;
     }
 
 }

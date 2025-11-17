@@ -54,8 +54,6 @@ const handleLogin = () => {
             contactStore.setContact(data.data)
             ElMessage.success('登录成功')
             router.push('/mailbox/reserve')
-        } else {
-            ElMessage.error(data.msg || '登录失败')
         }
     })
 }

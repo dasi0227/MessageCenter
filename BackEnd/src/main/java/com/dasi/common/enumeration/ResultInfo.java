@@ -7,9 +7,7 @@ public enum ResultInfo {
 
     REQUEST_SUCCESS                 (200, "操作成功"),
     REQUEST_FAIL                    (400, "请求失败"),
-    TOKEN_MISSING                   (401, "缺少认证令牌"),
-    TOKEN_INVALID                   (402, "无效的令牌"),
-    TOKEN_EXPIRED                   (403, "令牌已过期"),
+    TOKEN_ERROR                     (401, "令牌无效"),
     PATH_VALIDATE_FAIL              (500, "路径校验失败"),
     FILE_UPLOAD_FAIL                (501, "文件上传失败"),
 
@@ -37,7 +35,9 @@ public enum ResultInfo {
     RENDER_REMOVE_FAIL              (1013, "系统预设字段不可删除"),
     UNIQUE_FIELD_CONFLICT           (1014, "名称已存在"),
     MESSAGE_NOT_FOUND               (1015, "消息不存在"),
-    FILE_TOO_LARGE                  (1016, "上传文件过大，不允许超过 1 MB");
+    FILE_TOO_LARGE                  (1016, "上传文件过大，不允许超过 1 MB"),
+    FILE_NOT_FOUND                  (1017, "文件不存在"),
+    FILE_DOWNLOAD_ERROR             (1018, "文件下载失败");
 
     private final int code;
     private final String message;

@@ -19,6 +19,7 @@
                 <el-form-item class="form-actions">
                     <el-button type="primary" @click="handleLogin">登录</el-button>
                     <el-button type="text" @click="$router.push('/register')">前往注册</el-button>
+                    <el-button type="text" @click="goMailbox">前往站内信</el-button>
                 </el-form-item>
             </el-form>
         </el-card>
@@ -47,6 +48,10 @@ const rules = {
     password: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
 }
 
+const goMailbox = () => {
+    window.open('/mailbox/login', '_blank')
+}
+
 const handleLogin = () => {
     formRef.value.validate(async (valid) => {
         if (!valid) return
@@ -55,8 +60,6 @@ const handleLogin = () => {
             accountStore.setAccount(data.data)
             ElMessage.success('登录成功')
             router.push('/dashboard')
-        } else {
-            ElMessage.error(data.msg || '操作失败')
         }
     })
 }

@@ -121,7 +121,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '../api/request'
-import { ElMessage } from 'element-plus'
 import { formatDate } from '../util/format'
 
 const router = useRouter()
@@ -149,64 +148,54 @@ const contactNameMap = ref({})
 
 // 初始化加载一次所有数据
 const initOptions = async () => {
-    try {
-        const [accRes, depRes, chRes, contactRes] = await Promise.all([
-            request.get('/account/list'),
-            request.get('/department/list'),
-            request.get('/message/channel/list'),
-            request.get('/contact/list'),
-        ])
+    const [accRes, depRes, chRes, contactRes] = await Promise.all([
+        request.get('/account/list'),
+        request.get('/department/list'),
+        request.get('/message/channel/list'),
+        request.get('/contact/list'),
+    ])
 
-        if (accRes.data.code === 200) accountList.value = accRes.data.data
-        if (depRes.data.code === 200) departmentList.value = depRes.data.data
-        if (chRes.data.code === 200) channelList.value = chRes.data.data
-        if (contactRes.data.code === 200) {
-            contactNameMap.value = Object.fromEntries(
-                contactRes.data.data.map((c) => [c.id, c.name])
-            )
-        }
-    } catch {
-        ElMessage.error('初始化下拉数据失败')
+    if (accRes.data.code === 200) accountList.value = accRes.data.data
+    if (depRes.data.code === 200) departmentList.value = depRes.data.data
+    if (chRes.data.code === 200) channelList.value = chRes.data.data
+    if (contactRes.data.code === 200) {
+        contactNameMap.value = Object.fromEntries(
+            contactRes.data.data.map((c) => [c.id, c.name])
+        )
     }
 }
 
 // 分页获取消息
 const getPage = async () => {
-    try {
-        const [startTime, endTime] = timeRange.value || []
-        const hasFilter = !!(
-            subject.value ||
-            selectedAccount.value ||
-            selectedDepartment.value ||
-            selectedChannel.value ||
-            startTime ||
-            endTime
-        )
-        const { data } = await request.post('/message/page', {
-            pageNum: pageNum.value,
-            pageSize: pageSize.value,
-            subject: subject.value,
-            accountId: selectedAccount.value?.id,
-            departmentId: selectedDepartment.value?.id,
-            channel: selectedChannel.value,
-            startTime,
-            endTime,
-            pure: !hasFilter
+    const [startTime, endTime] = timeRange.value || []
+    const hasFilter = !!(
+        subject.value ||
+        selectedAccount.value ||
+        selectedDepartment.value ||
+        selectedChannel.value ||
+        startTime ||
+        endTime
+    )
+    const { data } = await request.post('/message/page', {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
+        subject: subject.value,
+        accountId: selectedAccount.value?.id,
+        departmentId: selectedDepartment.value?.id,
+        channel: selectedChannel.value,
+        startTime,
+        endTime,
+        pure: !hasFilter
+    })
+    if (data.code === 200) {
+        tableData.value = data.data.records.map((m) => {
+            const names =
+                Array.isArray(m.contactIds) && m.contactIds.length > 0
+                    ? m.contactIds.map((id) => contactNameMap.value[id] || `未知(${id})`).join(', ')
+                    : '—'
+            return { ...m, contactNames: names }
         })
-        if (data.code === 200) {
-            tableData.value = data.data.records.map((m) => {
-                const names =
-                    Array.isArray(m.contactIds) && m.contactIds.length > 0
-                        ? m.contactIds.map((id) => contactNameMap.value[id] || `未知(${id})`).join(', ')
-                        : '—'
-                return { ...m, contactNames: names }
-            })
-            total.value = data.data.total
-        } else {
-            ElMessage.error(data.msg || '加载失败')
-        }
-    } catch {
-        ElMessage.error('请求失败，请检查接口')
+        total.value = data.data.total
     }
 }
 

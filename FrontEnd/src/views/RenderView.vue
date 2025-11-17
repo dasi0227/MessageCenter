@@ -157,16 +157,15 @@ const submitEdit = async () => {
 // 删除
 const handleDelete = (item) => {
     ElMessageBox.confirm(`确定要删除变量「${item.name}」吗？`, '提示', { type: 'warning' })
-        .then(async () => {
-            const { data } = await request.post(`/render/remove/${item.id}`)
-            if (data.code === 200) {
-                ElMessage.success('删除成功')
-                getList()
-            } else {
-                ElMessage.error(data.msg || '删除失败')
-            }
-        })
-        .catch(() => {})
+    .then(async () => {
+        const { data } = await request.post(`/render/remove/${item.id}`)
+        if (data.code === 200) {
+            ElMessage.success('删除成功')
+            getList()
+        } else {
+            ElMessage.error(data.msg || '删除失败')
+        }
+    })
 }
 
 // 新增

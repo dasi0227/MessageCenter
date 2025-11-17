@@ -8,6 +8,7 @@ import com.dasi.pojo.dto.ContactLoginDTO;
 import com.dasi.pojo.dto.MailboxPageDTO;
 import com.dasi.pojo.entity.Mailbox;
 import com.dasi.pojo.vo.MailboxLoginVO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,12 @@ public class MailboxController {
 
     @Autowired
     private MailboxService mailboxService;
+
+    @PostMapping("/refresh")
+    public Result<String> refresh(HttpServletRequest request) {
+        String newToken = mailboxService.refresh(request);
+        return Result.success(newToken);
+    }
 
     @PostMapping("/page")
     public Result<PageResult<Mailbox>> getMailboxPage(@Valid @RequestBody MailboxPageDTO dto) {

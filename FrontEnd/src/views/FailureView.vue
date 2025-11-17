@@ -119,57 +119,41 @@ const detail = ref({})
 
 // 初始化状态列表
 const initOptions = async () => {
-    try {
-        const { data } = await request.get('/failure/status/list')
-        if (data.code === 200) statusList.value = data.data
-    } catch {
-        ElMessage.error('加载状态列表失败')
-    }
+    const { data } = await request.get('/failure/status/list')
+    if (data.code === 200) statusList.value = data.data
 }
 
 // 获取分页数据
 const getPage = async () => {
-    try {
-        const hasFilter = !!(
-            query.value.errorType ||
-            query.value.errorMessage ||
-            query.value.status ||
-            (query.value.timeRange && query.value.timeRange.length > 0)
-        )
+    const hasFilter = !!(
+        query.value.errorType ||
+        query.value.errorMessage ||
+        query.value.status ||
+        (query.value.timeRange && query.value.timeRange.length > 0)
+    )
 
-        const { data } = await request.post('/failure/page', {
-            pageNum: pageNum.value,
-            pageSize: pageSize.value,
-            errorType: query.value.errorType || null,
-            errorMessage: query.value.errorMessage || null,
-            status: query.value.status || null,
-            startTime: query.value.timeRange?.[0] || null,
-            endTime: query.value.timeRange?.[1] || null,
-            pure: !hasFilter
-        })
-        if (data.code === 200) {
-            tableData.value = data.data.records
-            total.value = data.data.total
-        } else {
-            ElMessage.error(data.msg || '加载失败')
-        }
-    } catch {
-        ElMessage.error('请求失败，请检查接口')
+    const { data } = await request.post('/failure/page', {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
+        errorType: query.value.errorType || null,
+        errorMessage: query.value.errorMessage || null,
+        status: query.value.status || null,
+        startTime: query.value.timeRange?.[0] || null,
+        endTime: query.value.timeRange?.[1] || null,
+        pure: !hasFilter
+    })
+    if (data.code === 200) {
+        tableData.value = data.data.records
+        total.value = data.data.total
     }
 }
 
 // 更新状态
 const updateStatus = async (row, status) => {
-    try {
-        const { data } = await request.post('/failure/status', { id: row.id, status })
-        if (data.code === 200) {
-            ElMessage.success('状态更新成功')
-            getPage()
-        } else {
-            ElMessage.error(data.msg || '更新失败')
-        }
-    } catch {
-        ElMessage.error('请求异常')
+    const { data } = await request.post('/failure/status', { id: row.id, status })
+    if (data.code === 200) {
+        ElMessage.success('状态更新成功')
+        getPage()
     }
 }
 

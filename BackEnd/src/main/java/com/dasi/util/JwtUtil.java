@@ -4,7 +4,6 @@ import com.dasi.common.enumeration.ResultInfo;
 import com.dasi.common.exception.JwtErrorException;
 import com.dasi.common.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -48,7 +47,7 @@ public class JwtUtil {
     public Claims parseToken(String token) {
         try {
             if (token == null || token.isBlank()) {
-                throw new JwtErrorException(ResultInfo.TOKEN_MISSING);
+                throw new JwtErrorException(ResultInfo.TOKEN_ERROR);
             }
 
             return Jwts.parserBuilder()
@@ -56,12 +55,9 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (ExpiredJwtException e) {
+        } catch (JwtException e) {
             log.warn("JWT 校验失败：{}", e.getMessage());
-            throw new JwtErrorException(ResultInfo.TOKEN_EXPIRED);
-        } catch (JwtException exception) {
-            log.error("JWT 校验失败：{}", exception.getMessage());
-            throw new JwtErrorException(ResultInfo.TOKEN_INVALID);
+            throw new JwtErrorException(ResultInfo.TOKEN_ERROR);
         }
     }
 

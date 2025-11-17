@@ -7,6 +7,7 @@ import com.dasi.pojo.dto.ContactLoginDTO;
 import com.dasi.pojo.dto.MailboxPageDTO;
 import com.dasi.pojo.entity.Mailbox;
 import com.dasi.pojo.vo.MailboxLoginVO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 public interface MailboxService extends IService<Mailbox> {
@@ -21,4 +22,6 @@ public interface MailboxService extends IService<Mailbox> {
     MailboxLoginVO login(@Valid ContactLoginDTO dto);
 
     void updateContact(@Valid ContactUpdate4MailboxDTO dto);
+
+    String refresh(HttpServletRequest request);
 }

@@ -22,7 +22,6 @@ public class GlobalExceptionHandler {
     public Result<Void> exceptionHandler(MessageCenterException exception) {
         ResultInfo resultInfo = exception.getResultInfo();
         log.error("【消息中心业务错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage());
-        exception.printStackTrace(System.err);
         return Result.fail(resultInfo);
     }
 
@@ -31,8 +30,7 @@ public class GlobalExceptionHandler {
         ResultInfo resultInfo = ResultInfo.PARAM_ERROR;
         String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.error("【参数校验错误】Code={}, Message={}", resultInfo.getCode(), resultInfo.getMessage() + ":" + message);
-        exception.printStackTrace(System.err);
-        return solveException(ResultInfo.PARAM_ERROR, exception);
+        return Result.fail(resultInfo);
     }
 
     @ExceptionHandler

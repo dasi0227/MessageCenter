@@ -94,7 +94,6 @@ const editForm = ref({ id: null, name: '', subject: '', content: '' })
 const getList = async () => {
     const { data } = await request.get('/template/list')
     if (data.code === 200) templateList.value = data.data
-    else ElMessage.error(data.msg || '加载失败')
 }
 
 // 打开详情 / 编辑
@@ -110,26 +109,19 @@ const submitEdit = async () => {
         ElMessage.success('修改成功')
         editVisible.value = false
         getList()
-    } else {
-        ElMessage.error(data.msg || '修改失败')
     }
 }
 
 // 删除
 const handleDelete = (tpl) => {
-    ElMessageBox.confirm(`确定要删除模版「${tpl.name}」吗？`, '提示', {
-        type: 'warning'
+    ElMessageBox.confirm(`确定要删除模版「${tpl.name}」吗？`, '提示', {type: 'warning'})
+    .then(async () => {
+        const { data } = await request.post(`/template/remove/${tpl.id}`)
+        if (data.code === 200) {
+            ElMessage.success('删除成功')
+            getList()
+        }
     })
-        .then(async () => {
-            const { data } = await request.post(`/template/remove/${tpl.id}`)
-            if (data.code === 200) {
-                ElMessage.success('删除成功')
-                getList()
-            } else {
-                ElMessage.error(data.msg || '删除失败')
-            }
-        })
-        .catch(() => {})
 }
 
 // 新增
@@ -148,8 +140,6 @@ const submitAdd = async () => {
         ElMessage.success('新增成功')
         addVisible.value = false
         getList()
-    } else {
-        ElMessage.error(data.msg || '新增失败')
     }
 }
 

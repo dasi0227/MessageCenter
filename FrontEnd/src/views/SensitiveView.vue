@@ -68,24 +68,18 @@ const isSubmitting = ref(false)
 const getList = async () => {
     const { data } = await request.get('/sensitive/list')
     if (data.code === 200) wordList.value = data.data
-    else ElMessage.error(data.msg || '加载失败')
 }
 
 // 删除
 const handleDelete = (word) => {
-    ElMessageBox.confirm(`确定要删除敏感词「${word.word}」吗？`, '提示', {
-        type: 'warning'
+    ElMessageBox.confirm(`确定要删除敏感词「${word.word}」吗？`, '提示', {type: 'warning'})
+    .then(async () => {
+        const { data } = await request.post(`/sensitive/remove/${word.id}`)
+        if (data.code === 200) {
+            ElMessage.success('删除成功')
+            getList()
+        }
     })
-        .then(async () => {
-            const { data } = await request.post(`/sensitive/remove/${word.id}`)
-            if (data.code === 200) {
-                ElMessage.success('删除成功')
-                getList()
-            } else {
-                ElMessage.error(data.msg || '删除失败')
-            }
-        })
-        .catch(() => {})
 }
 
 // 开始编辑
@@ -105,6 +99,7 @@ const submitEdit = async (word, event) => {
     isSubmitting.value = true
 
     const newWord = event.target.innerText.trim()
+
     if (!newWord) {
         ElMessage.warning('敏感词不能为空')
         event.target.innerText = word.word
@@ -112,30 +107,31 @@ const submitEdit = async (word, event) => {
         isSubmitting.value = false
         return
     }
+
     if (newWord === word.word) {
         editId.value = null
         isSubmitting.value = false
         return
     }
 
-    try {
-        const { data } = await request.post('/sensitive/update', { id: word.id, word: newWord })
-        if (data.code === 200) {
-            ElMessage.success('修改成功')
-            editId.value = null
-            getList()
-        } else {
-            ElMessage.error(data.msg || '修改失败')
-            event.target.innerText = word.word
-            editId.value = null
-        }
-    } catch {
-        ElMessage.error('请求异常，修改未保存')
+    let ok = false
+
+    await request.post('/sensitive/update', { id: word.id, word: newWord })
+        .then(({ data }) => {
+            if (data.code === 200) {
+                ok = true
+                ElMessage.success('修改成功')
+                editId.value = null
+                getList()
+            }
+        })
+
+    if (!ok) {
         event.target.innerText = word.word
         editId.value = null
-    } finally {
-        isSubmitting.value = false
     }
+
+    isSubmitting.value = false
 }
 
 // 打开新增弹窗
@@ -146,7 +142,6 @@ const handleAdd = () => {
 
 // 输入逻辑：保持前面无空行 + 始终多一个空输入框
 const handleDynamicInput = (index) => {
-    // 去掉中间空行
     addInputs.value = addInputs.value.filter((w, i, arr) => w.trim() !== '' || i === arr.length - 1)
     const last = addInputs.value[addInputs.value.length - 1]
     if (last.trim() !== '') addInputs.value.push('')
@@ -162,8 +157,6 @@ const submitAdd = async () => {
         ElMessage.success('新增成功')
         addVisible.value = false
         getList()
-    } else {
-        ElMessage.error(data.msg || '新增失败')
     }
 }
 

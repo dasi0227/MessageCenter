@@ -17,7 +17,7 @@
                 router
                 background-color="#1e2b3a"
                 text-color="#bfcbd9"
-                active-text-color="#ffd04b"
+                active-text-color="#FF6B6B"
                 :collapse="isCollapsed"
             >
                 <!-- 系统模块 -->
@@ -67,7 +67,9 @@
                         <el-tooltip content="查看错误消息" placement="bottom">
                             <el-button link class="icon-btn" @click="goFailurePage">
                                 <el-badge :value="unsolvedNum" :hidden="unsolvedNum === 0" type="danger">
-                                    <el-icon size="22"><WarningFilled /></el-icon>
+                                    <el-icon size="22" :class="{ 'failure-active': isFailurePage }">
+                                        <WarningFilled />
+                                    </el-icon>
                                 </el-badge>
                             </el-button>
                         </el-tooltip>
@@ -169,7 +171,7 @@
 
 <script setup>
 /** ===================== 引入依赖 ===================== */
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Sunny, Moon, User, FullScreen, Monitor, Fold, Expand, Refresh, Link, StarFilled, WarningFilled, MessageBox } from '@element-plus/icons-vue'
@@ -184,10 +186,17 @@ const pageTitle = ref(route.meta.title || '控制台')
 
 const name = account.name
 const role = account.role
-const activeMenu = ref(route.path)
+const activeMenu = computed(() => {
+    if (route.path.startsWith('/failure')) {
+        return ''
+    }
+    return route.path
+})
 const darkMode = ref(false)
 const isFullscreen = ref(false)
 const isCollapsed = ref(false)
+
+const isFailurePage = computed(() => route.path.startsWith('/failure'))
 
 /** ===================== 定时器与数据状态 ===================== */
 const unsolvedNum = ref(0) // 未解决数量
@@ -234,18 +243,12 @@ const fetchFailureNum = async () => {
 
 /** ===================== 定时刷新账号信息 ===================== */
 const refreshAccount = async () => {
-    try {
-        const { data } = await request.post('/account/refresh')
-        if (data.code === 200 && data.data) {
-            const newToken = data.data
-            account.token = newToken
-            localStorage.setItem('account_state', JSON.stringify(account.$state))
-            request.defaults.headers['Authorization-Account'] = newToken
-        } else {
-            console.warn('⚠️ 刷新 token 失败:', data.msg || data)
-        }
-    } catch (e) {
-        console.warn('❌ 刷新账号信息失败', e)
+    const { data } = await request.post('/account/refresh')
+    if (data.code === 200 && data.data) {
+        const newToken = data.data
+        account.token = newToken
+        localStorage.setItem('account_state', JSON.stringify(account.$state))
+        request.defaults.headers['Authorization-Account'] = newToken
     }
 }
 
@@ -507,5 +510,8 @@ const refreshPage = async () => {
     background-color: #0e203a !important;
     color: #f0f0f0 !important;
     transition: background-color 0.3s;
+}
+.failure-active {
+    color: #FF6B6B !important;
 }
 </style>

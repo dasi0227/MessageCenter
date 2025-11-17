@@ -115,25 +115,19 @@ const resetFilters = () => {
 }
 
 const getPage = async () => {
-    try {
-        const hasFilter = !!(name.value || selectedRole.value)
+    const hasFilter = !!(name.value || selectedRole.value)
 
-        const { data } = await request.post('/account/page', {
-            pageNum: pageNum.value,
-            pageSize: pageSize.value,
-            name: name.value,
-            role: selectedRole.value,
-            pure: !hasFilter
-        })
-        
-        if (data.code === 200) {
-            tableData.value = data.data.records
-            total.value = data.data.total
-        } else {
-            ElMessage.error(data.msg || '加载失败')
-        }
-    } catch {
-        ElMessage.error('请求失败，请检查接口')
+    const { data } = await request.post('/account/page', {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
+        name: name.value,
+        role: selectedRole.value,
+        pure: !hasFilter
+    })
+    
+    if (data.code === 200) {
+        tableData.value = data.data.records
+        total.value = data.data.total
     }
 }
 
@@ -154,16 +148,13 @@ const handleDelete = (row) => {
     ElMessageBox.confirm(`确定要删除账户「${row.name}」吗？`, '提示', {
         type: 'warning'
     })
-        .then(async () => {
-            const { data } = await request.post(`/account/remove/${row.id}`)
-            if (data.code === 200) {
-                ElMessage.success('删除成功')
-                getPage()
-            } else {
-                ElMessage.error(data.msg || '删除失败')
-            }
-        })
-        .catch(() => {})
+    .then(async () => {
+        const { data } = await request.post(`/account/remove/${row.id}`)
+        if (data.code === 200) {
+            ElMessage.success('删除成功')
+            getPage()
+        }
+    })
 }
 
 // 修改账户
@@ -178,8 +169,6 @@ const submitEdit = async () => {
         ElMessage.success('修改成功')
         editVisible.value = false
         getPage()
-    } else {
-        ElMessage.error(data.msg || '修改失败')
     }
 }
 
@@ -195,8 +184,6 @@ const submitAdd = async () => {
         ElMessage.success('新增成功')
         addVisible.value = false
         getPage()
-    } else {
-        ElMessage.error(data.msg || '新增失败')
     }
 }
 

@@ -19,6 +19,7 @@ public class CorsConfig implements WebMvcConfigurer {
         config.setAllowCredentials(true); // 允许携带 Cookie
         config.addAllowedHeader("*"); // 允许所有请求头
         config.addAllowedMethod("*"); // 允许所有请求方法（GET/POST/DELETE/PUT）
+        config.addExposedHeader("*"); // 允许下载文件
         config.setMaxAge(3600L); // 预检请求缓存 1 小时
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

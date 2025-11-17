@@ -4,6 +4,8 @@ import com.dasi.common.annotation.RateLimit;
 import com.dasi.common.result.Result;
 import com.dasi.core.service.OssFileService;
 import com.dasi.pojo.dto.FileNameListDTO;
+import com.dasi.pojo.dto.OssFileDownloadDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,16 @@ public class OssFileController {
     public Result<String> uploadFile(@NotNull @RequestParam("file") MultipartFile file) {
         String result = ossFileService.uploadFile(file);
         return Result.success(result);
+    }
+
+    @RateLimit(
+            limit = 10,
+            ttl = 10,
+            message = "繁忙中，请稍后重试！"
+    )
+    @PostMapping("/download")
+    public void downloadFile(@RequestBody OssFileDownloadDTO dto, HttpServletResponse response) {
+        ossFileService.downloadFile(dto, response);
     }
 
     @PostMapping("/name")

@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useContactStore } from '../../store/contact'
 import { Link, StarFilled } from '@element-plus/icons-vue'
@@ -90,6 +90,7 @@ const store = useContactStore()
 const route = useRoute()
 const router = useRouter()
 
+
 const logout = () => {
     store.clearContact()
     router.push('/mailbox/login')
@@ -98,6 +99,29 @@ const logout = () => {
 const active = computed(() =>
     route.path.includes('recycle') ? 'recycle' : 'reserve'
 )
+
+// ======================
+// 自动刷新邮箱 Token
+// ======================
+let refreshTimer = null
+const refreshMailbox = async () => {
+    const { data } = await request.post('/mailbox/refresh')
+    if (data.code === 200 && data.data) {
+        store.token = data.data
+        localStorage.setItem(
+            'contact_state',
+            JSON.stringify(store.$state)
+        )
+        request.defaults.headers['Authorization-Mailbox'] = data.data
+    }
+}
+onMounted(() => {
+    refreshTimer = setInterval(refreshMailbox, 30000)
+    refreshMailbox()
+})
+onBeforeUnmount(() => {
+    if (refreshTimer) clearInterval(refreshTimer)
+})
 
 /* ======================
    修改信息弹窗逻辑
@@ -139,8 +163,6 @@ const submitEdit = async () => {
 
         ElMessage.success('修改成功')
         dialogVisible.value = false
-    } else {
-        ElMessage.error(data.msg)
     }
 }
 </script>

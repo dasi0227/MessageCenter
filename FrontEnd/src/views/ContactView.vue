@@ -149,31 +149,25 @@ const resetFilters = () => {
 }
 
 const getPage = async () => {
-    try {
-        const hasFilter =
-            (name.value && name.value.trim() !== '') ||
-            (phone.value && phone.value.trim() !== '') ||
-            (email.value && email.value.trim() !== '') ||
-            status.value !== null && status.value !== undefined
+    const hasFilter =
+        (name.value && name.value.trim() !== '') ||
+        (phone.value && phone.value.trim() !== '') ||
+        (email.value && email.value.trim() !== '') ||
+        status.value !== null && status.value !== undefined
 
-        const { data } = await request.post('/contact/page', {
-            pageNum: pageNum.value,
-            pageSize: pageSize.value,
-            name: name.value,
-            phone: phone.value,
-            email: email.value,
-            status: status.value,
-            pure: !hasFilter
-        })
-        
-        if (data.code === 200) {
-            tableData.value = data.data.records
-            total.value = data.data.total
-        } else {
-            ElMessage.error(data.msg || '加载失败')
-        }
-    } catch {
-        ElMessage.error('请求失败，请检查接口')
+    const { data } = await request.post('/contact/page', {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
+        name: name.value,
+        phone: phone.value,
+        email: email.value,
+        status: status.value,
+        pure: !hasFilter
+    })
+    
+    if (data.code === 200) {
+        tableData.value = data.data.records
+        total.value = data.data.total
     }
 }
 
@@ -186,36 +180,31 @@ const handleSearch = () => {
 // 删除
 const handleDelete = (row) => {
     ElMessageBox.confirm(`确定要删除联系人「${row.name}」吗？`, '提示', { type: 'warning' })
-        .then(async () => {
-            const { data } = await request.post(`/contact/remove/${row.id}`)
-            if (data.code === 200) {
-                ElMessage.success('删除成功')
-                getPage()
-            } else {
-                ElMessage.error(data.msg || '删除失败')
-            }
-        })
-        .catch(() => {})
+    .then(async () => {
+        const { data } = await request.post(`/contact/remove/${row.id}`)
+        if (data.code === 200) {
+            ElMessage.success('删除成功')
+            getPage()
+        }
+    })
 }
 
 // 状态开关（乐观更新 + 失败回滚）
 const onStatusChange = async (row) => {
-    const prev = row.status === 1 ? 0 : 1 // 变更前的状态
+    const prev = row.status === 1 ? 0 : 1
     loadingIds.value.add(row.id)
-    try {
-        const { data } = await request.post('/contact/status', { id: row.id, status: row.status })
-        if (data.code === 200) {
-            ElMessage.success(`已${row.status === 1 ? '启用' : '禁用'}「${row.name}」`)
-        } else {
-            row.status = prev // 回滚
-            ElMessage.error(data.msg || '状态更新失败')
-        }
-    } catch {
-        row.status = prev // 回滚
-        ElMessage.error('请求失败，已回滚状态')
-    } finally {
-        loadingIds.value.delete(row.id)
-    }
+    let ok = false
+
+    await request.post('/contact/status', { id: row.id, status: row.status })
+        .then(({ data }) => {
+            if (data.code === 200) {
+                ok = true
+                ElMessage.success(`已${row.status === 1 ? '启用' : '禁用'}「${row.name}」`)
+            }
+        })
+
+    if (!ok) row.status = prev
+    loadingIds.value.delete(row.id)
 }
 
 // 修改
@@ -236,8 +225,6 @@ const submitEdit = async () => {
         ElMessage.success('修改成功')
         editVisible.value = false
         getPage()
-    } else {
-        ElMessage.error(data.msg || '修改失败')
     }
 }
 
@@ -252,8 +239,6 @@ const submitAdd = async () => {
         ElMessage.success('新增成功')
         addVisible.value = false
         getPage()
-    } else {
-        ElMessage.error(data.msg || '新增失败')
     }
 }
 

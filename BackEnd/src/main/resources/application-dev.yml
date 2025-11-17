@@ -70,7 +70,7 @@ dasi:
   jwt:
     secret-key: ${JWT_SECRET}
     signature-algorithm: ${JWT_ALGORITHM}
-    ttl: 100000
+    ttl: ${JWT_TTL:10000000000}
 
     account-token-name: Authorization-Account
     account-id-claim-key: AccountId

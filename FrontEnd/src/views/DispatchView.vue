@@ -176,59 +176,66 @@ const downloadAttachment = (idx) => {
         `是否下载附件：${name}？`,
         '提示',
         { confirmButtonText: '下载', cancelButtonText: '取消', type: 'info' }
-    ).then(() => {
+    ).then(async () => {
+        const res = await request.post('/oss/download', { url }, { responseType: 'blob' })
+
+        let filename = name
+        const disposition = res.headers['content-disposition']
+        if (disposition) {
+            const match = disposition.match(/filename="(.+)"/)
+            if (match) {
+                filename = decodeURIComponent(match[1])
+            }
+        }
+
+        const blob = new Blob([res.data])
+        const downloadUrl = URL.createObjectURL(blob)
+
         const a = document.createElement('a')
-        a.href = url
-        a.download = name
+        a.href = downloadUrl
+        a.download = filename
         a.click()
+
+        URL.revokeObjectURL(downloadUrl)
+        ElMessage.success('下载成功')
     })
 }
 
 // 初始化选项
 const initOptions = async () => {
-    try {
-        const [contactRes, statusRes, msgRes] = await Promise.all([
-            request.get('/contact/list'),
-            request.get('/message/status/list'),
-            request.get(`/message/${messageId}`)
-        ])
-        if (contactRes.data.code === 200)   contactList.value = contactRes.data.data
-        if (statusRes.data.code === 200)    statusList.value = statusRes.data.data
-        if (msgRes.data.code === 200)       messageInfo.value = msgRes.data.data
+    const [contactRes, statusRes, msgRes] = await Promise.all([
+        request.get('/contact/list'),
+        request.get('/message/status/list'),
+        request.get(`/message/${messageId}`)
+    ])
+    if (contactRes.data.code === 200)   contactList.value = contactRes.data.data
+    if (statusRes.data.code === 200)    statusList.value = statusRes.data.data
+    if (msgRes.data.code === 200)       messageInfo.value = msgRes.data.data
 
-        if (messageInfo.value.attachments?.length) {
-            const { data } = await request.post('/oss/name', {
-                urls: messageInfo.value.attachments
-            })
-            if (data.code === 200) {
-                attachmentNames.value = data.data
-            }
+    if (messageInfo.value.attachments?.length) {
+        const { data } = await request.post('/oss/name', {
+            urls: messageInfo.value.attachments
+        })
+        if (data.code === 200) {
+            attachmentNames.value = data.data
         }
-    } catch {
-        ElMessage.error('初始化数据失败')
     }
 }
 
 // 查询派送详情
 const getPage = async () => {
-    try {
-        const hasFilter = !!(selectedStatus.value || selectedContact.value)
-        const { data } = await request.post('/message/detail', {
-            messageId,
-            pageNum: pageNum.value,
-            pageSize: pageSize.value,
-            status: selectedStatus.value,
-            contactId: selectedContact.value,
-            pure: !hasFilter
-        })
-        if (data.code === 200) {
-            tableData.value = data.data.records
-            total.value = data.data.total
-        } else {
-            ElMessage.error(data.msg || '加载失败')
-        }
-    } catch {
-        ElMessage.error('请求失败，请检查接口')
+    const hasFilter = !!(selectedStatus.value || selectedContact.value)
+    const { data } = await request.post('/message/detail', {
+        messageId,
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
+        status: selectedStatus.value,
+        contactId: selectedContact.value,
+        pure: !hasFilter
+    })
+    if (data.code === 200) {
+        tableData.value = data.data.records
+        total.value = data.data.total
     }
 }
 
