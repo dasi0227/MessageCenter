@@ -2,6 +2,8 @@
 
 > 本项目是我将实习期间学习到的 **Spring Boot、Redis、RabbitMQ、前后端分离、消息中台架构** 等内容进行整合复现，真正完成的 **第一个完整可落地的后端项目**。
 
+
+
 ## 1. 💡 项目介绍
 
 ### 简介
@@ -16,6 +18,8 @@ Dasi Message Center 同时面向管理端与用户端提供完整的消息服务
 后端：Java 17，Spring Boot 3，MySQL，MyBatis-Plus，Redis，RabbitMQ，WebSocket，JWT，OSS，Maven
 
 前端：Vite、Vue 3、Element-Plus、Pinia、Axios、Echarts
+
+
 
 ## 2. 🎯 核心功能
 
@@ -79,7 +83,7 @@ Dasi Message Center 同时面向管理端与用户端提供完整的消息服务
 - 支持**检查派送信息**：筛查状态切换异常和未正确完成投递的 `Dispatch`，转发到死信队列处理
 - 支持**检查未使用的云存储文件**：通过 `used` 字段标记文件是否使用，短期内清理未使用的文件，同时清理 7 天前的所有文件
 
-### 发送体系
+
 
 ## 3. 🖥️ 项目演示
 
@@ -176,6 +180,8 @@ Dasi Message Center 同时面向管理端与用户端提供完整的消息服务
 #### 企业微信
 
 ![image-20251117024600810](./assets/image-20251117024600810.png)
+
+
 
 ## 4. 🚀 快速开始
 
