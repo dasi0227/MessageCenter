@@ -38,7 +38,8 @@ public class FailureServiceImpl extends ServiceImpl<FailureMapper, Failure> impl
                 .like(StrUtil.isNotBlank(dto.getErrorType()), Failure::getErrorType, dto.getErrorType())
                 .like(StrUtil.isNotBlank(dto.getErrorMessage()), Failure::getErrorMessage, dto.getErrorMessage())
                 .ge(dto.getStartTime() != null, Failure::getCreatedAt, dto.getStartTime())
-                .le(dto.getEndTime() != null, Failure::getCreatedAt, dto.getEndTime());
+                .le(dto.getEndTime() != null, Failure::getCreatedAt, dto.getEndTime())
+                .orderByDesc(Failure::getCreatedAt);
 
         Page<Failure> result = page(param, wrapper);
 

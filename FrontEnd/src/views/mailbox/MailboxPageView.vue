@@ -295,7 +295,7 @@ watch(dialogVisible, (v) => {
 
 
 // -----------------------
-// 下载附件
+// 附件弹窗下载
 // -----------------------
 const downloadAttachment = (idx) => {
     const url = detail.attachments[idx]
@@ -304,17 +304,29 @@ const downloadAttachment = (idx) => {
     ElMessageBox.confirm(
         `是否下载附件：${name}？`,
         '提示',
-        {
-            confirmButtonText: '下载',
-            cancelButtonText: '取消',
-            type: 'info'
+        { confirmButtonText: '下载', cancelButtonText: '取消', type: 'info' }
+    ).then(async () => {
+        const res = await request.post('/oss/download', { url }, { responseType: 'blob' })
+
+        let filename = name
+        const disposition = res.headers['content-disposition']
+        if (disposition) {
+            const match = disposition.match(/filename="(.+)"/)
+            if (match) {
+                filename = decodeURIComponent(match[1])
+            }
         }
-    ).then(() => {
+
+        const blob = new Blob([res.data])
+        const downloadUrl = URL.createObjectURL(blob)
+
         const a = document.createElement('a')
-        a.href = url
-        a.download = name
-        a.target = '_self'
+        a.href = downloadUrl
+        a.download = filename
         a.click()
+
+        URL.revokeObjectURL(downloadUrl)
+        ElMessage.success('下载成功')
     })
 }
 

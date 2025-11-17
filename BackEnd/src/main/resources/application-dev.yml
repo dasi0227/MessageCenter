@@ -60,10 +60,10 @@ dasi:
   mail:
     port: ${MAIL_PORT:465}
     auth-codes:
-      "[${MAIL_QQ_EMAIL}@qq.com]":
+      - email: ${MAIL_QQ_EMAIL}
         password: ${MAIL_QQ_PASSWORD}
         host: smtp.qq.com
-      "[${MAIL_163_EMAIL}@163.com]":
+      - email: ${MAIL_163_EMAIL}
         password: ${MAIL_163_PASSWORD}
         host: smtp.163.com
 

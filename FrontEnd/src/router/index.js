@@ -25,13 +25,21 @@ import Dispatch     from '../views/DispatchView.vue'
 import Send         from '../views/SendView.vue'
 import Failure      from '../views/FailureView.vue'
 
+import NotFound     from '../views/NotFoundView.vue'
+
 
 // 路由器配置
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         // ======================
-        // C 端：联系人系统
+        // 根路径
+        // ======================
+        { path: '/', redirect: '/login' },
+        { path: '/index', redirect: '/login' },
+
+        // ======================
+        // C 端：站内信系统
         // ======================
         { path: '/mailbox/login', component: MailboxLogin, meta: { title: '联系人登录', mailbox: true } },
         {
@@ -47,26 +55,32 @@ const router = createRouter({
         // ======================
         // B 端：后台系统
         // ======================
-        { path: '/', redirect: '/login' },
         { path: '/login', component: Login, meta: { title: '登录' } },
         { path: '/register', component: Register, meta: { title: '注册' } },
         {
             path: '/',
             component: Layout,
             children: [
-                { path: '/dashboard', component: Dashboard, meta: { title: '仪表盘' } },
-                { path: '/account', component: Account, meta: { title: '账户管理' } },
-                { path: '/department', component: Department, meta: { title: '部门管理' } },
-                { path: '/contact', component: Contact, meta: { title: '联系人管理' } },
-                { path: '/send', component: Send, meta: { title: '发送消息' } },
-                { path: '/message', component: Message, meta: { title: '消息管理' } },
-                { path: '/dispatch/:messageId', component: Dispatch, meta: { title: '消息详情' } },
-                { path: '/template', component: Template, meta: { title: '模板管理' } },
-                { path: '/sensitive', component: Sensitive, meta: { title: '敏感词管理' } },
-                { path: '/render', component: Render, meta: { title: '占位符管理' } },
-                { path: '/failure', component: Failure, meta: { title: '错误管理' } },
+                { path: 'dashboard', component: Dashboard, meta: { title: '仪表盘' } },
+                { path: 'account', component: Account, meta: { title: '账户管理' } },
+                { path: 'department', component: Department, meta: { title: '部门管理' } },
+                { path: 'contact', component: Contact, meta: { title: '联系人管理' } },
+                { path: 'send', component: Send, meta: { title: '发送消息' } },
+                { path: 'message', component: Message, meta: { title: '消息管理' } },
+                { path: 'dispatch/:messageId', component: Dispatch, meta: { title: '消息详情' } },
+                { path: 'template', component: Template, meta: { title: '模板管理' } },
+                { path: 'sensitive', component: Sensitive, meta: { title: '敏感词管理' } },
+                { path: 'render', component: Render, meta: { title: '占位符管理' } },
+                { path: 'failure', component: Failure, meta: { title: '错误管理' } },
             ]
-        }
+        },
+
+
+        // ======================
+        // 其他路径
+        // ======================
+        { path: '/404', component: NotFound, meta: { title: '页面不存在' } },
+        { path: '/:pathMatch(.*)*', redirect: '/404' }
     ]
 })
 
@@ -79,14 +93,14 @@ router.beforeEach((to) => {
     contact.loadContact()
 
     // ======================
-    // C 端：联系人系统
+    // C 端：站内信系统
     // ======================
     if (to.meta.mailbox) {
         if (!contact.isLoggedIn && to.path !== '/mailbox/login') {
             return '/mailbox/login'
         }
         document.title = 'Dasi 消息中心：Mailbox'
-        return
+        return true
     }
 
     // ======================

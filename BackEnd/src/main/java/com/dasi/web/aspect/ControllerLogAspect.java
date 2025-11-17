@@ -31,7 +31,11 @@ public class ControllerLogAspect {
     @AfterReturning(pointcut = "controllerLog()", returning = "result")
     public void logResponse(Object result) {
         try {
-            log.debug("【返回结果】{}", mapper.writeValueAsString(result));
+            String json = mapper.writeValueAsString(result);
+            if (json.length() > 100) {
+                json = json.substring(0, 100) + "...(省略)";
+            }
+            log.debug("【返回结果】{}", json);
         } catch (Exception ignore) {}
     }
 }

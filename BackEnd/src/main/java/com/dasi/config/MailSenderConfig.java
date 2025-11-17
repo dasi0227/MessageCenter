@@ -19,11 +19,13 @@ public class MailSenderConfig {
     @Autowired
     private MailProperties mailProperties;
 
-    @Bean("departmentMailMap")
+    @Bean("mailMap")
     public Map<String, JavaMailSender> mailSenderMap() {
         Map<String, JavaMailSender> map = new HashMap<>();
 
-        mailProperties.getAuthCodes().forEach((email, auth) -> {
+        mailProperties.getAuthCodes().forEach(auth -> {
+            String email = auth.getEmail();
+
             JavaMailSenderImpl sender = new JavaMailSenderImpl();
             sender.setHost(auth.getHost());
             sender.setPort(mailProperties.getPort());

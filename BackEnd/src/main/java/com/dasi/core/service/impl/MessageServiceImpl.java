@@ -3,7 +3,6 @@ package com.dasi.core.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.emoji.EmojiUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -116,8 +115,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             try {
                 checkText(dto.getContent() + dto.getSubject());
                 checkScheduleAt(dto.getScheduleAt());
-                dispatch.setTarget(contactService.resolveTarget(contact.getId(), dto.getChannel()));
                 contactService.check(dispatch);
+                dispatch.setTarget(contactService.resolveTarget(contact.getId(), dto.getChannel()));
                 sensitiveWordService.detect(dispatch);
                 renderService.decode(dispatch);
             } catch (Exception exception) {

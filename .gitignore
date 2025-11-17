@@ -95,3 +95,8 @@ docker/tmp/
 *.pid
 hs_err_pid*
 replay_pid*
+
+# ======================
+# ELSE
+# ======================
+WW_verify_*.txt

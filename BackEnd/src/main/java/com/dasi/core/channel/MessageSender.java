@@ -37,8 +37,8 @@ import java.util.Map;
 public class MessageSender {
 
     @Autowired
-    @Qualifier("departmentMailMap")
-    private Map<String, JavaMailSender> departmentMailMap;
+    @Qualifier("mailMap")
+    private Map<String, JavaMailSender> mailMap;
 
     @Autowired
     private DepartmentService departmentService;
@@ -90,7 +90,7 @@ public class MessageSender {
             String email = department.getEmail();
             String departmentName = department.getName();
 
-            JavaMailSender mailSender = departmentMailMap.get(email);
+            JavaMailSender mailSender = mailMap.get(email);
             if (mailSender == null) {
                 throw new SendException(SendConstant.MAIL_UNAVAILABLE + departmentName);
             }
