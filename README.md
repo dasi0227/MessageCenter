@@ -231,7 +231,7 @@ Dasi Message Center 同时面向管理端与用户端提供完整的消息服务
 
 ### 方式三：打包启动
 
-1. 编译并生成 JAR
+1. 先清理再编译生成 JAR
 
     ```bash
     cd BackEnd
