@@ -185,13 +185,8 @@ Dasi Message Center 同时面向管理端与用户端提供完整的消息服务
 
 ## 4. 🚀 快速开始
 
-> 需要提前利用 Docker 安装好 MySQL、Redis、RabbitMQ，并且配置好 .env，你可以通过提供的 docker-init.sh 一键初始化所有中间件
+> 需要提前利用 Docker 安装好 MySQL、Redis、RabbitMQ，你可以通过提供的 `docker-compose.yml` 一键初始化所有中间件，并且一定要配置好 `.env` ！
 >
-> ```bash
-> chmod +x docker-init.sh
-> ./docker-init.sh
-> cp .env.example .env
-> ```
 
 ### **方式一：Docker 启动**
 
